@@ -1,346 +1,547 @@
 /* ========================================
-   МСК — СТИЛИ АДМИН-ПАНЕЛИ И ЗАКАЗОВ
+   МСК — СТИЛИ АДМИН-ПАНЕЛИ (ДОПОЛНЕНИЕ ДЛЯ ВАРИАНТОВ)
    ======================================== */
 
+/* ---- Базовые стили для админки ---- */
 .admin-wrapper {
-    padding:20px;
-    background:#f0f2f5;
-    flex:1;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    background: #f0f2f5;
 }
-.admin-content { max-width:1300px; margin:0 auto; }
-.admin-actions {
-    display:flex;
-    gap:15px;
-    flex-wrap:wrap;
-    margin-bottom:25px;
-}
-.btn-admin-add,
-.btn-admin-refresh,
-.btn-admin-import,
-.btn-admin-export {
-    padding:14px 30px;
-    border:none;
-    border-radius:40px;
-    font-weight:700;
-    font-size:16px;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-.btn-admin-add { background:#f7c948; }
-.btn-admin-refresh { background:#0b0b0b; color:#fff; }
-.btn-admin-import { background:#1565c0; color:#fff; }
-.btn-admin-export { background:#2e7d32; color:#fff; }
 
+.admin-content {
+    max-width: 1300px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.btn-admin-add {
+    background: #f7c948;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.btn-admin-add:hover {
+    background: #e0b03a;
+    transform: scale(1.02);
+}
+
+.btn-admin-refresh {
+    background: #0b0b0b;
+    color: #fff;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.btn-admin-refresh:hover {
+    background: #333;
+}
+
+.btn-admin-import {
+    background: #1565c0;
+    color: #fff;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.btn-admin-import:hover {
+    background: #0d47a1;
+}
+
+.btn-admin-orders {
+    background: #2e7d32;
+    color: #fff;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+.btn-admin-orders:hover {
+    background: #1b5e20;
+}
+
+/* ---- Форма ---- */
 .admin-form {
-    background:#fff;
-    padding:30px;
-    border-radius:20px;
-    max-width:900px;
-    margin-bottom:30px;
-    box-shadow:0 6px 18px rgba(0,0,0,0.06);
+    background: #fff;
+    padding: 30px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
 }
-.admin-form h3 { font-size:28px; text-align:center; margin-bottom:20px; }
+
+.admin-form h3 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #0b0b0b;
+    text-align: center;
+}
+
 .form-grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
 }
-.form-group.full-width { grid-column:1/-1; }
-.form-group label { display:block; font-weight:600; margin-bottom:6px; font-size:14px; color:#555; }
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: #555;
+}
+
 .form-group input,
 .form-group select,
 .form-group textarea {
-    width:100%;
-    padding:10px 14px;
-    border:2px solid #ddd;
-    border-radius:12px;
-    font-size:15px;
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 15px;
+    transition: 0.3s;
 }
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-    border-color:#f7c948;
-    outline:none;
+    border-color: #f7c948;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(247, 201, 72, 0.1);
 }
+
 .form-actions {
-    display:flex;
-    gap:15px;
-    margin-top:25px;
-    justify-content:center;
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
+
 .btn-save {
-    background:#2e7d32;
-    color:#fff;
-    padding:12px 35px;
-    border-radius:40px;
-    font-weight:700;
-    border:none;
-    cursor:pointer;
+    background: #2e7d32;
+    color: #fff;
+    border: none;
+    padding: 12px 35px;
+    border-radius: 40px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
+.btn-save:hover {
+    background: #1b5e20;
+}
+
 .btn-cancel {
-    background:#d32f2f;
-    color:#fff;
-    padding:12px 35px;
-    border-radius:40px;
-    font-weight:700;
-    border:none;
-    cursor:pointer;
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 12px 35px;
+    border-radius: 40px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-cancel:hover {
+    background: #b71c1c;
 }
 
+/* ---- Таблица ---- */
 .admin-table-wrap {
-    background:#fff;
-    border-radius:20px;
-    padding:20px;
-    overflow-x:auto;
-    box-shadow:0 6px 18px rgba(0,0,0,0.06);
+    background: #fff;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    overflow-x: auto;
+    max-width: 1300px;
+    margin-left: auto;
+    margin-right: auto;
 }
+
 .admin-table {
-    width:100%;
-    border-collapse:collapse;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
 }
+
 .admin-table th {
-    background:#f8f9fb;
-    padding:14px 12px;
-    text-align:left;
-    font-weight:700;
-    border-bottom:2px solid #f7c948;
+    background: #f8f9fb;
+    padding: 14px 12px;
+    text-align: left;
+    font-weight: 700;
+    color: #555;
+    border-bottom: 2px solid #f7c948;
 }
+
 .admin-table td {
-    padding:14px 12px;
-    border-bottom:1px solid #eee;
-    vertical-align:middle;
+    padding: 14px 12px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
 }
-.admin-table .table-image { width:50px; height:50px; object-fit:contain; border-radius:8px; background:#f8f9fb; padding:4px; }
-.admin-table .actions { display:flex; gap:8px; }
+
+.admin-table .table-image {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    background: #f8f9fb;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.admin-table .actions {
+    display: flex;
+    gap: 8px;
+}
+
 .admin-table .btn-edit {
-    background:#f7c948;
-    border:none;
-    padding:6px 14px;
-    border-radius:20px;
-    font-weight:700;
-    cursor:pointer;
+    background: #f7c948;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
 }
+.admin-table .btn-edit:hover {
+    background: #e0b03a;
+}
+
 .admin-table .btn-delete {
-    background:#d32f2f;
-    color:#fff;
-    border:none;
-    padding:6px 14px;
-    border-radius:20px;
-    font-weight:700;
-    cursor:pointer;
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
 }
-.admin-table .btn-view {
-    background:#1565c0;
-    color:#fff;
-    border:none;
-    padding:6px 14px;
-    border-radius:20px;
-    font-weight:700;
-    cursor:pointer;
+.admin-table .btn-delete:hover {
+    background: #b71c1c;
 }
 
+/* ---- Блок вариантов ---- */
 .variants-group {
-    border:2px solid #ddd;
-    border-radius:12px;
-    padding:16px;
-    background:#fafafa;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 16px;
+    background: #fafafa;
 }
-.variant-row { margin-bottom:10px; }
+
+.variant-row {
+    margin-bottom: 10px;
+}
+.variant-row:last-child {
+    margin-bottom: 0;
+}
+
 .variant-input-group {
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    align-items:center;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
 }
-.variant-input-group input,
-.variant-input-group select {
-    flex:1;
-    padding:8px 12px;
-    border:2px solid #ddd;
-    border-radius:8px;
-    font-size:14px;
-    min-width:100px;
+.variant-input-group input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: 0.3s;
+    min-width: 100px;
 }
-.variant-input-group .variant-size { flex:2; }
-.variant-input-group .variant-film { flex:1.5; }
-.variant-input-group .variant-price { flex:1; }
+.variant-input-group input:focus {
+    border-color: #f7c948;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.2);
+}
+.variant-input-group .variant-size {
+    flex: 2;
+}
+.variant-input-group .variant-film {
+    flex: 1.5;
+}
+.variant-input-group .variant-price {
+    flex: 1;
+}
+
 .btn-remove-variant {
-    background:#d32f2f;
-    color:#fff;
-    border:none;
-    border-radius:50%;
-    width:32px;
-    height:32px;
-    font-size:16px;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
+.btn-remove-variant:hover {
+    background: #b71c1c;
+    transform: rotate(90deg);
+}
+
 .btn-add-variant {
-    background:#f7c948;
-    border:none;
-    padding:8px 20px;
-    border-radius:30px;
-    font-weight:700;
-    cursor:pointer;
-    margin-top:10px;
+    background: #f7c948;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+.btn-add-variant:hover {
+    background: #e0b03a;
 }
 
+/* ---- Изображение ---- */
 .image-upload-group {
-    border:2px dashed #ddd;
-    border-radius:16px;
-    padding:20px;
-    background:#fafafa;
+    border: 2px dashed #e0e0e0;
+    border-radius: 16px;
+    padding: 20px;
+    transition: 0.3s;
+    background: #fafafa;
 }
+.image-upload-group:hover {
+    border-color: #f7c948;
+    background: #f7c94808;
+}
+
+.image-upload-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
 .image-preview {
-    width:100%;
-    max-width:300px;
-    height:200px;
-    border:2px solid #ddd;
-    border-radius:12px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#999;
-    overflow:hidden;
-    margin-bottom:10px;
+    width: 100%;
+    max-width: 300px;
+    height: 200px;
+    background: #fff;
+    border-radius: 12px;
+    border: 2px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #999;
+    font-size: 14px;
+    overflow: hidden;
+    transition: 0.3s;
 }
-.image-preview img { width:100%; height:100%; object-fit:contain; }
+.image-preview.has-image {
+    border-color: #f7c948;
+}
+.image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.image-preview i {
+    font-size: 48px;
+    color: #ddd;
+}
+
+.image-upload-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #888;
+}
+.image-upload-info i {
+    color: #f7c948;
+}
+
 .btn-upload-image {
-    background:#f7c948;
-    border:none;
-    padding:8px 24px;
-    border-radius:40px;
-    font-weight:700;
-    cursor:pointer;
+    background: #f7c948;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
+.btn-upload-image:hover {
+    background: #e0b03a;
+}
+
 .btn-remove-image {
-    background:#d32f2f;
-    color:#fff;
-    border:none;
-    padding:8px 24px;
-    border-radius:40px;
-    font-weight:700;
-    cursor:pointer;
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-remove-image:hover {
+    background: #b71c1c;
 }
 
-/* ---- Стили для заказов ---- */
-.order-status {
-    display:inline-block;
-    padding:4px 14px;
-    border-radius:30px;
-    font-weight:600;
-    font-size:13px;
-    text-transform:capitalize;
-}
-.order-status.new { background:#e3f2fd; color:#1565c0; }
-.order-status.processing { background:#fff3e0; color:#e65100; }
-.order-status.shipped { background:#e8f5e9; color:#2e7d32; }
-.order-status.delivered { background:#c8e6c9; color:#1b5e20; }
-.order-status.cancelled { background:#ffebee; color:#c62828; }
-
-.status-select {
-    padding:4px 12px;
-    border-radius:20px;
-    border:2px solid #ddd;
-    font-weight:600;
-    background:#fff;
-    cursor:pointer;
-    margin-left:6px;
-}
-.status-select:focus { border-color:#f7c948; outline:none; }
-
-.order-modal {
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.5);
-    z-index:999;
-    justify-content:center;
-    align-items:center;
-}
-.order-modal.open { display:flex; }
-.order-modal-content {
-    background:#fff;
-    padding:30px;
-    border-radius:24px;
-    max-width:600px;
-    width:95%;
-    max-height:90vh;
-    overflow-y:auto;
-    position:relative;
-    box-shadow:0 30px 80px rgba(0,0,0,0.2);
-    animation:modalFadeIn 0.3s ease;
-}
-@keyframes modalFadeIn {
-    from { opacity:0; transform:scale(0.95); }
-    to { opacity:1; transform:scale(1); }
-}
-.order-modal-close {
-    position:absolute;
-    top:15px;
-    right:20px;
-    background:none;
-    border:none;
-    font-size:28px;
-    cursor:pointer;
-    color:#888;
-}
-.order-modal-close:hover { color:#000; transform:rotate(90deg); }
-.order-modal-content h2 { font-size:28px; margin-bottom:15px; }
-.order-modal-content .info-block {
-    background:#f8f9fb;
-    padding:15px;
-    border-radius:12px;
-    margin:15px 0;
-}
-.order-modal-content .info-block p { margin:4px 0; }
-.order-modal-content .items-list {
-    background:#f8f9fb;
-    padding:15px;
-    border-radius:12px;
-}
-.order-modal-content .items-list .item-row {
-    display:flex;
-    justify-content:space-between;
-    padding:6px 0;
-    border-bottom:1px solid #eee;
-}
-.order-modal-content .items-list .item-row:last-child { border-bottom:none; }
-.order-modal-content .total {
-    font-size:20px;
-    font-weight:900;
-    margin-top:10px;
-    text-align:right;
-}
-.order-modal-content .close-btn {
-    width:100%;
-    padding:12px;
-    background:#f7c948;
-    border:none;
-    border-radius:40px;
-    font-weight:700;
-    font-size:16px;
-    cursor:pointer;
-    margin-top:20px;
+#fImage {
+    display: none;
 }
 
-/* --- Адаптив --- */
-@media (max-width:768px) {
-    .admin-wrapper { padding:10px; }
-    .admin-form { padding:20px; }
-    .form-grid { grid-template-columns:1fr; }
-    .admin-table-wrap { padding:10px; }
-    .admin-table { font-size:13px; }
-    .admin-table th, .admin-table td { padding:8px 6px; }
-    .admin-table .table-image { width:35px; height:35px; }
-    .admin-actions { flex-direction:column; align-items:stretch; }
-    .admin-actions button, .admin-actions a { justify-content:center; }
-    .order-modal-content { padding:20px; margin:10px; }
+/* ---- Статус сервера ---- */
+#serverStatus {
+    padding: 10px 20px;
+    border-radius: 10px;
+    margin: 10px auto 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 1300px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    justify-content: center;
+}
+
+#statusDot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #888;
+}
+
+#statusText {
+    font-weight: 600;
+    color: #555;
+}
+
+/* ---- Уведомления ---- */
+.custom-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    z-index: 9999;
+    animation: slideDown 0.4s ease;
+    max-width: 500px;
+    text-align: center;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes slideUp {
+    from { opacity: 1; transform: translateX(-50%) translateY(0); }
+    to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+}
+
+/* ---- Адаптив ---- */
+@media (max-width: 768px) {
+    .admin-wrapper { padding: 10px; }
+    .admin-form { padding: 20px; margin-left: 0; margin-right: 0; }
+    .form-grid { grid-template-columns: 1fr; }
+    .admin-table-wrap { padding: 10px; margin-left: 0; margin-right: 0; }
+    .admin-table { font-size: 13px; }
+    .admin-table th, .admin-table td { padding: 8px 6px; }
+    .admin-table .table-image { width: 35px; height: 35px; }
+    .admin-actions { justify-content: center; }
+    #serverStatus { margin-left: 0; margin-right: 0; }
+    .custom-notification { max-width: 95%; left: 50%; transform: translateX(-50%); top: 10px; }
+    .variant-input-group { flex-direction: column; align-items: stretch; }
+    .variant-input-group input { flex: 1 1 100%; }
+    .btn-remove-variant { align-self: flex-end; }
+}
+
+@media (max-width: 480px) {
+    .admin-actions { flex-direction: column; align-items: center; }
+    .admin-actions button, .admin-actions a { width: 100%; justify-content: center; }
+    .form-actions { flex-direction: column; align-items: center; }
+    .form-actions button { width: 100%; justify-content: center; }
+}
+
+/* Стили для select внутри вариантов */
+.variant-input-group select.variant-film {
+    flex: 1.5;
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    cursor: pointer;
+    transition: 0.3s;
+    min-width: 120px;
+}
+.variant-input-group select.variant-film:focus {
+    border-color: #f7c948;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.2);
 }
