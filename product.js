@@ -1,5 +1,5 @@
 // ========================================
-// МСК — СТРАНИЦА ТОВАРА
+// МСК — СТРАНИЦА ТОВАРА (улучшенный стиль)
 // ========================================
 
 function loadProduct() {
@@ -37,24 +37,24 @@ function renderProduct(product) {
                 <div class="detail-price" id="detailPrice">${defaultVariant.price.toLocaleString()} ₽</div>
                 <div class="detail-stock">В наличии: ${product.inStock || 0} шт.</div>
 
-                <div style="margin:15px 0;display:flex;flex-wrap:wrap;gap:20px;">
+                <div class="selector-group">
                     <div>
-                        <label for="sizeSelect" style="font-weight:600;display:block;">Размер:</label>
-                        <select id="sizeSelect" onchange="updateDetailPrice()" style="padding:10px;border:2px solid #ddd;border-radius:10px;font-size:16px;">
+                        <label for="sizeSelect">Размер:</label>
+                        <select id="sizeSelect" onchange="updateDetailPrice()">
                             ${sizeOptions}
                         </select>
                     </div>
                     <div>
-                        <label for="filmSelect" style="font-weight:600;display:block;">Плёнка:</label>
-                        <select id="filmSelect" onchange="updateDetailPrice()" style="padding:10px;border:2px solid #ddd;border-radius:10px;font-size:16px;">
+                        <label for="filmSelect">Плёнка:</label>
+                        <select id="filmSelect" onchange="updateDetailPrice()">
                             ${filmOptions}
                         </select>
                     </div>
                 </div>
 
-                <div style="display:flex;gap:15px;margin-top:20px;">
-                    <button class="btn-add" onclick="addToCartFromDetail()" style="font-size:20px;padding:15px 40px;">В корзину</button>
-                    <button class="btn-add" onclick="buyNow()" style="background:#f7c948;color:#000;font-size:20px;padding:15px 40px;">Купить сейчас</button>
+                <div class="btn-group">
+                    <button class="btn-add" onclick="addToCartFromDetail()">В корзину</button>
+                    <button class="btn-buy" onclick="buyNow()">Купить сейчас</button>
                 </div>
             </div>
         </div>
@@ -65,7 +65,7 @@ function renderProduct(product) {
         <div class="detail-chars">
             <div class="char-item"><strong>Материал</strong><span>${product.characteristics?.material || 'Не указано'}</span></div>
         </div>
-        <a href="index.html" style="color:#f7c948;font-weight:700;text-decoration:none;display:inline-block;margin-top:20px;">← Вернуться</a>
+        <a href="index.html" style="color:#f7c948;font-weight:700;text-decoration:none;display:inline-block;margin-top:20px;">← Вернуться в каталог</a>
     `;
     window.currentProduct = product;
 }

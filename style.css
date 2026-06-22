@@ -26,8 +26,6 @@ body {
 }
 
 .container {
-    display: flex;
-    justify-content: center;
     max-width: 1300px;
     margin: 0 auto;
     padding: 0 20px;
@@ -555,7 +553,6 @@ body {
    ======================================== */
 .product-detail {
     background: #ffffff;
-    max-width: 1300px;
     border-radius: 30px;
     padding: 40px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.06);
@@ -1045,7 +1042,7 @@ body {
 }
 
 .container {
-    max-width: 100%;
+    max-width: 1300px;
     margin: 0 auto;
     padding: 0 20px;
 }
