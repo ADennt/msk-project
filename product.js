@@ -1,7 +1,196 @@
 // ========================================
-// МСК — СТРАНИЦА ТОВАРА (улучшенный стиль)
+// МСК — СТРАНИЦА ТОВАРА (с корзиной)
 // ========================================
 
+// ===== ПЕРЕМЕННЫЕ КОРЗИНЫ =====
+let cart = [];
+
+// ===== ЗАГРУЗКА КОРЗИНЫ =====
+function loadCart() {
+    const saved = localStorage.getItem('msk_cart');
+    cart = saved ? JSON.parse(saved) : [];
+    updateCartUI();
+}
+
+function saveCart() {
+    localStorage.setItem('msk_cart', JSON.stringify(cart));
+}
+
+// ===== ОБНОВЛЕНИЕ ИНТЕРФЕЙСА КОРЗИНЫ =====
+function updateCartUI() {
+    const count = document.getElementById('cartCount');
+    const items = document.getElementById('cartItems');
+    const total = document.getElementById('cartTotal');
+    const clearBtn = document.getElementById('clearCartBtn');
+
+    const totalItems = cart.reduce((s, i) => s + i.quantity, 0);
+    if (count) count.textContent = totalItems;
+    if (clearBtn) clearBtn.disabled = cart.length === 0;
+
+    if (!items) return;
+    if (!cart.length) {
+        items.innerHTML = '<div class="empty-cart">Корзина пуста</div>';
+        if (total) total.textContent = 'Итого: 0 ₽';
+        return;
+    }
+
+    items.innerHTML = cart.map(item => `
+        <div class="cart-item">
+            <img src="${item.image}" alt="${item.name}" />
+            <div class="item-details">
+                <div class="name">${item.name}</div>
+                <div class="options">${item.size} | ${item.film}</div>
+            </div>
+            <div class="qty">
+                <button onclick="changeQty(${item.id}, -1)">−</button>
+                <span>${item.quantity}</span>
+                <button onclick="changeQty(${item.id}, 1)">+</button>
+            </div>
+            <span class="item-price">${(item.price * item.quantity).toLocaleString()} ₽</span>
+            <button class="remove-btn" onclick="removeFromCart(${item.id})"><i class="fas fa-times"></i></button>
+        </div>
+    `).join('');
+
+    const totalSum = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+    if (total) total.textContent = `Итого: ${totalSum.toLocaleString()} ₽`;
+}
+
+// ===== УПРАВЛЕНИЕ ТОВАРАМИ В КОРЗИНЕ =====
+function addToCartFromDetail() {
+    const product = window.currentProduct;
+    const size = document.getElementById('sizeSelect').value;
+    const film = document.getElementById('filmSelect').value;
+    const variant = product.variants.find(v => v.size === size && v.film === film);
+    if (!variant) { alert('Комбинация недоступна'); return; }
+
+    const existing = cart.find(i => i.id === product.id && i.size === size && i.film === film);
+    if (existing) existing.quantity += 1;
+    else cart.push({ ...product, quantity: 1, size, film, price: variant.price, image: product.image || 'images/placeholder.png' });
+
+    saveCart();
+    updateCartUI();
+    alert('✅ Товар добавлен в корзину');
+}
+
+function buyNow() {
+    addToCartFromDetail();
+    window.location.href = 'index.html';
+}
+
+function removeFromCart(id) {
+    cart = cart.filter(item => item.id !== id);
+    saveCart();
+    updateCartUI();
+}
+
+function clearCart() {
+    if (!cart.length) return;
+    if (!confirm('Очистить корзину?')) return;
+    cart = [];
+    saveCart();
+    updateCartUI();
+}
+
+function changeQty(id, delta) {
+    const item = cart.find(i => i.id === id);
+    if (!item) return;
+    item.quantity += delta;
+    if (item.quantity <= 0) removeFromCart(id);
+    else { saveCart(); updateCartUI(); }
+}
+
+// ===== ОТКРЫТИЕ / ЗАКРЫТИЕ КОРЗИНЫ =====
+function toggleCart() {
+    const overlay = document.getElementById('cartOverlay');
+    if (overlay) {
+        overlay.classList.toggle('open');
+        if (overlay.classList.contains('open')) updateCartUI();
+    }
+}
+
+// ===== ОФОРМЛЕНИЕ ЗАКАЗА =====
+function showCheckoutForm() {
+    if (!cart.length) { alert('Корзина пуста'); return; }
+    const overlay = document.getElementById('cartOverlay');
+    const panel = overlay.querySelector('.cart-panel');
+    panel.innerHTML = `
+        <h2>📝 Оформление заказа <button onclick="closeCheckoutForm()">&times;</button></h2>
+        <div class="checkout-form" style="margin-top:20px;">
+            <div><label>Имя *</label><input type="text" id="orderName" placeholder="Иван Петров" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;"></div>
+            <div><label>Телефон *</label><input type="tel" id="orderPhone" placeholder="+7 (999) 123-45-67" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;"></div>
+            <div><label>Email</label><input type="email" id="orderEmail" placeholder="example@mail.ru" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;"></div>
+            <div><label>Адрес *</label><input type="text" id="orderAddress" placeholder="Москва, ул. Дорожная, д. 15" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;"></div>
+            <div><label>Комментарий</label><textarea id="orderComment" rows="3" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;"></textarea></div>
+            <div style="background:#f8f9fb;padding:15px;border-radius:10px;margin:15px 0;">
+                <strong>Состав:</strong>
+                ${cart.map(item => `<div>${item.name} (${item.size}, ${item.film}) × ${item.quantity} — ${(item.price*item.quantity).toLocaleString()} ₽</div>`).join('')}
+                <div style="font-size:20px;font-weight:900;margin-top:10px;">Итого: ${cart.reduce((s,i) => s + i.price*i.quantity, 0).toLocaleString()} ₽</div>
+            </div>
+            <button onclick="submitOrder()" style="width:100%;padding:16px;background:#f7c948;border:none;border-radius:40px;font-weight:900;font-size:18px;cursor:pointer;">Оформить заказ</button>
+            <button onclick="closeCheckoutForm()" style="width:100%;padding:12px;margin-top:10px;background:#0b0b0b;color:#fff;border:none;border-radius:40px;font-weight:700;font-size:16px;cursor:pointer;">Назад</button>
+        </div>
+    `;
+    overlay.classList.add('open');
+}
+
+function closeCheckoutForm() {
+    const overlay = document.getElementById('cartOverlay');
+    const panel = overlay.querySelector('.cart-panel');
+    panel.innerHTML = `
+        <h2>🛒 Корзина <button onclick="toggleCart()">&times;</button></h2>
+        <div id="cartItems"></div>
+        <div class="cart-total" id="cartTotal">Итого: 0 ₽</div>
+        <div class="cart-actions">
+            <button class="btn-checkout" onclick="showCheckoutForm()">Оформить заказ</button>
+            <button class="btn-clear" onclick="clearCart()" id="clearCartBtn">Очистить</button>
+        </div>
+    `;
+    overlay.classList.remove('open');
+    overlay.classList.add('open');
+    updateCartUI();
+}
+
+function submitOrder() {
+    const name = document.getElementById('orderName').value.trim();
+    const phone = document.getElementById('orderPhone').value.trim();
+    const email = document.getElementById('orderEmail').value.trim();
+    const address = document.getElementById('orderAddress').value.trim();
+    const comment = document.getElementById('orderComment').value.trim();
+
+    if (!name || !phone || !address) {
+        alert('Заполните обязательные поля (имя, телефон, адрес)');
+        return;
+    }
+
+    // Генерация ID заказа (инкрементальный)
+    let newId = 1;
+    let orders = JSON.parse(localStorage.getItem('msk_orders') || '[]');
+    if (orders.length) {
+        const maxId = orders.reduce((max, o) => o.id > max ? o.id : max, 0);
+        newId = maxId + 1;
+    }
+
+    const order = {
+        id: newId,
+        name, phone, email: email || 'Не указан', address, comment: comment || 'Нет',
+        items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, size: i.size, film: i.film, image: i.image })),
+        total: cart.reduce((s, i) => s + i.price * i.quantity, 0),
+        status: 'новый',
+        createdAt: new Date().toISOString()
+    };
+
+    orders.push(order);
+    localStorage.setItem('msk_orders', JSON.stringify(orders));
+
+    cart = [];
+    saveCart();
+    updateCartUI();
+
+    alert(`✅ Заказ #${order.id} оформлен!`);
+    toggleCart();
+}
+
+// ===== ЗАГРУЗКА ТОВАРА =====
 function loadProduct() {
     const params = new URLSearchParams(window.location.search);
     const id = parseInt(params.get('id'));
@@ -13,6 +202,7 @@ function loadProduct() {
         return;
     }
     renderProduct(product);
+    loadCart(); // загружаем корзину при загрузке страницы
 }
 
 function renderProduct(product) {
@@ -79,32 +269,5 @@ function updateDetailPrice() {
     if (variant && priceEl) priceEl.textContent = `${variant.price.toLocaleString()} ₽`;
 }
 
-function addToCartFromDetail() {
-    const product = window.currentProduct;
-    const size = document.getElementById('sizeSelect').value;
-    const film = document.getElementById('filmSelect').value;
-    const variant = product.variants.find(v => v.size === size && v.film === film);
-    if (!variant) { alert('Комбинация недоступна'); return; }
-
-    let cart = JSON.parse(localStorage.getItem('msk_cart') || '[]');
-    const existing = cart.find(i => i.id === product.id && i.size === size && i.film === film);
-    if (existing) existing.quantity += 1;
-    else cart.push({ ...product, quantity:1, size, film, price: variant.price, image: product.image || 'images/placeholder.png' });
-
-    localStorage.setItem('msk_cart', JSON.stringify(cart));
-    updateCartCount();
-    alert('✅ Товар добавлен в корзину');
-}
-
-function buyNow() {
-    addToCartFromDetail();
-    window.location.href = 'index.html';
-}
-
-function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('msk_cart') || '[]');
-    const total = cart.reduce((s, i) => s + i.quantity, 0);
-    document.getElementById('cartCount').textContent = total;
-}
-
+// ===== ИНИЦИАЛИЗАЦИЯ =====
 document.addEventListener('DOMContentLoaded', loadProduct);
