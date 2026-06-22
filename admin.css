@@ -1,7 +1,8 @@
 /* ========================================
-   МСК — СТИЛИ АДМИН-ПАНЕЛИ (серверная версия)
+   МСК — СТИЛИ АДМИН-ПАНЕЛИ (ДОПОЛНЕНИЕ ДЛЯ ВАРИАНТОВ)
    ======================================== */
 
+/* ---- Базовые стили для админки ---- */
 .admin-wrapper {
     flex: 1;
     display: flex;
@@ -38,7 +39,6 @@
     align-items: center;
     gap: 10px;
 }
-
 .btn-admin-add:hover {
     background: #e0b03a;
     transform: scale(1.02);
@@ -58,7 +58,6 @@
     align-items: center;
     gap: 10px;
 }
-
 .btn-admin-refresh:hover {
     background: #333;
 }
@@ -77,30 +76,8 @@
     align-items: center;
     gap: 10px;
 }
-
 .btn-admin-import:hover {
     background: #0d47a1;
-    transform: scale(1.02);
-}
-
-.btn-admin-export {
-    background: #2e7d32;
-    color: #fff;
-    border: none;
-    padding: 14px 30px;
-    border-radius: 40px;
-    font-weight: 700;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.btn-admin-export:hover {
-    background: #1b5e20;
-    transform: scale(1.02);
 }
 
 .btn-admin-orders {
@@ -118,19 +95,17 @@
     gap: 10px;
     text-decoration: none;
 }
-
 .btn-admin-orders:hover {
     background: #1b5e20;
-    transform: scale(1.02);
 }
 
-/* ===== ФОРМА ===== */
+/* ---- Форма ---- */
 .admin-form {
     background: #fff;
     padding: 30px;
     border-radius: 20px;
     margin-bottom: 30px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
     max-width: 900px;
     margin-left: auto;
     margin-right: auto;
@@ -171,25 +146,12 @@
     font-size: 15px;
     transition: 0.3s;
 }
-
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
     border-color: #f7c948;
     outline: none;
     box-shadow: 0 0 0 4px rgba(247, 201, 72, 0.1);
-}
-
-.form-group textarea {
-    resize: vertical;
-    min-height: 80px;
-}
-
-.form-group small {
-    display: block;
-    margin-top: 4px;
-    font-size: 12px;
-    color: #888;
 }
 
 .form-actions {
@@ -213,7 +175,6 @@
     align-items: center;
     gap: 8px;
 }
-
 .btn-save:hover {
     background: #1b5e20;
 }
@@ -231,17 +192,16 @@
     align-items: center;
     gap: 8px;
 }
-
 .btn-cancel:hover {
     background: #b71c1c;
 }
 
-/* ===== ТАБЛИЦА ТОВАРОВ ===== */
+/* ---- Таблица ---- */
 .admin-table-wrap {
     background: #fff;
     border-radius: 20px;
     padding: 20px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
     overflow-x: auto;
     max-width: 1300px;
     margin-left: auto;
@@ -269,10 +229,6 @@
     vertical-align: middle;
 }
 
-.admin-table tr:hover {
-    background: #fafafa;
-}
-
 .admin-table .table-image {
     width: 50px;
     height: 50px;
@@ -296,7 +252,6 @@
     cursor: pointer;
     transition: 0.2s;
 }
-
 .admin-table .btn-edit:hover {
     background: #e0b03a;
 }
@@ -311,195 +266,11 @@
     cursor: pointer;
     transition: 0.2s;
 }
-
 .admin-table .btn-delete:hover {
     background: #b71c1c;
 }
 
-/* ===== СТАТУС СЕРВЕРА ===== */
-#serverStatus {
-    padding: 10px 20px;
-    border-radius: 10px;
-    margin: 10px auto 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    max-width: 1300px;
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    justify-content: center;
-}
-
-#statusDot {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #888;
-}
-
-#statusText {
-    font-weight: 600;
-    color: #555;
-}
-
-/* ========================================
-   НОВЫЕ СТИЛИ ДЛЯ СТРАНИЦЫ ЗАКАЗОВ
-   ======================================== */
-
-/* -------- Статусы заказов (цветные) -------- */
-.order-status {
-    display: inline-block;
-    padding: 4px 14px;
-    border-radius: 30px;
-    font-weight: 600;
-    font-size: 13px;
-    text-transform: capitalize;
-}
-.order-status.new {
-    background: #e3f2fd;
-    color: #1565c0;
-}
-.order-status.processing {
-    background: #fff3e0;
-    color: #e65100;
-}
-.order-status.shipped {
-    background: #e8f5e9;
-    color: #2e7d32;
-}
-.order-status.delivered {
-    background: #c8e6c9;
-    color: #1b5e20;
-}
-.order-status.cancelled {
-    background: #ffebee;
-    color: #c62828;
-}
-
-/* -------- Селектор статуса -------- */
-.status-select {
-    padding: 4px 12px;
-    border-radius: 20px;
-    border: 2px solid #ddd;
-    font-weight: 600;
-    background: #fff;
-    cursor: pointer;
-    transition: 0.2s;
-    margin-left: 6px;
-}
-.status-select:focus {
-    border-color: #f7c948;
-    outline: none;
-}
-
-/* -------- Кнопка просмотра заказа -------- */
-.btn-view {
-    background: #1565c0;
-    color: #fff;
-    border: none;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-weight: 700;
-    cursor: pointer;
-}
-.btn-view:hover {
-    background: #0d47a1;
-}
-
-/* -------- Модальное окно заказа -------- */
-.order-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 999;
-    justify-content: center;
-    align-items: center;
-}
-.order-modal.open {
-    display: flex;
-}
-.order-modal-content {
-    background: #fff;
-    padding: 30px;
-    border-radius: 24px;
-    max-width: 600px;
-    width: 95%;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
-    animation: modalFadeIn 0.3s ease;
-}
-@keyframes modalFadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-}
-.order-modal-close {
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    background: none;
-    border: none;
-    font-size: 28px;
-    cursor: pointer;
-    color: #888;
-    transition: 0.2s;
-}
-.order-modal-close:hover {
-    color: #000;
-    transform: rotate(90deg);
-}
-.order-modal-content h2 {
-    font-size: 28px;
-    margin-bottom: 15px;
-}
-.order-modal-content .info-block {
-    background: #f8f9fb;
-    padding: 15px;
-    border-radius: 12px;
-    margin: 15px 0;
-}
-.order-modal-content .info-block p {
-    margin: 4px 0;
-}
-.order-modal-content .items-list {
-    background: #f8f9fb;
-    padding: 15px;
-    border-radius: 12px;
-}
-.order-modal-content .items-list .item-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 6px 0;
-    border-bottom: 1px solid #eee;
-}
-.order-modal-content .items-list .item-row:last-child {
-    border-bottom: none;
-}
-.order-modal-content .total {
-    font-size: 20px;
-    font-weight: 900;
-    margin-top: 10px;
-    text-align: right;
-}
-.order-modal-content .close-btn {
-    width: 100%;
-    padding: 12px;
-    background: #f7c948;
-    border: none;
-    border-radius: 40px;
-    font-weight: 700;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 20px;
-}
-
-/* ===== ВАРИАНТЫ ===== */
+/* ---- Блок вариантов ---- */
 .variants-group {
     border: 2px solid #e0e0e0;
     border-radius: 12px;
@@ -510,7 +281,6 @@
 .variant-row {
     margin-bottom: 10px;
 }
-
 .variant-row:last-child {
     margin-bottom: 0;
 }
@@ -521,9 +291,7 @@
     align-items: center;
     flex-wrap: wrap;
 }
-
-.variant-input-group input,
-.variant-input-group select {
+.variant-input-group input {
     flex: 1;
     padding: 8px 12px;
     border: 2px solid #ddd;
@@ -532,22 +300,17 @@
     transition: 0.3s;
     min-width: 100px;
 }
-
-.variant-input-group input:focus,
-.variant-input-group select:focus {
+.variant-input-group input:focus {
     border-color: #f7c948;
     outline: none;
     box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.2);
 }
-
 .variant-input-group .variant-size {
     flex: 2;
 }
-
 .variant-input-group .variant-film {
     flex: 1.5;
 }
-
 .variant-input-group .variant-price {
     flex: 1;
 }
@@ -567,7 +330,6 @@
     justify-content: center;
     flex-shrink: 0;
 }
-
 .btn-remove-variant:hover {
     background: #b71c1c;
     transform: rotate(90deg);
@@ -586,12 +348,11 @@
     gap: 8px;
     margin-top: 10px;
 }
-
 .btn-add-variant:hover {
     background: #e0b03a;
 }
 
-/* ===== ИЗОБРАЖЕНИЕ ===== */
+/* ---- Изображение ---- */
 .image-upload-group {
     border: 2px dashed #e0e0e0;
     border-radius: 16px;
@@ -599,7 +360,6 @@
     transition: 0.3s;
     background: #fafafa;
 }
-
 .image-upload-group:hover {
     border-color: #f7c948;
     background: #f7c94808;
@@ -629,17 +389,14 @@
     overflow: hidden;
     transition: 0.3s;
 }
-
 .image-preview.has-image {
     border-color: #f7c948;
 }
-
 .image-preview img {
     width: 100%;
     height: 100%;
     object-fit: contain;
 }
-
 .image-preview i {
     font-size: 48px;
     color: #ddd;
@@ -652,7 +409,6 @@
     font-size: 13px;
     color: #888;
 }
-
 .image-upload-info i {
     color: #f7c948;
 }
@@ -670,7 +426,6 @@
     align-items: center;
     gap: 8px;
 }
-
 .btn-upload-image:hover {
     background: #e0b03a;
 }
@@ -689,7 +444,6 @@
     align-items: center;
     gap: 8px;
 }
-
 .btn-remove-image:hover {
     background: #b71c1c;
 }
@@ -698,7 +452,34 @@
     display: none;
 }
 
-/* ===== УВЕДОМЛЕНИЯ ===== */
+/* ---- Статус сервера ---- */
+#serverStatus {
+    padding: 10px 20px;
+    border-radius: 10px;
+    margin: 10px auto 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 1300px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    justify-content: center;
+}
+
+#statusDot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #888;
+}
+
+#statusText {
+    font-weight: 600;
+    color: #555;
+}
+
+/* ---- Уведомления ---- */
 .custom-notification {
     position: fixed;
     top: 20px;
@@ -707,7 +488,7 @@
     padding: 16px 24px;
     border-radius: 12px;
     font-weight: 600;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     z-index: 9999;
     animation: slideDown 0.4s ease;
     max-width: 500px;
@@ -718,13 +499,12 @@
     from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
     to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
-
 @keyframes slideUp {
     from { opacity: 1; transform: translateX(-50%) translateY(0); }
     to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
 }
 
-/* ===== АДАПТИВ ===== */
+/* ---- Адаптив ---- */
 @media (max-width: 768px) {
     .admin-wrapper { padding: 10px; }
     .admin-form { padding: 20px; margin-left: 0; margin-right: 0; }
@@ -736,7 +516,6 @@
     .admin-actions { justify-content: center; }
     #serverStatus { margin-left: 0; margin-right: 0; }
     .custom-notification { max-width: 95%; left: 50%; transform: translateX(-50%); top: 10px; }
-    .order-modal-content { padding: 25px; margin: 10px; }
     .variant-input-group { flex-direction: column; align-items: stretch; }
     .variant-input-group input { flex: 1 1 100%; }
     .btn-remove-variant { align-self: flex-end; }
@@ -747,7 +526,22 @@
     .admin-actions button, .admin-actions a { width: 100%; justify-content: center; }
     .form-actions { flex-direction: column; align-items: center; }
     .form-actions button { width: 100%; justify-content: center; }
-    .order-count { width: 100%; justify-content: center; }
-    .image-upload-group { padding: 15px; }
-    .btn-upload-image, .btn-remove-image { width: 100%; justify-content: center; }
+}
+
+/* Стили для select внутри вариантов */
+.variant-input-group select.variant-film {
+    flex: 1.5;
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    cursor: pointer;
+    transition: 0.3s;
+    min-width: 120px;
+}
+.variant-input-group select.variant-film:focus {
+    border-color: #f7c948;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.2);
 }
