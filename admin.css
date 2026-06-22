@@ -3,395 +3,404 @@
    ======================================== */
 
 .admin-wrapper {
-    padding:20px;
-    background:#f0f2f5;
-    flex:1;
+    padding: 20px;
+    background: #f0f2f5;
+    flex: 1;
 }
-.admin-content { max-width:1300px; margin:0 auto; }
+.admin-content {
+    max-width: 1300px;
+    margin: 0 auto;
+}
 .admin-actions {
-    display:flex;
-    gap:15px;
-    flex-wrap:wrap;
-    margin-bottom:25px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
 }
 .btn-admin-add,
 .btn-admin-refresh,
 .btn-admin-import,
 .btn-admin-export {
-    padding:14px 30px;
-    border:none;
-    border-radius:40px;
-    font-weight:700;
-    font-size:16px;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    gap:10px;
+    padding: 14px 30px;
+    border: none;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
-.btn-admin-add { background:#f7c948; }
-.btn-admin-refresh { background:#0b0b0b; color:#fff; }
-.btn-admin-import { background:#1565c0; color:#fff; }
-.btn-admin-export { background:#2e7d32; color:#fff; }
+.btn-admin-add { background: #f7c948; }
+.btn-admin-refresh { background: #0b0b0b; color: #fff; }
+.btn-admin-import { background: #1565c0; color: #fff; }
+.btn-admin-export { background: #2e7d32; color: #fff; }
 
-/* ----- Форма добавления/редактирования товара ----- */
+/* ----- Форма добавления/редактирования ----- */
 .admin-form {
-    background:#fff;
-    padding:30px;
-    border-radius:20px;
-    max-width:900px;
-    margin-bottom:30px;
-    box-shadow:0 6px 18px rgba(0,0,0,0.06);
+    background: #fff;
+    padding: 30px;
+    border-radius: 20px;
+    max-width: 900px;
+    margin-bottom: 30px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
 }
-.admin-form h3 { font-size:28px; text-align:center; margin-bottom:20px; }
+.admin-form h3 {
+    font-size: 28px;
+    text-align: center;
+    margin-bottom: 20px;
+}
 .form-grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
 }
-.form-group.full-width { grid-column:1/-1; }
-.form-group label { display:block; font-weight:600; margin-bottom:6px; font-size:14px; color:#555; }
+.form-group.full-width { grid-column: 1 / -1; }
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: #555;
+}
 .form-group input,
 .form-group select,
 .form-group textarea {
-    width:100%;
-    padding:10px 14px;
-    border:2px solid #ddd;
-    border-radius:12px;
-    font-size:15px;
-    background:#fff;
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    font-size: 15px;
+    background: #fff;
 }
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-    border-color:#f7c948;
-    outline:none;
-    box-shadow:0 0 0 3px rgba(247,201,72,0.2);
+    border-color: #f7c948;
+    outline: none;
 }
 .form-actions {
-    display:flex;
-    gap:15px;
-    margin-top:25px;
-    justify-content:center;
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+    justify-content: center;
 }
 .btn-save {
-    background:#2e7d32;
-    color:#fff;
-    padding:12px 35px;
-    border-radius:40px;
-    font-weight:700;
-    border:none;
-    cursor:pointer;
+    background: #2e7d32;
+    color: #fff;
+    padding: 12px 35px;
+    border-radius: 40px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
 }
-.btn-save:hover { background:#1b5e20; }
+.btn-save:hover { background: #1b5e20; }
 .btn-cancel {
-    background:#d32f2f;
-    color:#fff;
-    padding:12px 35px;
-    border-radius:40px;
-    font-weight:700;
-    border:none;
-    cursor:pointer;
+    background: #d32f2f;
+    color: #fff;
+    padding: 12px 35px;
+    border-radius: 40px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
 }
-.btn-cancel:hover { background:#b71c1c; }
+.btn-cancel:hover { background: #b71c1c; }
 
-/* ----- Таблица товаров и заказов ----- */
+/* ----- Таблицы ----- */
 .admin-table-wrap {
-    background:#fff;
-    border-radius:20px;
-    padding:20px;
-    overflow-x:auto;
-    box-shadow:0 6px 18px rgba(0,0,0,0.06);
+    background: #fff;
+    border-radius: 20px;
+    padding: 20px;
+    overflow-x: auto;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
 }
 .admin-table {
-    width:100%;
-    border-collapse:collapse;
+    width: 100%;
+    border-collapse: collapse;
 }
 .admin-table th {
-    background:#f8f9fb;
-    padding:14px 12px;
-    text-align:left;
-    font-weight:700;
-    border-bottom:2px solid #f7c948;
+    background: #f8f9fb;
+    padding: 14px 12px;
+    text-align: left;
+    font-weight: 700;
+    border-bottom: 2px solid #f7c948;
 }
 .admin-table td {
-    padding:14px 12px;
-    border-bottom:1px solid #eee;
-    vertical-align:middle;
+    padding: 14px 12px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
 }
 .admin-table .table-image {
-    width:50px;
-    height:50px;
-    object-fit:contain;
-    border-radius:8px;
-    background:#f8f9fb;
-    padding:4px;
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: #f8f9fb;
+    padding: 4px;
 }
 .admin-table .actions {
-    display:flex;
-    gap:8px;
+    display: flex;
+    gap: 8px;
 }
 .admin-table .btn-edit {
-    background:#f7c948;
-    border:none;
-    padding:6px 14px;
-    border-radius:20px;
-    font-weight:700;
-    cursor:pointer;
+    background: #f7c948;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    cursor: pointer;
 }
-.admin-table .btn-edit:hover { background:#e0b03a; }
+.admin-table .btn-edit:hover { background: #e0b03a; }
 .admin-table .btn-delete {
-    background:#d32f2f;
-    color:#fff;
-    border:none;
-    padding:6px 14px;
-    border-radius:20px;
-    font-weight:700;
-    cursor:pointer;
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    cursor: pointer;
 }
-.admin-table .btn-delete:hover { background:#b71c1c; }
+.admin-table .btn-delete:hover { background: #b71c1c; }
 .admin-table .btn-view {
-    background:#1565c0;
-    color:#fff;
-    border:none;
-    padding:6px 14px;
-    border-radius:20px;
-    font-weight:700;
-    cursor:pointer;
+    background: #1565c0;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    cursor: pointer;
 }
-.admin-table .btn-view:hover { background:#0d47a1; }
+.admin-table .btn-view:hover { background: #0d47a1; }
 
-/* ----- Варианты (размер, плёнка, цена) ----- */
+/* ----- Варианты ----- */
 .variants-group {
-    border:2px solid #ddd;
-    border-radius:12px;
-    padding:16px;
-    background:#fafafa;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    padding: 16px;
+    background: #fafafa;
 }
-.variant-row { margin-bottom:10px; }
-.variant-row:last-child { margin-bottom:0; }
+.variant-row { margin-bottom: 10px; }
+.variant-row:last-child { margin-bottom: 0; }
 .variant-input-group {
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    align-items:center;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
 }
 .variant-input-group input,
 .variant-input-group select {
-    flex:1;
-    padding:8px 12px;
-    border:2px solid #ddd;
-    border-radius:8px;
-    font-size:14px;
-    background:#fff;
-    min-width:100px;
+    flex: 1;
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    min-width: 100px;
 }
-.variant-input-group .variant-size { flex:2; }
-.variant-input-group .variant-film { flex:1.5; }
-.variant-input-group .variant-price { flex:1; }
+.variant-input-group .variant-size { flex: 2; }
+.variant-input-group .variant-film { flex: 1.5; }
+.variant-input-group .variant-price { flex: 1; }
 .btn-remove-variant {
-    background:#d32f2f;
-    color:#fff;
-    border:none;
-    border-radius:50%;
-    width:32px;
-    height:32px;
-    font-size:16px;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    transition:0.2s;
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
 }
-.btn-remove-variant:hover { background:#b71c1c; transform:rotate(90deg); }
+.btn-remove-variant:hover { background: #b71c1c; transform: rotate(90deg); }
 .btn-add-variant {
-    background:#f7c948;
-    border:none;
-    padding:8px 20px;
-    border-radius:30px;
-    font-weight:700;
-    cursor:pointer;
-    margin-top:10px;
-    transition:0.2s;
+    background: #f7c948;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.2s;
 }
-.btn-add-variant:hover { background:#e0b03a; }
+.btn-add-variant:hover { background: #e0b03a; }
 
 /* ----- Изображение ----- */
 .image-upload-group {
-    border:2px dashed #ddd;
-    border-radius:16px;
-    padding:20px;
-    background:#fafafa;
-    transition:0.2s;
+    border: 2px dashed #ddd;
+    border-radius: 16px;
+    padding: 20px;
+    background: #fafafa;
+    transition: 0.2s;
 }
-.image-upload-group:hover { border-color:#f7c948; background:#f7c94808; }
+.image-upload-group:hover { border-color: #f7c948; background: #f7c94808; }
 .image-preview {
-    width:100%;
-    max-width:300px;
-    height:200px;
-    border:2px solid #ddd;
-    border-radius:12px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#999;
-    overflow:hidden;
-    margin-bottom:10px;
-    background:#fff;
+    width: 100%;
+    max-width: 300px;
+    height: 200px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    overflow: hidden;
+    margin-bottom: 10px;
+    background: #fff;
 }
 .image-preview img {
-    width:100%;
-    height:100%;
-    object-fit:contain;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 .btn-upload-image {
-    background:#f7c948;
-    border:none;
-    padding:8px 24px;
-    border-radius:40px;
-    font-weight:700;
-    cursor:pointer;
+    background: #f7c948;
+    border: none;
+    padding: 8px 24px;
+    border-radius: 40px;
+    font-weight: 700;
+    cursor: pointer;
 }
 .btn-remove-image {
-    background:#d32f2f;
-    color:#fff;
-    border:none;
-    padding:8px 24px;
-    border-radius:40px;
-    font-weight:700;
-    cursor:pointer;
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 8px 24px;
+    border-radius: 40px;
+    font-weight: 700;
+    cursor: pointer;
 }
-.btn-upload-image:hover { background:#e0b03a; }
-.btn-remove-image:hover { background:#b71c1c; }
+.btn-upload-image:hover { background: #e0b03a; }
+.btn-remove-image:hover { background: #b71c1c; }
 
-/* ----- Стили для заказов (улучшенные) ----- */
+/* ----- Стили для заказов ----- */
 .order-status {
-    display:inline-block;
-    padding:4px 14px;
-    border-radius:30px;
-    font-weight:600;
-    font-size:13px;
-    text-transform:capitalize;
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: capitalize;
 }
-.order-status.new { background:#e3f2fd; color:#1565c0; }
-.order-status.processing { background:#fff3e0; color:#e65100; }
-.order-status.shipped { background:#e8f5e9; color:#2e7d32; }
-.order-status.delivered { background:#c8e6c9; color:#1b5e20; }
-.order-status.cancelled { background:#ffebee; color:#c62828; }
+.order-status.new { background: #e3f2fd; color: #1565c0; }
+.order-status.processing { background: #fff3e0; color: #e65100; }
+.order-status.shipped { background: #e8f5e9; color: #2e7d32; }
+.order-status.delivered { background: #c8e6c9; color: #1b5e20; }
+.order-status.cancelled { background: #ffebee; color: #c62828; }
 
 .status-select {
-    padding:4px 12px;
-    border-radius:20px;
-    border:2px solid #ddd;
-    font-weight:600;
-    background:#fff;
-    cursor:pointer;
-    margin-left:6px;
-    transition:0.2s;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 2px solid #ddd;
+    font-weight: 600;
+    background: #fff;
+    cursor: pointer;
+    margin-left: 6px;
+    transition: 0.2s;
 }
-.status-select:focus { border-color:#f7c948; outline:none; }
+.status-select:focus { border-color: #f7c948; outline: none; }
 
-/* Модальное окно заказа */
 .order-modal {
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.5);
-    z-index:999;
-    justify-content:center;
-    align-items:center;
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
 }
-.order-modal.open { display:flex; }
+.order-modal.open { display: flex; }
 .order-modal-content {
-    background:#fff;
-    padding:30px;
-    border-radius:24px;
-    max-width:600px;
-    width:95%;
-    max-height:90vh;
-    overflow-y:auto;
-    position:relative;
-    box-shadow:0 30px 80px rgba(0,0,0,0.2);
-    animation:modalFadeIn 0.3s ease;
+    background: #fff;
+    padding: 30px;
+    border-radius: 24px;
+    max-width: 600px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.2);
+    animation: modalFadeIn 0.3s ease;
 }
 @keyframes modalFadeIn {
-    from { opacity:0; transform:scale(0.95); }
-    to { opacity:1; transform:scale(1); }
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
 }
 .order-modal-close {
-    position:absolute;
-    top:15px;
-    right:20px;
-    background:none;
-    border:none;
-    font-size:28px;
-    cursor:pointer;
-    color:#888;
-    transition:0.2s;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #888;
+    transition: 0.2s;
 }
-.order-modal-close:hover { color:#000; transform:rotate(90deg); }
-.order-modal-content h2 { font-size:28px; margin-bottom:15px; }
+.order-modal-close:hover { color: #000; transform: rotate(90deg); }
+.order-modal-content h2 { font-size: 28px; margin-bottom: 15px; }
 .order-modal-content .info-block {
-    background:#f8f9fb;
-    padding:15px;
-    border-radius:12px;
-    margin:15px 0;
+    background: #f8f9fb;
+    padding: 15px;
+    border-radius: 12px;
+    margin: 15px 0;
 }
-.order-modal-content .info-block p {
-    margin:4px 0;
-}
+.order-modal-content .info-block p { margin: 4px 0; }
 .order-modal-content .items-list {
-    background:#f8f9fb;
-    padding:15px;
-    border-radius:12px;
+    background: #f8f9fb;
+    padding: 15px;
+    border-radius: 12px;
 }
 .order-modal-content .items-list .item-row {
-    display:flex;
-    justify-content:space-between;
-    padding:6px 0;
-    border-bottom:1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
 }
-.order-modal-content .items-list .item-row:last-child { border-bottom:none; }
+.order-modal-content .items-list .item-row:last-child { border-bottom: none; }
 .order-modal-content .total {
-    font-size:20px;
-    font-weight:900;
-    margin-top:10px;
-    text-align:right;
+    font-size: 20px;
+    font-weight: 900;
+    margin-top: 10px;
+    text-align: right;
 }
 .order-modal-content .close-btn {
-    width:100%;
-    padding:12px;
-    background:#f7c948;
-    border:none;
-    border-radius:40px;
-    font-weight:700;
-    font-size:16px;
-    cursor:pointer;
-    margin-top:20px;
+    width: 100%;
+    padding: 12px;
+    background: #f7c948;
+    border: none;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
 }
-.order-modal-content .close-btn:hover { background:#e0b03a; }
+.order-modal-content .close-btn:hover { background: #e0b03a; }
 
 /* ----- Адаптив ----- */
-@media (max-width:768px) {
-    .admin-wrapper { padding:10px; }
-    .admin-form { padding:20px; }
-    .form-grid { grid-template-columns:1fr; }
-    .admin-table-wrap { padding:10px; }
-    .admin-table { font-size:13px; }
-    .admin-table th, .admin-table td { padding:8px 6px; }
-    .admin-table .table-image { width:35px; height:35px; }
-    .admin-actions { flex-direction:column; align-items:stretch; }
-    .admin-actions button, .admin-actions a { justify-content:center; }
-    .order-modal-content { padding:20px; margin:10px; }
-    .variant-input-group { flex-direction:column; align-items:stretch; }
-    .variant-input-group input, .variant-input-group select { flex:1 1 100%; }
-    .btn-remove-variant { align-self:flex-end; }
+@media (max-width: 768px) {
+    .admin-wrapper { padding: 10px; }
+    .admin-form { padding: 20px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .admin-table-wrap { padding: 10px; }
+    .admin-table { font-size: 13px; }
+    .admin-table th, .admin-table td { padding: 8px 6px; }
+    .admin-table .table-image { width: 35px; height: 35px; }
+    .admin-actions { flex-direction: column; align-items: stretch; }
+    .admin-actions button, .admin-actions a { justify-content: center; }
+    .order-modal-content { padding: 20px; margin: 10px; }
+    .variant-input-group { flex-direction: column; align-items: stretch; }
+    .variant-input-group input, .variant-input-group select { flex: 1 1 100%; }
+    .btn-remove-variant { align-self: flex-end; }
 }
-@media (max-width:480px) {
-    .admin-table { font-size:12px; }
-    .admin-table th, .admin-table td { padding:6px 4px; }
-    .status-select { font-size:12px; padding:2px 8px; }
-    .order-modal-content { padding:15px; }
+@media (max-width: 480px) {
+    .admin-table { font-size: 12px; }
+    .admin-table th, .admin-table td { padding: 6px 4px; }
+    .status-select { font-size: 12px; padding: 2px 8px; }
+    .order-modal-content { padding: 15px; }
 }
