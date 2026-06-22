@@ -29,7 +29,7 @@
             </div>
 
             <div class="search-form">
-                <input type="text" placeholder="Поиск знака..." id="searchInput" />
+                <input type="text" placeholder="Поиск по названию, номеру, размеру, цене..." id="searchInput" onkeypress="if(event.key==='Enter') searchProducts()" />
                 <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
             </div>
 
@@ -44,17 +44,23 @@
     <nav class="nav-categories">
         <button class="active" data-filter="all">Все знаки</button>
         <button data-filter="warning">Предупреждающие</button>
+        <button data-filter="priority">Приоритета</button>
         <button data-filter="forbid">Запрещающие</button>
         <button data-filter="mandatory">Предписывающие</button>
         <button data-filter="info">Информационные</button>
+        <button data-filter="special">Особых предписаний</button>
+        <button data-filter="service">Сервиса</button>
+        <button data-filter="additional">Дополнительной информации</button>
     </nav>
 
     <!-- Каталог -->
     <div class="container">
         <div class="catalog-header">
             <h2><i class="fas fa-road"></i> Каталог знаков</h2>
+            <span id="catalogInfo" style="font-weight:600;color:#888;">Всего: 0 товаров</span>
         </div>
         <div class="catalog-grid" id="catalogGrid"></div>
+        <div class="pagination-container" id="pagination"></div>
     </div>
 
     <!-- Корзина -->
@@ -91,11 +97,10 @@
                 <button class="chat-close" onclick="closeChat()">&times;</button>
             </div>
             <div class="chat-messages" id="chatMessages">
-                <!-- Приветственное сообщение с динамическим временем -->
                 <div class="chat-message received old">
                     <div class="chat-message-content">
                         <p>👋 Здравствуйте! Чем можем помочь?</p>
-                        <span class="chat-message-time" id="greetingTime"></span>
+                        <span class="chat-message-time" id="greetingTime">10:00</span>
                     </div>
                 </div>
             </div>

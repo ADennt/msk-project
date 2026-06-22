@@ -1,10 +1,13 @@
 // ========================================
-// МСК — ОСНОВНАЯ ЛОГИКА (без тёмной темы)
+// МСК — ОСНОВНАЯ ЛОГИКА (с пагинацией и расширенным поиском)
 // ========================================
 
 let products = [];
 let cart = [];
 let currentFilter = 'all';
+let currentPage = 1;
+const itemsPerPage = 20; // 5 рядов × 4 колонки
+let filteredProducts = [];
 
 // ===== ИНИЦИАЛИЗАЦИЯ =====
 async function initData() {
@@ -24,7 +27,7 @@ async function initData() {
         localStorage.setItem('msk_products', JSON.stringify(products));
     }
     loadCart();
-    renderCatalog();
+    applyFiltersAndPagination();
     updateCartUI();
 }
 
@@ -38,10 +41,9 @@ function getFallbackProducts() {
 
 document.addEventListener('DOMContentLoaded', function() {
     initData();
-    updateGreetingTime(); // устанавливаем текущее время для приветствия
+    updateGreetingTime();
 });
 
-// ===== Установка текущего времени в приветственном сообщении =====
 function updateGreetingTime() {
     const timeSpan = document.getElementById('greetingTime');
     if (timeSpan) {
@@ -52,19 +54,35 @@ function updateGreetingTime() {
     }
 }
 
-// ===== КАТАЛОГ =====
+// ===== ФИЛЬТРАЦИЯ И ПАГИНАЦИЯ =====
+function applyFiltersAndPagination() {
+    // Фильтр по типу
+    filteredProducts = (currentFilter === 'all')
+        ? [...products]
+        : products.filter(p => p.type === currentFilter);
+
+    currentPage = 1; // сбрасываем на первую страницу при смене фильтра
+    renderCatalog();
+    renderPagination();
+}
+
 function renderCatalog() {
     const grid = document.getElementById('catalogGrid');
     if (!grid) return;
 
-    let filtered = products.filter(p => currentFilter === 'all' || p.type === currentFilter);
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const pageItems = filteredProducts.slice(start, end);
 
-    if (!filtered.length) {
+    if (!filteredProducts.length) {
         grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:#888;">Товары не найдены</div>';
+        const info = document.getElementById('catalogInfo');
+        if (info) info.textContent = 'Всего: 0 товаров';
+        document.getElementById('pagination').innerHTML = '';
         return;
     }
 
-    grid.innerHTML = filtered.map((p, idx) => {
+    grid.innerHTML = pageItems.map((p, idx) => {
         const sizes = [...new Set(p.variants.map(v => v.size))];
         const films = [...new Set(p.variants.map(v => v.film))];
         const defaultVariant = p.variants[0];
@@ -98,8 +116,44 @@ function renderCatalog() {
             </div>
         </div>
     `}).join('');
+
+    const info = document.getElementById('catalogInfo');
+    if (info) info.textContent = `Всего: ${filteredProducts.length} товаров`;
 }
 
+function renderPagination() {
+    const container = document.getElementById('pagination');
+    if (!container) return;
+
+    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+    if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+
+    let html = '';
+    html += `<button onclick="goToPage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>`;
+
+    for (let i = 1; i <= totalPages; i++) {
+        html += `<button onclick="goToPage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
+    }
+
+    html += `<button onclick="goToPage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>`;
+
+    container.innerHTML = html;
+}
+
+function goToPage(page) {
+    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    renderCatalog();
+    renderPagination();
+    const header = document.querySelector('.catalog-header');
+    if (header) header.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===== КАТАЛОГ (обновление цены варианта) =====
 function updateVariantPrice(select) {
     const card = select.closest('.product-card');
     const id = parseInt(card.dataset.id);
@@ -312,26 +366,65 @@ document.querySelectorAll('.nav-categories button').forEach(btn => {
         document.querySelectorAll('.nav-categories button').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
         currentFilter = this.dataset.filter;
-        renderCatalog();
+        applyFiltersAndPagination();
     });
 });
 
-// ===== ПОИСК =====
+// ===== РАСШИРЕННЫЙ ПОИСК (по разным параметрам) =====
 function searchProducts() {
     const input = document.getElementById('searchInput');
     if (!input) return;
     const q = input.value.trim().toLowerCase();
-    if (!q) { renderCatalog(); return; }
-    const filtered = products.filter(p => p.name.toLowerCase().includes(q) || p.typeLabel?.toLowerCase().includes(q) || p.type?.includes(q));
-    const grid = document.getElementById('catalogGrid');
-    if (!filtered.length) {
-        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:#888;">Ничего не найдено</div>';
+
+    // Если поисковая строка пуста, показываем все товары с учётом фильтра
+    if (!q) {
+        filteredProducts = (currentFilter === 'all')
+            ? [...products]
+            : products.filter(p => p.type === currentFilter);
+        currentPage = 1;
+        renderCatalog();
+        renderPagination();
+        const info = document.getElementById('catalogInfo');
+        if (info) info.textContent = `Всего: ${filteredProducts.length} товаров`;
         return;
     }
-    const originalProducts = products;
-    products = filtered;
+
+    // Ищем по всем товарам (без учёта фильтра категорий, чтобы пользователь мог искать по всем)
+    // Но можно и комбинировать с фильтром – по желанию. Я сделаю поиск по всему каталогу, независимо от фильтра.
+    const searchResults = products.filter(p => {
+        // Поиск по ID (как строка)
+        if (String(p.id).includes(q)) return true;
+        // Поиск по названию
+        if (p.name && p.name.toLowerCase().includes(q)) return true;
+        // Поиск по типу (typeLabel)
+        if (p.typeLabel && p.typeLabel.toLowerCase().includes(q)) return true;
+        // Поиск по тегу
+        if (p.tag && p.tag.toLowerCase().includes(q)) return true;
+        // Поиск по описанию
+        if (p.description && p.description.toLowerCase().includes(q)) return true;
+        // Поиск по материалу
+        if (p.characteristics && p.characteristics.material && p.characteristics.material.toLowerCase().includes(q)) return true;
+        // Поиск по вариантам (размер, плёнка, цена)
+        if (p.variants && p.variants.some(v => {
+            const sizeMatch = v.size && v.size.toLowerCase().includes(q);
+            const filmMatch = v.film && v.film.toLowerCase().includes(q);
+            const priceMatch = String(v.price).includes(q); // цена как строка
+            return sizeMatch || filmMatch || priceMatch;
+        })) return true;
+
+        return false;
+    });
+
+    // Если есть активный фильтр категории, можно сузить результаты поиска
+    // Я оставлю поиск по всему каталогу, чтобы пользователь мог найти знак, даже если выбрана другая категория.
+    // Это удобнее.
+
+    filteredProducts = searchResults;
+    currentPage = 1;
     renderCatalog();
-    products = originalProducts;
+    renderPagination();
+    const info = document.getElementById('catalogInfo');
+    if (info) info.textContent = `Найдено: ${filteredProducts.length} товаров`;
 }
 
 // ===== ЧАТ =====
@@ -388,31 +481,16 @@ function escapeHtml(text) {
     return d.innerHTML;
 }
 
-// ===== ОБНОВЛЁННЫЙ АВТООТВЕТЧИК С ОТВЕТОМ НА "ЧТО ТЫ МОЖЕШЬ" =====
 function getAutoReply(text) {
     const lower = text.toLowerCase();
-
-    // Ответ на вопрос о возможностях бота
-    if (lower.includes('что ты можешь') || lower.includes('что умеешь') || 
-        lower.includes('какие функции') || lower.includes('помощь') || 
-        lower.includes('справка') || lower.includes('как ты работаешь') ||
-        lower.includes('расскажи о себе') || lower.includes('что ты умеешь')) {
-        return '🤖 Я — виртуальный помощник магазина МСК. Я могу:\n' +
-               '• Рассказать о товарах и ценах\n' +
-               '• Подсказать адрес и контакты\n' +
-               '• Ответить на вопросы о доставке\n' +
-               '• Помочь с заказами (оформление, статус)\n' +
-               '• Просто поболтать 😊\n' +
-               'Задавайте любой вопрос, и я постараюсь помочь!';
-    }
-
-    // Адрес и карта – текст с ссылкой
-    if (lower.includes('адрес') || lower.includes('где') || lower.includes('находитесь') || 
+    if (lower.includes('адрес') || lower.includes('где') || lower.includes('находитесь') ||
         lower.includes('карта') || lower.includes('навигатор') || lower.includes('проехать')) {
         return '📍 Наш адрес: <a href="https://www.google.com/maps/place/%D0%9B%D0%B8%D1%85%D0%B0%D1%87%D0%B5%D0%B2%D1%81%D0%BA%D0%B8%D0%B9+%D0%BF%D1%80-%D0%B4,+31,+%D0%94%D0%BE%D0%BB%D0%B3%D0%BE%D0%BF%D1%80%D1%83%D0%B4%D0%BD%D1%8B%D0%B9,+%D0%9C%D0%BE%D1%81%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%B0%D1%8F+%D0%BE%D0%B1%D0%BB.,+141701/@55.9182665,37.499657,17z" target="_blank" style="color:#f7c948; text-decoration:underline;">Лихачевский пр-д, 31, Долгопрудный, Московская обл., 141701</a>';
     }
-    
     if (lower.includes('привет')) return '👋 Здравствуйте! Чем помочь?';
+    if (lower.includes('что ты можешь') || lower.includes('что умеешь') || lower.includes('какие функции') || lower.includes('помощь') || lower.includes('справка')) {
+        return '🤖 Я — виртуальный помощник магазина МСК. Я могу:\n• Рассказать о товарах и ценах\n• Подсказать адрес и контакты\n• Ответить на вопросы о доставке\n• Помочь с заказами (оформление, статус)\n• Просто поболтать 😊\nЗадавайте любой вопрос, и я постараюсь помочь!';
+    }
     if (lower.includes('цена') || lower.includes('стоимость')) return '💰 Цены указаны в каталоге. Есть скидки для оптовых заказов!';
     if (lower.includes('доставка')) return '🚚 Доставка по всей России. Сроки зависят от региона.';
     if (lower.includes('телефон') || lower.includes('номер')) return '📞 8 (800) 555-22-33';
