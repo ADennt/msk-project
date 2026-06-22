@@ -1,0 +1,25 @@
+<svg width="700px" height="700px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>Знаки 6.8 - Тупик</title>
+  <desc>Этот векторный рисунок принадлежит сайту ruspdd.com.</desc>
+  <g id="R">
+    <rect x="202" y="2" rx="25" ry="25" width="296px" height="296px" stroke="#000" fill="#fff" stroke-width="4" />
+    <rect x="209" y="9" rx="20" ry="20" width="282px" height="282px" fill="#0a83c8" />
+  </g>
+  <use xlink:href="#R" x="200" y="400" />
+  <use xlink:href="#R" x="-200" y="400" />
+  <g fill="#fff">
+    <path d="M 336 292 v-182 h-45 v-58 h118 v58 h-45 v182 z" />
+    <path d="M 480 408 h28 v128 h64 v-45 h58 v118 h-58 v-45 h-64 v128 h-28 z" />
+    <path d="M 221 408 h-28 v128 h-64 v-45 h-58 v118 h58 v-45 h64 v128 h28 z" />
+  </g>
+  <g fill="#eb222a">
+    <path d="M 299 60 h102 v42 h-102 z" />
+    <path d="M 580 499 h42 v102 h-42 z" />
+    <path d="M 79 499 h42 v102 h-42 z" />
+  </g>
+  <g text-anchor="middle" font-size="24px" font-family="Arial" font-weight="bold">
+    <text x="350" y="330">6.8.1</text>
+    <text x="150" y="385">6.8.3</text>
+    <text x="550" y="385">6.8.2</text>
+  </g>
+<text x="50%" y="50%" dx="1,1,1,1,1,1,1,1,1,1" fill="white" fill-opacity="20%" stroke-opacity="5%" stroke="black" stroke-width="2" text-anchor="middle" font-size="30px" font-weight="bold" font-family="Arial">ruspdd.com</text></svg>

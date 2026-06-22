@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>МСК — Дорожные знаки</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <!-- Верхняя планка -->
+    <div class="topbar">
+        <div class="container">
+            <span><i class="fas fa-truck"></i> Доставка по всей России</span>
+            <span>
+                <i class="fas fa-phone-alt"></i> 8 (800) 555-22-33
+                <a href="#" id="chatToggle"><i class="fab fa-whatsapp"></i> Написать</a>
+                <a href="login.html" style="margin-left:10px;"><i class="fas fa-cog"></i> Админ</a>
+                <button onclick="toggleTheme()" style="background:none;border:none;color:#f7c948;cursor:pointer;font-size:16px;margin-left:10px;">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </span>
+        </div>
+    </div>
+
+    <!-- Шапка -->
+    <header class="header">
+        <div class="container">
+            <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
+                <i class="fas fa-triangle-exclamation"></i> МСК<span>Знак</span>
+            </div>
+
+            <div class="search-form">
+                <input type="text" placeholder="Поиск знака..." id="searchInput" />
+                <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
+            </div>
+
+            <button class="cart-icon" onclick="toggleCart()">
+                <i class="fas fa-shopping-cart"></i> Корзина
+                <span class="badge" id="cartCount">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Навигация -->
+    <nav class="nav-categories">
+        <button class="active" data-filter="all">Все знаки</button>
+        <button data-filter="warning">Предупреждающие</button>
+        <button data-filter="forbid">Запрещающие</button>
+        <button data-filter="mandatory">Предписывающие</button>
+        <button data-filter="info">Информационные</button>
+    </nav>
+
+    <!-- Каталог -->
+    <div class="container">
+        <div class="catalog-header">
+            <h2><i class="fas fa-road"></i> Каталог знаков</h2>
+            <select id="sortSelect">
+                <option value="popular">Сначала популярные</option>
+                <option value="cheap">Сначала дешёвые</option>
+                <option value="expensive">Сначала дорогие</option>
+            </select>
+        </div>
+        <div class="catalog-grid" id="catalogGrid"></div>
+    </div>
+
+    <!-- Корзина -->
+    <div class="cart-overlay" id="cartOverlay">
+        <div class="cart-panel">
+            <h2>
+                🛒 Корзина
+                <button onclick="toggleCart()">&times;</button>
+            </h2>
+            <div id="cartItems"></div>
+            <div class="cart-total" id="cartTotal">Итого: 0 ₽</div>
+            <div class="cart-actions">
+                <button class="btn-checkout" onclick="showCheckoutForm()">Оформить заказ</button>
+                <button class="btn-clear" onclick="clearCart()" id="clearCartBtn">Очистить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Чат -->
+    <div class="chat-widget" id="chatWidget">
+        <button class="chat-toggle" id="chatToggleBtn" onclick="toggleChat()">
+            <i class="fas fa-comment-dots"></i>
+            <span class="chat-badge">1</span>
+        </button>
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <i class="fas fa-headset"></i>
+                    <div>
+                        <span class="chat-header-name">Поддержка МСК</span>
+                        <span class="chat-header-status">🟢 Онлайн</span>
+                    </div>
+                </div>
+                <button class="chat-close" onclick="closeChat()">&times;</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-message received old">
+                    <div class="chat-message-content">
+                        <p>👋 Здравствуйте! Чем можем помочь?</p>
+                        <span class="chat-message-time">10:00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Введите сообщение..." onkeypress="handleChatKeyPress(event)" />
+                <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        <div class="chat-overlay" id="chatOverlay"></div>
+    </div>
+
+    <!-- Футер -->
+    <footer class="footer">
+        <div class="container">
+            <div>© 2026 МСК. Все права защищены.</div>
+            <div><i class="fas fa-map-pin"></i> Москва, Дорожный пр-д, 7</div>
+            <div><a href="#"><i class="fas fa-envelope"></i> info@msk.ru</a></div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

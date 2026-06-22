@@ -1,0 +1,110 @@
+// ========================================
+// МСК — СТРАНИЦА ТОВАРА
+// ========================================
+
+function loadProduct() {
+    const params = new URLSearchParams(window.location.search);
+    const id = parseInt(params.get('id'));
+    const saved = localStorage.getItem('msk_products');
+    const products = saved ? JSON.parse(saved) : [];
+    const product = products.find(p => p.id === id);
+    if (!product) {
+        document.getElementById('productDetail').innerHTML = '<h2>Товар не найден</h2><a href="index.html">Вернуться</a>';
+        return;
+    }
+    renderProduct(product);
+}
+
+function renderProduct(product) {
+    const container = document.getElementById('productDetail');
+    const sizes = [...new Set(product.variants.map(v => v.size))];
+    const films = [...new Set(product.variants.map(v => v.film))];
+    const defaultVariant = product.variants[0];
+    const sizeOptions = sizes.map(s => `<option value="${s}" ${s === defaultVariant.size ? 'selected':''}>${s}</option>`).join('');
+    const filmOptions = films.map(f => `<option value="${f}" ${f === defaultVariant.film ? 'selected':''}>${f}</option>`).join('');
+
+    container.innerHTML = `
+        <div class="detail-header">
+            <div class="detail-image">
+                <img src="${product.image || 'images/placeholder.png'}" alt="${product.name}" />
+            </div>
+            <div class="detail-info">
+                <div style="display:flex;gap:10px;margin-bottom:10px;">
+                    <span style="color:#888;font-weight:600;">${product.typeLabel}</span>
+                    ${product.tag ? `<span style="background:#f7c948;padding:4px 16px;border-radius:20px;font-weight:700;font-size:12px;">${product.tag}</span>` : ''}
+                </div>
+                <h1>${product.name}</h1>
+                <div class="detail-price" id="detailPrice">${defaultVariant.price.toLocaleString()} ₽</div>
+                <div class="detail-stock">В наличии: ${product.inStock || 0} шт.</div>
+
+                <div style="margin:15px 0;display:flex;flex-wrap:wrap;gap:20px;">
+                    <div>
+                        <label for="sizeSelect" style="font-weight:600;display:block;">Размер:</label>
+                        <select id="sizeSelect" onchange="updateDetailPrice()" style="padding:10px;border:2px solid #ddd;border-radius:10px;font-size:16px;">
+                            ${sizeOptions}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filmSelect" style="font-weight:600;display:block;">Плёнка:</label>
+                        <select id="filmSelect" onchange="updateDetailPrice()" style="padding:10px;border:2px solid #ddd;border-radius:10px;font-size:16px;">
+                            ${filmOptions}
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:15px;margin-top:20px;">
+                    <button class="btn-add" onclick="addToCartFromDetail()" style="font-size:20px;padding:15px 40px;">В корзину</button>
+                    <button class="btn-add" onclick="buyNow()" style="background:#f7c948;color:#000;font-size:20px;padding:15px 40px;">Купить сейчас</button>
+                </div>
+            </div>
+        </div>
+        <div class="detail-desc">
+            <h3>📋 Описание</h3>
+            <p>${product.description || 'Описание отсутствует'}</p>
+        </div>
+        <div class="detail-chars">
+            <div class="char-item"><strong>Материал</strong><span>${product.characteristics?.material || 'Не указано'}</span></div>
+        </div>
+        <a href="index.html" style="color:#f7c948;font-weight:700;text-decoration:none;display:inline-block;margin-top:20px;">← Вернуться</a>
+    `;
+    window.currentProduct = product;
+}
+
+function updateDetailPrice() {
+    const size = document.getElementById('sizeSelect').value;
+    const film = document.getElementById('filmSelect').value;
+    const product = window.currentProduct;
+    const variant = product.variants.find(v => v.size === size && v.film === film);
+    const priceEl = document.getElementById('detailPrice');
+    if (variant && priceEl) priceEl.textContent = `${variant.price.toLocaleString()} ₽`;
+}
+
+function addToCartFromDetail() {
+    const product = window.currentProduct;
+    const size = document.getElementById('sizeSelect').value;
+    const film = document.getElementById('filmSelect').value;
+    const variant = product.variants.find(v => v.size === size && v.film === film);
+    if (!variant) { alert('Комбинация недоступна'); return; }
+
+    let cart = JSON.parse(localStorage.getItem('msk_cart') || '[]');
+    const existing = cart.find(i => i.id === product.id && i.size === size && i.film === film);
+    if (existing) existing.quantity += 1;
+    else cart.push({ ...product, quantity:1, size, film, price: variant.price, image: product.image || 'images/placeholder.png' });
+
+    localStorage.setItem('msk_cart', JSON.stringify(cart));
+    updateCartCount();
+    alert('✅ Товар добавлен в корзину');
+}
+
+function buyNow() {
+    addToCartFromDetail();
+    window.location.href = 'index.html';
+}
+
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('msk_cart') || '[]');
+    const total = cart.reduce((s, i) => s + i.quantity, 0);
+    document.getElementById('cartCount').textContent = total;
+}
+
+document.addEventListener('DOMContentLoaded', loadProduct);
