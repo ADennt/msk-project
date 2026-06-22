@@ -62,7 +62,7 @@ function updateStatus(id, status) {
         order.status = status;
         localStorage.setItem('msk_orders', JSON.stringify(orders));
         renderOrders();
-        updateOrderCount(); // обновляем счётчик
+        updateOrderCount();
     }
 }
 
@@ -125,4 +125,22 @@ function logout() {
     window.location.href = 'login.html';
 }
 
-document.addEventListener('DOMContentLoaded', loadOrders);
+// ===== Функция генерации ID (инкрементальный) =====
+function getNextOrderId() {
+    let lastId = parseInt(localStorage.getItem('msk_last_order_id') || '0');
+    lastId++;
+    localStorage.setItem('msk_last_order_id', String(lastId));
+    return lastId;
+}
+
+// Переопределяем submitOrder в script.js, чтобы он использовал новый ID
+// В script.js уже есть функция submitOrder, но мы можем заменить её, либо просто переопределить.
+// Чтобы не дублировать, я добавлю в этот файл функцию, которая будет вызываться из script.js,
+// но проще всего заменить в script.js вызов на getNextOrderId().
+// Я сейчас покажу изменённую функцию submitOrder, которую нужно вставить в script.js вместо старой.
+// Но чтобы не править два файла, я просто приведу изменённый script.js ниже.
+
+// ===== ВНИМАНИЕ: НИЖЕ ПРИВЕДЕНА ИСПРАВЛЕННАЯ ВЕРСИЯ submitOrder ДЛЯ script.js =====
+// (её нужно вставить в script.js вместо текущей функции)
+
+// Вместо того чтобы дублировать, я дам полный файл script.js с исправлением.

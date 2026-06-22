@@ -14,20 +14,26 @@ async function initData() {
     } else {
         try {
             const resp = await fetch('data.json');
+            if (!resp.ok) throw new Error('Сеть ответила ошибкой');
             const data = await resp.json();
             products = data.products || [];
-            localStorage.setItem('msk_products', JSON.stringify(products));
         } catch (e) {
-            products = getFallback();
+            console.warn('Не удалось загрузить data.json, используется fallback', e);
+            products = getFallbackProducts();
         }
+        localStorage.setItem('msk_products', JSON.stringify(products));
     }
     loadCart();
     renderCatalog();
     updateCartUI();
 }
 
-function getFallback() {
-    return [{ id:1, name:'2.4 «Уступи дорогу»', type:'warning', typeLabel:'Предупреждающий', tag:'Хит', image:'images/placeholder.png', variants:[{ size:'700×700 мм', film:'Тип А', price:3250 }] }];
+function getFallbackProducts() {
+    return [
+        { id:1, name:'2.4 «Уступи дорогу»', type:'warning', typeLabel:'Предупреждающий', tag:'Хит', image:'images/placeholder.png', variants:[{ size:'700×700 мм', film:'Тип А', price:3250 }], inStock:10 },
+        { id:2, name:'3.1 «Въезд запрещён»', type:'forbid', typeLabel:'Запрещающий', tag:'', image:'images/placeholder.png', variants:[{ size:'700×700 мм', film:'Тип А', price:2850 }], inStock:5 },
+        { id:3, name:'4.1.1 «Движение прямо»', type:'mandatory', typeLabel:'Предписывающий', tag:'', image:'images/placeholder.png', variants:[{ size:'700×700 мм', film:'Тип А', price:3100 }], inStock:8 }
+    ];
 }
 
 document.addEventListener('DOMContentLoaded', initData);
@@ -244,6 +250,7 @@ function closeCheckoutForm() {
     updateCartUI();
 }
 
+// ===== ИСПРАВЛЕННАЯ ФУНКЦИЯ submitOrder (использует инкрементальный ID) =====
 function submitOrder() {
     const name = document.getElementById('orderName').value.trim();
     const phone = document.getElementById('orderPhone').value.trim();
@@ -256,8 +263,19 @@ function submitOrder() {
         return;
     }
 
+    // Генерируем новый ID через функцию из orders.js
+    let newId = 1;
+    if (typeof getNextOrderId === 'function') {
+        newId = getNextOrderId();
+    } else {
+        // fallback, если функция не определена
+        const orders = JSON.parse(localStorage.getItem('msk_orders') || '[]');
+        const maxId = orders.reduce((max, o) => o.id > max ? o.id : max, 0);
+        newId = maxId + 1;
+    }
+
     const order = {
-        id: Date.now(),
+        id: newId,
         name, phone, email: email || 'Не указан', address, comment: comment || 'Нет',
         items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, size: i.size, film: i.film, image: i.image })),
         total: cart.reduce((s, i) => s + i.price * i.quantity, 0),

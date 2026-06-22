@@ -80,9 +80,10 @@
     background: #0d47a1;
 }
 
+/* ===== ИСПРАВЛЕННАЯ КНОПКА ЭКСПОРТА ===== */
 .btn-admin-export {
-    background: #2e7d32;
-    color: #fff;
+    background: #f7c948;
+    color: #000;
     border: none;
     padding: 14px 30px;
     border-radius: 40px;
@@ -95,7 +96,7 @@
     gap: 10px;
 }
 .btn-admin-export:hover {
-    background: #1b5e20;
+    background: #e0b03a;
 }
 
 .btn-admin-orders {
@@ -546,20 +547,204 @@
     .form-actions button { width: 100%; justify-content: center; }
 }
 
-/* Стили для select внутри вариантов */
-.variant-input-group select.variant-film {
-    flex: 1.5;
-    padding: 8px 12px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
+/* ========================================
+   СТИЛИ ДЛЯ СТРАНИЦЫ ЗАКАЗОВ (добавлено)
+   ======================================== */
+
+/* ---- Статусы заказов ---- */
+.order-status {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: capitalize;
+    margin-right: 8px;
+}
+.order-status.new {
+    background: #e3f2fd;
+    color: #0d47a1;
+}
+.order-status.processing {
+    background: #fff3e0;
+    color: #e65100;
+}
+.order-status.shipped {
+    background: #e8f5e9;
+    color: #1b5e20;
+}
+.order-status.delivered {
+    background: #e0f7fa;
+    color: #006064;
+}
+.order-status.cancelled {
+    background: #ffebee;
+    color: #b71c1c;
+}
+
+/* ---- Выпадающий список статуса ---- */
+.status-select {
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 13px;
     background: #fff;
     cursor: pointer;
-    transition: 0.3s;
-    min-width: 120px;
+    transition: 0.2s;
 }
-.variant-input-group select.variant-film:focus {
-    border-color: #f7c948;
+.status-select:focus {
     outline: none;
+    border-color: #f7c948;
     box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.2);
+}
+
+/* ---- Кнопки действий в заказах ---- */
+.btn-view {
+    background: #f7c948;
+    color: #000;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 13px;
+}
+.btn-view:hover {
+    background: #e0b03a;
+}
+
+.admin-table .btn-delete {
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 13px;
+}
+.admin-table .btn-delete:hover {
+    background: #b71c1c;
+}
+
+/* ---- Модальное окно обзора заказа (переработанный стиль) ---- */
+.order-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.order-modal-content {
+    background: #fff;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 650px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    border-left: 6px solid #f7c948;
+}
+
+.order-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 28px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    transition: 0.2s;
+}
+.order-modal-close:hover {
+    color: #000;
+    transform: rotate(90deg);
+}
+
+.order-modal-content h2 {
+    margin-top: 0;
+    font-size: 26px;
+    color: #0b0b0b;
+    border-bottom: 2px solid #f7c948;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+
+.order-modal-content .info-block {
+    background: #f8f9fb;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+.order-modal-content .info-block p {
+    margin: 6px 0;
+    font-size: 15px;
+}
+.order-modal-content .info-block strong {
+    color: #333;
+}
+
+.order-modal-content .items-list {
+    margin-bottom: 20px;
+}
+.order-modal-content .items-list .item-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 15px;
+}
+.order-modal-content .items-list .item-row:last-child {
+    border-bottom: none;
+}
+.order-modal-content .items-list .total {
+    font-size: 20px;
+    font-weight: 900;
+    text-align: right;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 2px solid #f7c948;
+}
+
+.order-modal-content .close-btn {
+    background: #0b0b0b;
+    color: #fff;
+    border: none;
+    padding: 12px 35px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: block;
+    margin: 0 auto;
+}
+.order-modal-content .close-btn:hover {
+    background: #333;
+}
+
+/* Адаптив для модалки */
+@media (max-width: 768px) {
+    .order-modal-content {
+        padding: 20px;
+    }
+}
+@media (max-width: 480px) {
+    .order-modal-content {
+        padding: 16px;
+    }
+    .order-modal-content h2 {
+        font-size: 22px;
+    }
 }
