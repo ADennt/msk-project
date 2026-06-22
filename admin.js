@@ -4,7 +4,7 @@
 
 let products = [];
 let editingId = null;
-let selectedImageData = null;
+let selectedImageData = null; // null – не выбрано, '' – удалено, строка – новое изображение
 const FILM_TYPES = ['Тип А', 'Тип Б', 'Тип В'];
 
 // ===== ЗАГРУЗКА =====
@@ -48,7 +48,7 @@ function showAddForm() {
     document.getElementById('formTitle').textContent = '➕ Добавить товар';
     document.getElementById('editId').value = '';
     clearForm();
-    removeImage();
+    removeImage(); // сбрасываем изображение
     loadVariants([]);
     document.getElementById('adminForm').scrollIntoView({ behavior: 'smooth' });
 }
@@ -68,11 +68,14 @@ function editProduct(id) {
     document.getElementById('fDescription').value = product.description || '';
     document.getElementById('fMaterial').value = product.characteristics?.material || 'Оцинкованная сталь';
 
-    if (product.image) {
-        selectedImageData = product.image;
+    // Загружаем изображение, если есть
+    if (product.image && product.image !== 'images/placeholder.png') {
+        selectedImageData = product.image; // храним строку
         updateImagePreview(product.image);
         document.getElementById('removeImageBtn').style.display = 'inline-flex';
-    } else removeImage();
+    } else {
+        removeImage(); // установит selectedImageData = null и сбросит preview
+    }
 
     if (product.variants) loadVariants(product.variants);
     else loadVariants([]);
@@ -150,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!file.type.startsWith('image/')) { alert('Не изображение'); this.value=''; return; }
         const reader = new FileReader();
         reader.onload = function(ev) {
-            selectedImageData = ev.target.result;
+            selectedImageData = ev.target.result; // сохраняем base64
             updateImagePreview(selectedImageData);
             document.getElementById('removeImageBtn').style.display = 'inline-flex';
         };
@@ -165,8 +168,18 @@ function updateImagePreview(src) {
 }
 
 function removeImage() {
-    selectedImageData = null;
+    selectedImageData = null; // null означает "не выбрано новое, оставить как было"
+    // Визуально сбрасываем на заглушку
     document.getElementById('imagePreview').innerHTML = `<i class="fas fa-image"></i><span>Выберите изображение</span>`;
+    document.getElementById('imagePreview').classList.remove('has-image');
+    document.getElementById('fImage').value = '';
+    document.getElementById('removeImageBtn').style.display = 'none';
+}
+
+// Функция для явного удаления изображения (кнопка "Удалить")
+function deleteImage() {
+    selectedImageData = ''; // пустая строка означает "удалить"
+    document.getElementById('imagePreview').innerHTML = `<i class="fas fa-image"></i><span>Изображение удалено</span>`;
     document.getElementById('imagePreview').classList.remove('has-image');
     document.getElementById('fImage').value = '';
     document.getElementById('removeImageBtn').style.display = 'none';
@@ -187,12 +200,23 @@ function saveProduct() {
     if (!variants.length) { alert('Добавьте хотя бы один вариант'); return; }
 
     let image = '';
-    if (selectedImageData) image = selectedImageData;
-    else if (editId) {
+    // Приоритет: если выбран новый файл (selectedImageData – строка base64) – используем его
+    if (typeof selectedImageData === 'string' && selectedImageData.startsWith('data:image')) {
+        image = selectedImageData;
+    } else if (selectedImageData === '') {
+        // Явно удалено – ставим заглушку
+        image = 'images/placeholder.png';
+    } else if (editId) {
+        // Иначе оставляем старое изображение, если оно есть
         const existing = products.find(p => p.id === parseInt(editId));
-        if (existing) image = existing.image || '';
+        if (existing && existing.image) {
+            image = existing.image;
+        } else {
+            image = 'images/placeholder.png';
+        }
+    } else {
+        image = 'images/placeholder.png';
     }
-    if (!image) image = 'images/placeholder.png';
 
     let id = editId ? parseInt(editId) : Date.now();
     const typeLabels = { warning:'Предупреждающий', forbid:'Запрещающий', mandatory:'Предписывающий', info:'Информационный' };

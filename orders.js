@@ -8,7 +8,7 @@ function loadOrders() {
     const saved = localStorage.getItem('msk_orders');
     orders = saved ? JSON.parse(saved) : [];
     renderOrders();
-    document.getElementById('orderCountNumber').textContent = orders.length;
+    updateOrderCount();
 }
 
 function renderOrders() {
@@ -52,12 +52,17 @@ function renderOrders() {
     `}).join('');
 }
 
+function updateOrderCount() {
+    document.getElementById('orderCountNumber').textContent = orders.length;
+}
+
 function updateStatus(id, status) {
     const order = orders.find(o => o.id === id);
     if (order) {
         order.status = status;
         localStorage.setItem('msk_orders', JSON.stringify(orders));
         renderOrders();
+        updateOrderCount(); // обновляем счётчик
     }
 }
 
@@ -66,7 +71,7 @@ function deleteOrder(id) {
     orders = orders.filter(o => o.id !== id);
     localStorage.setItem('msk_orders', JSON.stringify(orders));
     renderOrders();
-    document.getElementById('orderCountNumber').textContent = orders.length;
+    updateOrderCount();
 }
 
 function viewOrder(id) {
