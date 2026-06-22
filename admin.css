@@ -80,6 +80,24 @@
     background: #0d47a1;
 }
 
+.btn-admin-export {
+    background: #2e7d32;
+    color: #fff;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.btn-admin-export:hover {
+    background: #1b5e20;
+}
+
 .btn-admin-orders {
     background: #2e7d32;
     color: #fff;
