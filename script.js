@@ -1,11 +1,10 @@
 // ========================================
-// МСК — ГЛАВНАЯ ЛОГИКА (GitHub Pages)
+// МСК — ГЛАВНАЯ ЛОГИКА (GitHub Pages, без сортировки)
 // ========================================
 
 let products = [];
 let cart = [];
 let currentFilter = 'all';
-let currentSort = 'popular';
 
 // ===== ИНИЦИАЛИЗАЦИЯ =====
 async function initData() {
@@ -40,8 +39,6 @@ function renderCatalog() {
     if (!grid) return;
 
     let filtered = products.filter(p => currentFilter === 'all' || p.type === currentFilter);
-    if (currentSort === 'cheap') filtered.sort((a,b) => a.variants[0].price - b.variants[0].price);
-    else if (currentSort === 'expensive') filtered.sort((a,b) => b.variants[0].price - a.variants[0].price);
 
     if (!filtered.length) {
         grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:#888;">Товары не найдены</div>';
@@ -281,7 +278,7 @@ function submitOrder() {
     toggleCart();
 }
 
-// ===== ФИЛЬТРЫ, СОРТИРОВКА, ПОИСК =====
+// ===== ФИЛЬТРЫ =====
 document.querySelectorAll('.nav-categories button').forEach(btn => {
     btn.addEventListener('click', function() {
         document.querySelectorAll('.nav-categories button').forEach(b => b.classList.remove('active'));
@@ -291,11 +288,7 @@ document.querySelectorAll('.nav-categories button').forEach(btn => {
     });
 });
 
-document.getElementById('sortSelect').addEventListener('change', function() {
-    currentSort = this.value;
-    renderCatalog();
-});
-
+// ===== ПОИСК =====
 function searchProducts() {
     const input = document.getElementById('searchInput');
     if (!input) return;
@@ -307,13 +300,6 @@ function searchProducts() {
         grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:#888;">Ничего не найдено</div>';
         return;
     }
-    // перерендерим с фильтром
-    const oldFilter = currentFilter;
-    currentFilter = 'all';
-    renderCatalog();
-    // но у нас уже отфильтровано, но мы не можем легко переопределить renderCatalog, поэтому пока просто через фильтр
-    // проще: обновим currentFilter и вызовем renderCatalog, но он использует products, а не filtered.
-    // поэтому временно сохраним products как отфильтрованный массив.
     const originalProducts = products;
     products = filtered;
     renderCatalog();
@@ -333,7 +319,6 @@ function updateThemeIcon() {
     const isDark = document.body.classList.contains('dark-theme');
     icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
 }
-// При загрузке
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme === 'dark') {
     document.body.classList.add('dark-theme');
@@ -379,14 +364,12 @@ function sendMessage() {
     input.value = '';
     messages.scrollTop = messages.scrollHeight;
 
-    // имитация ответа
     setTimeout(() => {
         const reply = document.createElement('div');
         reply.className = 'chat-message received';
         reply.innerHTML = `<div class="chat-message-content"><p>${getAutoReply(text)}</p><span class="chat-message-time">${new Date().toLocaleTimeString()}</span></div>`;
         messages.appendChild(reply);
         messages.scrollTop = messages.scrollHeight;
-        // обновить бейдж, если чат закрыт
     }, 1000 + Math.random()*1500);
 }
 function handleChatKeyPress(e) { if (e.key === 'Enter') sendMessage(); }

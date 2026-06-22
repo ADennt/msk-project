@@ -1,5 +1,5 @@
 // ========================================
-// МСК — УПРАВЛЕНИЕ ЗАКАЗАМИ
+// МСК — УПРАВЛЕНИЕ ЗАКАЗАМИ (улучшен вывод)
 // ========================================
 
 let orders = [];
@@ -74,29 +74,39 @@ function viewOrder(id) {
     if (!order) return;
     const modal = document.getElementById('orderModal');
     const content = document.getElementById('orderModalContent');
-    const itemsHtml = order.items.map(i => `
-        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #eee;">
-            <span>${i.name} (${i.size}, ${i.film}) × ${i.quantity}</span>
-            <span>${(i.price*i.quantity).toLocaleString()} ₽</span>
-        </div>
-    `).join('');
+
+    // Формируем читаемый список товаров с размерами и плёнками
+    let itemsHtml = '';
+    if (order.items && order.items.length) {
+        itemsHtml = order.items.map(i => `
+            <div class="item-row">
+                <span>${i.name} (${i.size || '—'}, плёнка ${i.film || '—'}) × ${i.quantity}</span>
+                <span>${(i.price * i.quantity).toLocaleString()} ₽</span>
+            </div>
+        `).join('');
+    } else {
+        itemsHtml = '<p style="color:#888;">Нет товаров</p>';
+    }
 
     content.innerHTML = `
         <h2>Заказ #${order.id}</h2>
-        <div style="background:#f8f9fb;padding:15px;border-radius:12px;margin:15px 0;">
-            <p><strong>Имя:</strong> ${order.name}</p>
-            <p><strong>Телефон:</strong> ${order.phone}</p>
-            <p><strong>Email:</strong> ${order.email}</p>
-            <p><strong>Адрес:</strong> ${order.address}</p>
-            <p><strong>Комментарий:</strong> ${order.comment}</p>
+        <div class="info-block">
+            <p><strong>Имя:</strong> ${order.name || 'Не указано'}</p>
+            <p><strong>Телефон:</strong> ${order.phone || 'Не указан'}</p>
+            <p><strong>Email:</strong> ${order.email || 'Не указан'}</p>
+            <p><strong>Адрес:</strong> ${order.address || 'Не указан'}</p>
+            ${order.comment ? `<p><strong>Комментарий:</strong> ${order.comment}</p>` : ''}
         </div>
-        <div style="background:#f8f9fb;padding:15px;border-radius:12px;">
-            <strong>Состав:</strong>
+        <div class="items-list">
+            <strong>Состав заказа:</strong>
             ${itemsHtml}
-            <div style="font-size:20px;font-weight:900;margin-top:10px;">Итого: ${order.total.toLocaleString()} ₽</div>
+            <div class="total">Итого: ${(order.total || 0).toLocaleString()} ₽</div>
         </div>
-        <div style="margin:15px 0;"><strong>Статус:</strong> ${order.status}</div>
-        <button onclick="closeModal()" style="padding:12px 30px;background:#f7c948;border:none;border-radius:40px;font-weight:700;cursor:pointer;">Закрыть</button>
+        <div style="margin:15px 0;">
+            <strong>Статус:</strong> ${order.status}
+            &nbsp;|&nbsp; <strong>Дата:</strong> ${new Date(order.createdAt).toLocaleString('ru-RU')}
+        </div>
+        <button class="close-btn" onclick="closeModal()">Закрыть</button>
     `;
     modal.style.display = 'flex';
 }

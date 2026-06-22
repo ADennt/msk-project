@@ -263,7 +263,7 @@
 .btn-upload-image:hover { background:#e0b03a; }
 .btn-remove-image:hover { background:#b71c1c; }
 
-/* ----- Стили для заказов (статусы, селектор, модалка) ----- */
+/* ----- Стили для заказов (улучшенные) ----- */
 .order-status {
     display:inline-block;
     padding:4px 14px;
@@ -290,6 +290,7 @@
 }
 .status-select:focus { border-color:#f7c948; outline:none; }
 
+/* Модальное окно заказа */
 .order-modal {
     display:none;
     position:fixed;
@@ -338,7 +339,9 @@
     border-radius:12px;
     margin:15px 0;
 }
-.order-modal-content .info-block p { margin:4px 0; }
+.order-modal-content .info-block p {
+    margin:4px 0;
+}
 .order-modal-content .items-list {
     background:#f8f9fb;
     padding:15px;
