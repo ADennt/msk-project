@@ -36,7 +36,21 @@ function getFallbackProducts() {
     ];
 }
 
-document.addEventListener('DOMContentLoaded', initData);
+document.addEventListener('DOMContentLoaded', function() {
+    initData();
+    updateGreetingTime(); // устанавливаем текущее время для приветствия
+});
+
+// ===== Установка текущего времени в приветственном сообщении =====
+function updateGreetingTime() {
+    const timeSpan = document.getElementById('greetingTime');
+    if (timeSpan) {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        timeSpan.textContent = hours + ':' + minutes;
+    }
+}
 
 // ===== КАТАЛОГ =====
 function renderCatalog() {
@@ -250,7 +264,6 @@ function closeCheckoutForm() {
     updateCartUI();
 }
 
-// ===== ИСПРАВЛЕННАЯ ФУНКЦИЯ submitOrder (использует инкрементальный ID) =====
 function submitOrder() {
     const name = document.getElementById('orderName').value.trim();
     const phone = document.getElementById('orderPhone').value.trim();
@@ -263,12 +276,10 @@ function submitOrder() {
         return;
     }
 
-    // Генерируем новый ID через функцию из orders.js
     let newId = 1;
     if (typeof getNextOrderId === 'function') {
         newId = getNextOrderId();
     } else {
-        // fallback, если функция не определена
         const orders = JSON.parse(localStorage.getItem('msk_orders') || '[]');
         const maxId = orders.reduce((max, o) => o.id > max ? o.id : max, 0);
         newId = maxId + 1;
@@ -376,12 +387,34 @@ function escapeHtml(text) {
     d.textContent = text;
     return d.innerHTML;
 }
+
+// ===== ОБНОВЛЁННЫЙ АВТООТВЕТЧИК С ОТВЕТОМ НА "ЧТО ТЫ МОЖЕШЬ" =====
 function getAutoReply(text) {
     const lower = text.toLowerCase();
+
+    // Ответ на вопрос о возможностях бота
+    if (lower.includes('что ты можешь') || lower.includes('что умеешь') || 
+        lower.includes('какие функции') || lower.includes('помощь') || 
+        lower.includes('справка') || lower.includes('как ты работаешь') ||
+        lower.includes('расскажи о себе') || lower.includes('что ты умеешь')) {
+        return '🤖 Я — виртуальный помощник магазина МСК. Я могу:\n' +
+               '• Рассказать о товарах и ценах\n' +
+               '• Подсказать адрес и контакты\n' +
+               '• Ответить на вопросы о доставке\n' +
+               '• Помочь с заказами (оформление, статус)\n' +
+               '• Просто поболтать 😊\n' +
+               'Задавайте любой вопрос, и я постараюсь помочь!';
+    }
+
+    // Адрес и карта – текст с ссылкой
+    if (lower.includes('адрес') || lower.includes('где') || lower.includes('находитесь') || 
+        lower.includes('карта') || lower.includes('навигатор') || lower.includes('проехать')) {
+        return '📍 Наш адрес: <a href="https://www.google.com/maps/place/%D0%9B%D0%B8%D1%85%D0%B0%D1%87%D0%B5%D0%B2%D1%81%D0%BA%D0%B8%D0%B9+%D0%BF%D1%80-%D0%B4,+31,+%D0%94%D0%BE%D0%BB%D0%B3%D0%BE%D0%BF%D1%80%D1%83%D0%B4%D0%BD%D1%8B%D0%B9,+%D0%9C%D0%BE%D1%81%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%B0%D1%8F+%D0%BE%D0%B1%D0%BB.,+141701/@55.9182665,37.499657,17z" target="_blank" style="color:#f7c948; text-decoration:underline;">Лихачевский пр-д, 31, Долгопрудный, Московская обл., 141701</a>';
+    }
+    
     if (lower.includes('привет')) return '👋 Здравствуйте! Чем помочь?';
     if (lower.includes('цена') || lower.includes('стоимость')) return '💰 Цены указаны в каталоге. Есть скидки для оптовых заказов!';
     if (lower.includes('доставка')) return '🚚 Доставка по всей России. Сроки зависят от региона.';
-    if (lower.includes('адрес')) return '📍 Москва, Дорожный пр-д, 7';
     if (lower.includes('телефон') || lower.includes('номер')) return '📞 8 (800) 555-22-33';
     if (lower.includes('гост')) return '📄 Все знаки соответствуют ГОСТ 52290-2023';
     if (lower.includes('спасибо')) return '🙏 Спасибо за обращение!';

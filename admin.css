@@ -1,5 +1,6 @@
 /* ========================================
-   МСК — СТИЛИ АДМИН-ПАНЕЛИ (ДОПОЛНЕНИЕ ДЛЯ ВАРИАНТОВ)
+   МСК — СТИЛИ АДМИН-ПАНЕЛИ И ЗАКАЗОВ
+   Основной стиль модалки – вариант 1 (классический)
    ======================================== */
 
 /* ---- Базовые стили для админки ---- */
@@ -24,8 +25,51 @@
     margin-bottom: 25px;
     flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
 }
 
+/* ---- Стили кнопок в шапке (header) – ЖЁЛТЫЕ ---- */
+.header-btn {
+    background: #f7c948;
+    color: #000;
+    padding: 8px 18px;
+    border-radius: 40px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 16px;
+}
+.header-btn:hover {
+    background: #d4a82a;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(212, 168, 42, 0.4);
+}
+
+.header-btn-logout {
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 40px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.header-btn-logout:hover {
+    background: #b71c1c;
+    transform: scale(1.02);
+}
+
+/* ---- Кнопки действий (добавить, обновить, импорт, экспорт, заказы) ---- */
 .btn-admin-add {
     background: #f7c948;
     border: none;
@@ -80,7 +124,6 @@
     background: #0d47a1;
 }
 
-/* ===== ИСПРАВЛЕННАЯ КНОПКА ЭКСПОРТА ===== */
 .btn-admin-export {
     background: #f7c948;
     color: #000;
@@ -548,7 +591,7 @@
 }
 
 /* ========================================
-   СТИЛИ ДЛЯ СТРАНИЦЫ ЗАКАЗОВ (добавлено)
+   СТИЛИ ДЛЯ СТРАНИЦЫ ЗАКАЗОВ (обновлённые селекты + поиск)
    ======================================== */
 
 /* ---- Статусы заказов ---- */
@@ -582,20 +625,106 @@
     color: #b71c1c;
 }
 
-/* ---- Выпадающий список статуса ---- */
+/* ---- Выпадающий список статуса в каждой строке (.status-select) ---- */
 .status-select {
-    padding: 4px 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
+    padding: 6px 14px 6px 12px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
     font-size: 13px;
+    font-weight: 600;
+    color: #333;
     background: #fff;
     cursor: pointer;
-    transition: 0.2s;
+    transition: border 0.2s, box-shadow 0.2s;
+    outline: none;
+    min-width: 130px;
+    appearance: auto;
+    -webkit-appearance: auto;
+    -moz-appearance: auto;
+}
+.status-select:hover {
+    border-color: #999;
 }
 .status-select:focus {
-    outline: none;
     border-color: #f7c948;
-    box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.2);
+    box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.3);
+}
+.status-select option {
+    padding: 6px 12px;
+    background: #fff;
+    color: #333;
+    font-weight: 500;
+}
+.status-select option:hover,
+.status-select option:focus,
+.status-select option:active {
+    background: #f7c948 !important;
+    color: #000 !important;
+}
+
+/* ---- Выпадающий список фильтра (#statusFilter) ---- */
+#statusFilter {
+    padding: 8px 36px 8px 16px;
+    border: 2px solid #ddd;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;
+    background-size: 12px 8px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    min-width: 150px;
+}
+#statusFilter:hover {
+    border-color: #aaa;
+}
+#statusFilter:focus {
+    border-color: #f7c948;
+    box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.25);
+}
+#statusFilter option {
+    padding: 8px 12px;
+    background: #fff;
+    color: #333;
+    font-weight: 500;
+}
+#statusFilter option:hover,
+#statusFilter option:focus,
+#statusFilter option:active {
+    background: #f7c948 !important;
+    color: #000 !important;
+}
+
+/* ---- Поле поиска по заказам (расширенное) ---- */
+#searchOrders {
+    padding: 8px 18px;
+    border: 2px solid #ddd;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    min-width: 300px;
+    width: 350px;
+    height: 42px;
+}
+#searchOrders:hover {
+    border-color: #aaa;
+}
+#searchOrders:focus {
+    border-color: #f7c948;
+    box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.25);
+}
+#searchOrders::placeholder {
+    color: #aaa;
+    font-weight: 400;
 }
 
 /* ---- Кнопки действий в заказах ---- */
@@ -629,7 +758,9 @@
     background: #b71c1c;
 }
 
-/* ---- Модальное окно обзора заказа (переработанный стиль) ---- */
+/* ========================================
+   МОДАЛЬНОЕ ОКНО – ОСНОВНОЙ ВАРИАНТ (КЛАССИЧЕСКИЙ)
+   ======================================== */
 .order-modal {
     display: none;
     position: fixed;
@@ -645,27 +776,28 @@
 
 .order-modal-content {
     background: #fff;
-    border-radius: 20px;
-    padding: 30px;
+    border-radius: 16px;
+    padding: 28px 30px;
     max-width: 650px;
     width: 95%;
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
     border-left: 6px solid #f7c948;
 }
 
 .order-modal-close {
     position: absolute;
     top: 12px;
-    right: 18px;
+    right: 16px;
     font-size: 28px;
     background: none;
     border: none;
     cursor: pointer;
     color: #888;
     transition: 0.2s;
+    line-height: 1;
 }
 .order-modal-close:hover {
     color: #000;
@@ -674,34 +806,36 @@
 
 .order-modal-content h2 {
     margin-top: 0;
-    font-size: 26px;
+    font-size: 24px;
     color: #0b0b0b;
     border-bottom: 2px solid #f7c948;
-    padding-bottom: 12px;
-    margin-bottom: 20px;
+    padding-bottom: 10px;
+    margin-bottom: 18px;
 }
 
 .order-modal-content .info-block {
     background: #f8f9fb;
-    padding: 16px;
-    border-radius: 12px;
-    margin-bottom: 20px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    margin-bottom: 16px;
 }
 .order-modal-content .info-block p {
-    margin: 6px 0;
+    margin: 4px 0;
     font-size: 15px;
+    line-height: 1.5;
 }
 .order-modal-content .info-block strong {
     color: #333;
+    font-weight: 700;
 }
 
 .order-modal-content .items-list {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 .order-modal-content .items-list .item-row {
     display: flex;
     justify-content: space-between;
-    padding: 8px 0;
+    padding: 6px 0;
     border-bottom: 1px solid #f0f0f0;
     font-size: 15px;
 }
@@ -712,8 +846,8 @@
     font-size: 20px;
     font-weight: 900;
     text-align: right;
-    margin-top: 12px;
-    padding-top: 12px;
+    margin-top: 10px;
+    padding-top: 10px;
     border-top: 2px solid #f7c948;
 }
 
@@ -721,7 +855,7 @@
     background: #0b0b0b;
     color: #fff;
     border: none;
-    padding: 12px 35px;
+    padding: 10px 30px;
     border-radius: 40px;
     font-weight: 700;
     font-size: 16px;
