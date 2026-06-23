@@ -39,6 +39,14 @@
         </div>
     </header>
 
+    <!-- Поиск (добавлен для удобства) -->
+    <div class="container" style="margin-top:15px;">
+        <div class="search-form" style="max-width:500px;margin:0 auto;">
+            <input type="text" placeholder="Поиск по названию, номеру, размеру, цене..." id="searchInput" onkeypress="if(event.key==='Enter') searchProducts()" />
+            <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
+        </div>
+    </div>
+
     <!-- Навигация по категориям -->
     <nav class="nav-categories">
         <button class="active" data-filter="all">Все знаки</button>
@@ -126,6 +134,7 @@
         </div>
     </footer>
 
-    <script src="catalog.js"></script>
+    <!-- ВАЖНО: используем универсальный script.js -->
+    <script src="script.js"></script>
 </body>
 </html>
