@@ -1,5 +1,5 @@
 // ========================================
-// МСК — УПРАВЛЕНИЕ ЗАКАЗАМИ (с Firebase и накладной)
+// МСК — УПРАВЛЕНИЕ ЗАКАЗАМИ (с Firebase)
 // ========================================
 
 let allOrders = [];
@@ -53,7 +53,6 @@ function renderOrders(ordersToRender) {
       <td style="font-size:13px;color:#888;">${new Date(o.createdAt).toLocaleString('ru-RU')}</td>
       <td>
         <button class="btn-view" onclick="viewOrder(${o.id})"><i class="fas fa-eye"></i></button>
-        <button class="btn-invoice" onclick="showInvoice(${o.id})"><i class="fas fa-file-invoice"></i></button>
         <button class="btn-delete" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button>
       </td>
     </tr>
@@ -172,99 +171,6 @@ function viewOrder(id) {
 
 function closeModal() {
   document.getElementById('orderModal').style.display = 'none';
-}
-
-// ===== ФУНКЦИЯ ПОКАЗА НАКЛАДНОЙ =====
-function showInvoice(id) {
-  const order = allOrders.find(o => o.id === id);
-  if (!order) return;
-
-  const modal = document.getElementById('invoiceModal');
-  const content = document.getElementById('invoiceContent');
-
-  let itemsHtml = '';
-  if (order.items && order.items.length) {
-    itemsHtml = `
-      <table class="invoice-table">
-        <thead>
-          <tr>
-            <th>№</th>
-            <th>Наименование</th>
-            <th>Размер</th>
-            <th>Плёнка</th>
-            <th>Кол-во</th>
-            <th>Цена</th>
-            <th>Сумма</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${order.items.map((item, index) => `
-            <tr>
-              <td>${index + 1}</td>
-              <td>${item.name}</td>
-              <td>${item.size || '—'}</td>
-              <td>${item.film || '—'}</td>
-              <td>${item.quantity}</td>
-              <td>${item.price.toLocaleString()} ₽</td>
-              <td>${(item.price * item.quantity).toLocaleString()} ₽</td>
-            </tr>
-          `).join('')}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="6" style="text-align:right; font-weight:700;">Итого:</td>
-            <td style="font-weight:900;">${order.total.toLocaleString()} ₽</td>
-          </tr>
-        </tfoot>
-      </table>
-    `;
-  } else {
-    itemsHtml = '<p style="color:#888;">Нет товаров</p>';
-  }
-
-  const orderDate = new Date(order.createdAt);
-  const dateStr = orderDate.toLocaleDateString('ru-RU', {
-    day: '2-digit', month: '2-digit', year: 'numeric'
-  });
-  const timeStr = orderDate.toLocaleTimeString('ru-RU', {
-    hour: '2-digit', minute: '2-digit'
-  });
-
-  content.innerHTML = `
-    <div class="invoice-document">
-      <div class="invoice-header-block">
-        <div class="invoice-company">
-          <h1>ООО «МСК-Знак»</h1>
-          <p>ИНН 1234567890 / КПП 123456789</p>
-          <p>Лихачевский пр-д, 31, Долгопрудный, Московская обл., 141701</p>
-          <p>Тел.: 8 (800) 555-22-33, email: info@msk.ru</p>
-        </div>
-        <div class="invoice-details">
-          <p><strong>Накладная №</strong> ${order.id}</p>
-          <p><strong>Дата:</strong> ${dateStr} ${timeStr}</p>
-          <p><strong>Статус:</strong> ${order.status}</p>
-        </div>
-      </div>
-      
-      <div class="invoice-client">
-        <p><strong>Клиент:</strong> ${order.name || 'Не указан'}</p>
-        <p><strong>Телефон:</strong> ${order.phone || 'Не указан'}</p>
-        <p><strong>Email:</strong> ${order.email || 'Не указан'}</p>
-        <p><strong>Адрес доставки:</strong> ${order.address || 'Не указан'}</p>
-        ${order.comment ? `<p><strong>Комментарий:</strong> ${order.comment}</p>` : ''}
-      </div>
-
-      <div class="invoice-items">
-        ${itemsHtml}
-      </div>
-    </div>
-  `;
-
-  modal.style.display = 'flex';
-}
-
-function closeInvoice() {
-  document.getElementById('invoiceModal').style.display = 'none';
 }
 
 function logout() {
