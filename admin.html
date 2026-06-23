@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="admin.css" />
 </head>
 <body>
-    <!-- Проверка авторизации -->
     <script>
         if (sessionStorage.getItem('adminAuth') !== 'true') {
             window.location.href = 'login.html';
@@ -51,9 +50,13 @@
                         <label>Тип <span style="color:red;">*</span></label>
                         <select id="fType">
                             <option value="warning">Предупреждающий</option>
+                            <option value="priority">Приоритета</option>
                             <option value="forbid">Запрещающий</option>
                             <option value="mandatory">Предписывающий</option>
                             <option value="info">Информационный</option>
+                            <option value="special">Особых предписаний</option>
+                            <option value="service">Сервиса</option>
+                            <option value="additional">Дополнительной информации</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -124,6 +127,12 @@
         </div>
     </footer>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
     <script src="admin.js"></script>
 </body>
 </html>

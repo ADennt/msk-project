@@ -33,7 +33,6 @@
             <div class="admin-actions">
                 <button class="btn-admin-refresh" onclick="loadOrders()"><i class="fas fa-sync"></i> Обновить</button>
                 
-                <!-- Фильтр по статусу -->
                 <div style="display:flex;align-items:center;gap:10px;background:#fff;padding:6px 16px;border-radius:40px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
                     <label style="font-weight:700;color:#555;font-size:14px;"><i class="fas fa-filter"></i> Статус:</label>
                     <select id="statusFilter" onchange="applyFilters()">
@@ -46,7 +45,6 @@
                     </select>
                 </div>
 
-                <!-- Поле поиска по заказам (расширенное) -->
                 <input type="text" id="searchOrders" placeholder="🔍 Поиск (ID, имя, телефон, дата, месяц...)" oninput="applyFilters()" />
 
                 <span style="font-weight:700;color:#888;padding:14px 20px;background:#fff;border-radius:40px;">
@@ -89,6 +87,12 @@
         </div>
     </footer>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
     <script src="orders.js"></script>
 </body>
 </html>
