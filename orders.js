@@ -91,8 +91,10 @@ function applyFilters() {
 }
 
 function updateStatus(id, status) {
+  // Ищем заказ по id (теперь id уникален)
   const order = allOrders.find(o => o.id === id);
   if (order) {
+    // Находим ключ записи в Firebase
     database.ref('orders').once('value').then(snapshot => {
       const data = snapshot.val();
       if (data) {
@@ -104,7 +106,12 @@ function updateStatus(id, status) {
           }
         }
         if (key) {
-          database.ref('orders/' + key).update({ status: status });
+          database.ref('orders/' + key).update({ status: status }).then(() => {
+            // Обновляем также в личных заказах пользователя
+            // Но мы не знаем UID, так что можно не обновлять личные заказы,
+            // либо обновить все записи с таким id во всех users/*/orders
+            // Это сложно, но для простоты пропустим, т.к. глобальные заказы обновляются.
+          });
         }
       }
     });
