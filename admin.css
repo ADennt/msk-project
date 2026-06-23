@@ -1,6 +1,6 @@
 /* ========================================
    МСК — СТИЛИ АДМИН-ПАНЕЛИ И ЗАКАЗОВ
-   Основной стиль модалки – вариант 1 (классический)
+   (дополнительно: накладная и печать)
    ======================================== */
 
 /* ---- Базовые стили для админки ---- */
@@ -258,7 +258,7 @@
     background: #b71c1c;
 }
 
-/* ---- Таблица ---- */
+/* ---- Таблицы (админка и заказы) ---- */
 .admin-table-wrap {
     background: #fff;
     border-radius: 20px;
@@ -332,269 +332,7 @@
     background: #b71c1c;
 }
 
-/* ---- Блок вариантов ---- */
-.variants-group {
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 16px;
-    background: #fafafa;
-}
-
-.variant-row {
-    margin-bottom: 10px;
-}
-.variant-row:last-child {
-    margin-bottom: 0;
-}
-
-.variant-input-group {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-.variant-input-group input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: 0.3s;
-    min-width: 100px;
-}
-.variant-input-group input:focus {
-    border-color: #f7c948;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.2);
-}
-.variant-input-group .variant-size {
-    flex: 2;
-}
-.variant-input-group .variant-film {
-    flex: 1.5;
-}
-.variant-input-group .variant-price {
-    flex: 1;
-}
-
-.btn-remove-variant {
-    background: #d32f2f;
-    color: #fff;
-    border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-.btn-remove-variant:hover {
-    background: #b71c1c;
-    transform: rotate(90deg);
-}
-
-.btn-add-variant {
-    background: #f7c948;
-    border: none;
-    padding: 8px 20px;
-    border-radius: 30px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.3s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 10px;
-}
-.btn-add-variant:hover {
-    background: #e0b03a;
-}
-
-/* ---- Изображение ---- */
-.image-upload-group {
-    border: 2px dashed #e0e0e0;
-    border-radius: 16px;
-    padding: 20px;
-    transition: 0.3s;
-    background: #fafafa;
-}
-.image-upload-group:hover {
-    border-color: #f7c948;
-    background: #f7c94808;
-}
-
-.image-upload-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-}
-
-.image-preview {
-    width: 100%;
-    max-width: 300px;
-    height: 200px;
-    background: #fff;
-    border-radius: 12px;
-    border: 2px solid #e0e0e0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    color: #999;
-    font-size: 14px;
-    overflow: hidden;
-    transition: 0.3s;
-}
-.image-preview.has-image {
-    border-color: #f7c948;
-}
-.image-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-.image-preview i {
-    font-size: 48px;
-    color: #ddd;
-}
-
-.image-upload-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: #888;
-}
-.image-upload-info i {
-    color: #f7c948;
-}
-
-.btn-upload-image {
-    background: #f7c948;
-    border: none;
-    padding: 10px 24px;
-    border-radius: 40px;
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    transition: 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.btn-upload-image:hover {
-    background: #e0b03a;
-}
-
-.btn-remove-image {
-    background: #d32f2f;
-    color: #fff;
-    border: none;
-    padding: 10px 24px;
-    border-radius: 40px;
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    transition: 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.btn-remove-image:hover {
-    background: #b71c1c;
-}
-
-#fImage {
-    display: none;
-}
-
-/* ---- Статус сервера ---- */
-#serverStatus {
-    padding: 10px 20px;
-    border-radius: 10px;
-    margin: 10px auto 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    max-width: 1300px;
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    justify-content: center;
-}
-
-#statusDot {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #888;
-}
-
-#statusText {
-    font-weight: 600;
-    color: #555;
-}
-
-/* ---- Уведомления ---- */
-.custom-notification {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 16px 24px;
-    border-radius: 12px;
-    font-weight: 600;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-    z-index: 9999;
-    animation: slideDown 0.4s ease;
-    max-width: 500px;
-    text-align: center;
-}
-
-@keyframes slideDown {
-    from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-    to { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-@keyframes slideUp {
-    from { opacity: 1; transform: translateX(-50%) translateY(0); }
-    to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-}
-
-/* ---- Адаптив ---- */
-@media (max-width: 768px) {
-    .admin-wrapper { padding: 10px; }
-    .admin-form { padding: 20px; margin-left: 0; margin-right: 0; }
-    .form-grid { grid-template-columns: 1fr; }
-    .admin-table-wrap { padding: 10px; margin-left: 0; margin-right: 0; }
-    .admin-table { font-size: 13px; }
-    .admin-table th, .admin-table td { padding: 8px 6px; }
-    .admin-table .table-image { width: 35px; height: 35px; }
-    .admin-actions { justify-content: center; }
-    #serverStatus { margin-left: 0; margin-right: 0; }
-    .custom-notification { max-width: 95%; left: 50%; transform: translateX(-50%); top: 10px; }
-    .variant-input-group { flex-direction: column; align-items: stretch; }
-    .variant-input-group input { flex: 1 1 100%; }
-    .btn-remove-variant { align-self: flex-end; }
-}
-
-@media (max-width: 480px) {
-    .admin-actions { flex-direction: column; align-items: center; }
-    .admin-actions button, .admin-actions a { width: 100%; justify-content: center; }
-    .form-actions { flex-direction: column; align-items: center; }
-    .form-actions button { width: 100%; justify-content: center; }
-}
-
-/* ========================================
-   СТИЛИ ДЛЯ СТРАНИЦЫ ЗАКАЗОВ (обновлённые селекты + поиск)
-   ======================================== */
-
-/* ---- Статусы заказов ---- */
+/* ---- Стили для страницы заказов ---- */
 .order-status {
     display: inline-block;
     padding: 4px 14px;
@@ -625,7 +363,6 @@
     color: #b71c1c;
 }
 
-/* ---- Выпадающий список статуса в каждой строке (.status-select) ---- */
 .status-select {
     padding: 6px 14px 6px 12px;
     border: 2px solid #ccc;
@@ -638,9 +375,6 @@
     transition: border 0.2s, box-shadow 0.2s;
     outline: none;
     min-width: 130px;
-    appearance: auto;
-    -webkit-appearance: auto;
-    -moz-appearance: auto;
 }
 .status-select:hover {
     border-color: #999;
@@ -662,7 +396,6 @@
     color: #000 !important;
 }
 
-/* ---- Выпадающий список фильтра (#statusFilter) ---- */
 #statusFilter {
     padding: 8px 36px 8px 16px;
     border: 2px solid #ddd;
@@ -700,7 +433,6 @@
     color: #000 !important;
 }
 
-/* ---- Поле поиска по заказам (расширенное) ---- */
 #searchOrders {
     padding: 8px 18px;
     border: 2px solid #ddd;
@@ -727,7 +459,6 @@
     font-weight: 400;
 }
 
-/* ---- Кнопки действий в заказах ---- */
 .btn-view {
     background: #f7c948;
     color: #000;
@@ -741,6 +472,21 @@
 }
 .btn-view:hover {
     background: #e0b03a;
+}
+
+.btn-invoice {
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 13px;
+}
+.btn-invoice:hover {
+    background: #0d47a1;
 }
 
 .admin-table .btn-delete {
@@ -758,9 +504,7 @@
     background: #b71c1c;
 }
 
-/* ========================================
-   МОДАЛЬНОЕ ОКНО – ОСНОВНОЙ ВАРИАНТ (КЛАССИЧЕСКИЙ)
-   ======================================== */
+/* ===== Модальное окно просмотра заказа ===== */
 .order-modal {
     display: none;
     position: fixed;
@@ -773,7 +517,6 @@
     justify-content: center;
     align-items: center;
 }
-
 .order-modal-content {
     background: #fff;
     border-radius: 16px;
@@ -786,7 +529,6 @@
     box-shadow: 0 8px 30px rgba(0,0,0,0.12);
     border-left: 6px solid #f7c948;
 }
-
 .order-modal-close {
     position: absolute;
     top: 12px;
@@ -803,7 +545,6 @@
     color: #000;
     transform: rotate(90deg);
 }
-
 .order-modal-content h2 {
     margin-top: 0;
     font-size: 24px;
@@ -812,7 +553,6 @@
     padding-bottom: 10px;
     margin-bottom: 18px;
 }
-
 .order-modal-content .info-block {
     background: #f8f9fb;
     padding: 14px 16px;
@@ -828,7 +568,6 @@
     color: #333;
     font-weight: 700;
 }
-
 .order-modal-content .items-list {
     margin-bottom: 16px;
 }
@@ -850,7 +589,6 @@
     padding-top: 10px;
     border-top: 2px solid #f7c948;
 }
-
 .order-modal-content .close-btn {
     background: #0b0b0b;
     color: #fff;
@@ -868,17 +606,220 @@
     background: #333;
 }
 
-/* Адаптив для модалки */
-@media (max-width: 768px) {
-    .order-modal-content {
-        padding: 20px;
+/* ===== Модальное окно для накладной ===== */
+.invoice-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1001;
+    justify-content: center;
+    align-items: center;
+}
+.invoice-modal-content {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    max-width: 900px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #f7c948;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+.invoice-header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #0b0b0b;
+}
+.invoice-header h2 i {
+    color: #f7c948;
+    margin-right: 8px;
+}
+.invoice-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #888;
+}
+.invoice-close:hover {
+    color: #000;
+}
+
+/* Документ накладной */
+.invoice-document {
+    font-family: 'Times New Roman', serif;
+    background: #fff;
+    padding: 20px;
+}
+.invoice-company h1 {
+    font-size: 28px;
+    margin: 0 0 5px 0;
+    color: #000;
+}
+.invoice-company p {
+    margin: 2px 0;
+    font-size: 14px;
+    color: #333;
+}
+.invoice-header-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ccc;
+}
+.invoice-details {
+    text-align: right;
+    font-size: 14px;
+}
+.invoice-details p {
+    margin: 4px 0;
+}
+.invoice-client {
+    background: #f8f9fb;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+.invoice-client p {
+    margin: 4px 0;
+}
+.invoice-items {
+    margin-top: 20px;
+}
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+.invoice-table th {
+    background: #f7c948;
+    color: #000;
+    padding: 8px 12px;
+    text-align: left;
+    border: 1px solid #ccc;
+}
+.invoice-table td {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+}
+.invoice-table tfoot td {
+    border-top: 2px solid #f7c948;
+    font-weight: 700;
+}
+
+.invoice-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+.btn-print {
+    background: #0b0b0b;
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 40px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.btn-print:hover {
+    background: #333;
+}
+.btn-close-invoice {
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 40px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.btn-close-invoice:hover {
+    background: #b71c1c;
+}
+
+/* ---- Стили для печати накладной ---- */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #invoiceModal, #invoiceModal * {
+        visibility: visible;
+    }
+    #invoiceModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        z-index: 9999;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        overflow: auto;
+    }
+    .invoice-modal-content {
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0;
+        width: 100%;
+        max-height: none;
+    }
+    .invoice-header, .invoice-actions, .invoice-close {
+        display: none !important;
+    }
+    .invoice-document {
+        padding: 40px;
+        font-size: 12px;
+    }
+    .invoice-table th, .invoice-table td {
+        padding: 4px 8px;
+    }
+    .invoice-company h1 {
+        font-size: 22px;
     }
 }
-@media (max-width: 480px) {
-    .order-modal-content {
-        padding: 16px;
+
+/* ---- Адаптив ---- */
+@media (max-width: 768px) {
+    .invoice-modal-content {
+        padding: 10px;
     }
-    .order-modal-content h2 {
-        font-size: 22px;
+    .invoice-header-block {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .invoice-details {
+        text-align: left;
+        margin-top: 10px;
+    }
+    .invoice-table {
+        font-size: 12px;
+    }
+    .invoice-table th, .invoice-table td {
+        padding: 4px 6px;
+    }
+    .invoice-actions {
+        flex-direction: column;
+        align-items: stretch;
     }
 }
