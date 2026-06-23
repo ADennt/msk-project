@@ -1020,3 +1020,228 @@ body {
     .chat-input button { width: 34px; height: 34px; font-size: 14px; }
     .pagination-container button { padding: 6px 12px; min-width: 32px; min-height: 32px; font-size: 12px; }
 }
+/* ===== НАВИГАЦИЯ (Главная, Каталог, О нас) ===== */
+.nav-links {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.nav-links a {
+    color: #1e1e1e;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 6px 10px;
+    border-bottom: 3px solid transparent;
+    transition: 0.2s;
+}
+.nav-links a:hover {
+    border-bottom-color: #f7c948;
+}
+.nav-links a.active {
+    border-bottom-color: #f7c948;
+    color: #000;
+}
+
+/* ===== ГЛАВНАЯ СТРАНИЦА ===== */
+.hero {
+    padding: 60px 0 40px;
+    background: linear-gradient(135deg, #f8f9fb 0%, #ffffff 100%);
+}
+.hero .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+.hero-content {
+    flex: 1;
+    min-width: 280px;
+}
+.hero-content h1 {
+    font-size: 48px;
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    color: #1e1e1e;
+}
+.hero-content h1 span {
+    color: #f7c948;
+}
+.hero-content p {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 30px;
+    max-width: 500px;
+}
+.btn-hero {
+    display: inline-block;
+    background: #f7c948;
+    color: #000;
+    padding: 14px 40px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 18px;
+    text-decoration: none;
+    transition: 0.2s;
+}
+.btn-hero:hover {
+    background: #e0b03a;
+    transform: scale(1.02);
+}
+.hero-image {
+    flex: 1;
+    min-width: 280px;
+    text-align: center;
+}
+.hero-image img {
+    max-width: 100%;
+    height: auto;
+    max-height: 300px;
+}
+
+.advantages {
+    padding: 60px 0;
+    background: #ffffff;
+}
+.advantages h2 {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 40px;
+}
+.advantages-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+}
+@media (max-width: 900px) {
+    .advantages-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+    .advantages-grid { grid-template-columns: 1fr; }
+}
+.advantage-item {
+    text-align: center;
+    padding: 20px;
+    background: #f8f9fb;
+    border-radius: 16px;
+    transition: 0.3s;
+}
+.advantage-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+.advantage-item i {
+    font-size: 40px;
+    color: #f7c948;
+    margin-bottom: 15px;
+}
+.advantage-item h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+.advantage-item p {
+    color: #666;
+    font-size: 15px;
+}
+
+.popular-products {
+    padding: 60px 0;
+    background: #f8f9fb;
+}
+.popular-products h2 {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 30px;
+}
+
+/* ===== СТРАНИЦА "О НАС" ===== */
+.about-page {
+    padding: 40px 0 60px;
+}
+.about-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+.about-header h1 {
+    font-size: 42px;
+    font-weight: 900;
+}
+.about-header h1 span {
+    background: #f7c948;
+    padding: 0 10px;
+    border-radius: 4px;
+}
+.about-header p {
+    font-size: 18px;
+    color: #888;
+    margin-top: 10px;
+}
+.about-content {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+.about-text {
+    flex: 2;
+    min-width: 280px;
+}
+.about-text h2 {
+    font-size: 24px;
+    font-weight: 800;
+    margin: 20px 0 10px;
+}
+.about-text p {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #444;
+}
+.about-text ul {
+    list-style: none;
+    padding: 0;
+}
+.about-text ul li {
+    padding: 8px 0;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.about-text ul li i {
+    color: #f7c948;
+    font-size: 18px;
+}
+.contacts {
+    background: #f8f9fb;
+    padding: 20px;
+    border-radius: 16px;
+    margin-top: 15px;
+}
+.contacts p {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.contacts i {
+    color: #f7c948;
+    width: 24px;
+    text-align: center;
+}
+.about-image {
+    flex: 1;
+    min-width: 280px;
+    background: #f8f9fb;
+    border-radius: 20px;
+    padding: 20px;
+}
+.about-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+}
