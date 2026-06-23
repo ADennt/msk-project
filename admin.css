@@ -274,20 +274,30 @@
     border-collapse: collapse;
     font-size: 15px;
 }
-
 .admin-table th {
     background: #f8f9fb;
     padding: 14px 12px;
     text-align: left;
     font-weight: 700;
-    color: #555;
-    border-bottom: 2px solid #f7c948;
+    color: #444;
+    border-bottom: 3px solid #f7c948;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
-
 .admin-table td {
     padding: 14px 12px;
     border-bottom: 1px solid #eee;
     vertical-align: middle;
+}
+.admin-table tbody tr:hover {
+    background: #fafbfc;
+}
+.admin-table tbody tr:nth-child(even) {
+    background: #f8f9fa;
+}
+.admin-table tbody tr:nth-child(even):hover {
+    background: #f0f2f5;
 }
 
 .admin-table .table-image {
@@ -565,15 +575,20 @@
     to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
 }
 
-/* ---- Стили для страницы заказов ---- */
+/* ========================================
+   СТИЛИ ДЛЯ СТРАНИЦЫ ЗАКАЗОВ
+   ======================================== */
+
+/* ---- Статусы заказов ---- */
 .order-status {
     display: inline-block;
-    padding: 4px 14px;
+    padding: 5px 16px;
     border-radius: 30px;
     font-size: 13px;
     font-weight: 700;
     text-transform: capitalize;
     margin-right: 8px;
+    letter-spacing: 0.3px;
 }
 .order-status.new {
     background: #e3f2fd;
@@ -596,10 +611,11 @@
     color: #b71c1c;
 }
 
+/* ---- Выпадающий список статуса в строке ---- */
 .status-select {
-    padding: 6px 14px 6px 12px;
-    border: 2px solid #ccc;
-    border-radius: 10px;
+    padding: 6px 12px;
+    border: 2px solid #d0d0d0;
+    border-radius: 8px;
     font-size: 13px;
     font-weight: 600;
     color: #333;
@@ -610,25 +626,23 @@
     min-width: 130px;
 }
 .status-select:hover {
-    border-color: #999;
+    border-color: #aaa;
 }
 .status-select:focus {
     border-color: #f7c948;
     box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.3);
 }
 .status-select option {
-    padding: 6px 12px;
+    padding: 6px 10px;
     background: #fff;
     color: #333;
-    font-weight: 500;
 }
-.status-select option:hover,
-.status-select option:focus,
-.status-select option:active {
-    background: #f7c948 !important;
-    color: #000 !important;
+.status-select option:hover {
+    background: #f7c948;
+    color: #000;
 }
 
+/* ---- Фильтр статуса (верхний) ---- */
 #statusFilter {
     padding: 8px 36px 8px 16px;
     border: 2px solid #ddd;
@@ -645,9 +659,10 @@
     transition: border-color 0.2s, box-shadow 0.2s;
     outline: none;
     min-width: 150px;
+    height: 42px;
 }
 #statusFilter:hover {
-    border-color: #aaa;
+    border-color: #bbb;
 }
 #statusFilter:focus {
     border-color: #f7c948;
@@ -659,13 +674,12 @@
     color: #333;
     font-weight: 500;
 }
-#statusFilter option:hover,
-#statusFilter option:focus,
-#statusFilter option:active {
-    background: #f7c948 !important;
-    color: #000 !important;
+#statusFilter option:hover {
+    background: #f7c948;
+    color: #000;
 }
 
+/* ---- Поле поиска ---- */
 #searchOrders {
     padding: 8px 18px;
     border: 2px solid #ddd;
@@ -681,7 +695,7 @@
     height: 42px;
 }
 #searchOrders:hover {
-    border-color: #aaa;
+    border-color: #bbb;
 }
 #searchOrders:focus {
     border-color: #f7c948;
@@ -703,9 +717,13 @@
     cursor: pointer;
     transition: 0.2s;
     font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 .btn-view:hover {
     background: #e0b03a;
+    transform: scale(1.05);
 }
 
 .btn-invoice {
@@ -718,9 +736,13 @@
     cursor: pointer;
     transition: 0.2s;
     font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 .btn-invoice:hover {
     background: #0d47a1;
+    transform: scale(1.05);
 }
 
 .admin-table .btn-delete {
@@ -733,12 +755,18 @@
     cursor: pointer;
     transition: 0.2s;
     font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 .admin-table .btn-delete:hover {
     background: #b71c1c;
+    transform: scale(1.05);
 }
 
-/* ===== Модальное окно просмотра заказа ===== */
+/* ========================================
+   МОДАЛЬНОЕ ОКНО ПРОСМОТРА ЗАКАЗА
+   ======================================== */
 .order-modal {
     display: none;
     position: fixed;
@@ -840,7 +868,9 @@
     background: #333;
 }
 
-/* ===== Модальное окно для накладной ===== */
+/* ========================================
+   МОДАЛЬНОЕ ОКНО НАКЛАДНОЙ
+   ======================================== */
 .invoice-modal {
     display: none;
     position: fixed;
@@ -1032,7 +1062,9 @@
     }
 }
 
-/* ---- Адаптив ---- */
+/* ========================================
+   АДАПТИВ
+   ======================================== */
 @media (max-width: 768px) {
     .admin-wrapper { padding: 10px; }
     .admin-form { padding: 20px; margin-left: 0; margin-right: 0; }
@@ -1067,6 +1099,24 @@
         align-items: stretch;
     }
     .order-modal-content { padding: 20px; }
+    .admin-table .btn-view,
+    .admin-table .btn-invoice,
+    .admin-table .btn-delete {
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+    .admin-table .btn-view i,
+    .admin-table .btn-invoice i,
+    .admin-table .btn-delete i {
+        font-size: 12px;
+    }
+    #searchOrders {
+        min-width: 200px;
+        width: 100%;
+    }
+    #statusFilter {
+        min-width: 120px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1076,4 +1126,12 @@
     .form-actions button { width: 100%; justify-content: center; }
     .order-modal-content { padding: 16px; }
     .order-modal-content h2 { font-size: 22px; }
+    .admin-table { font-size: 12px; }
+    .admin-table th, .admin-table td { padding: 6px 4px; }
+    .admin-table .btn-view,
+    .admin-table .btn-invoice,
+    .admin-table .btn-delete {
+        padding: 3px 8px;
+        font-size: 10px;
+    }
 }
