@@ -8,7 +8,6 @@ let currentFilter = 'all';
 let currentPage = 1;
 const itemsPerPage = 20;
 let filteredProducts = [];
-let isFirebaseReady = false;
 
 // ===== ОЖИДАНИЕ ГОТОВНОСТИ FIREBASE =====
 function waitForFirebase(callback) {
@@ -22,25 +21,19 @@ function waitForFirebase(callback) {
 // ===== ИНИЦИАЛИЗАЦИЯ =====
 function initData() {
   waitForFirebase(() => {
-    // Загружаем товары из Firebase
     database.ref('products').once('value').then(snapshot => {
       const data = snapshot.val();
       if (data && Object.keys(data).length > 0) {
-        // Преобразуем объект в массив
         products = Object.values(data);
-        // Загружаем корзину
         loadCart();
-        // Рендерим каталог
         applyFiltersAndPagination();
         updateCartUI();
       } else {
-        // Если товаров нет – загружаем из data.json
         fetch('data.json')
           .then(res => res.json())
           .then(data => {
             if (data.products) {
               products = data.products;
-              // Сохраняем в Firebase
               const updates = {};
               products.forEach(p => {
                 updates[p.id] = p;
@@ -93,11 +86,7 @@ function loadCart() {
   if (!uid) return;
   database.ref('users/' + uid + '/cart').on('value', snapshot => {
     const data = snapshot.val();
-    if (data) {
-      cart = data;
-    } else {
-      cart = [];
-    }
+    cart = data || [];
     updateCartUI();
   });
 }
@@ -242,7 +231,7 @@ function closeCheckoutForm() {
   updateCartUI();
 }
 
-function submitOrder() {
+async function submitOrder() {
   const name = document.getElementById('orderName').value.trim();
   const phone = document.getElementById('orderPhone').value.trim();
   const email = document.getElementById('orderEmail').value.trim();
@@ -254,30 +243,40 @@ function submitOrder() {
     return;
   }
 
-  const order = {
-    id: Date.now(),
-    name, phone, email: email || 'Не указан', address, comment: comment || 'Нет',
-    items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, size: i.size, film: i.film, image: i.image })),
-    total: cart.reduce((s, i) => s + i.price * i.quantity, 0),
-    status: 'новый',
-    createdAt: new Date().toISOString()
-  };
+  try {
+    // Получаем новый инкрементальный ID
+    const orderId = await getNextOrderId();
+    if (!orderId) {
+      alert('Ошибка генерации ID заказа');
+      return;
+    }
 
-  // Сохраняем заказ в глобальные заказы и в личные заказы пользователя
-  const uid = getCurrentUserId();
-  if (!uid) { alert('Ошибка аутентификации'); return; }
+    const order = {
+      id: orderId,
+      name, phone, email: email || 'Не указан', address, comment: comment || 'Нет',
+      items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, size: i.size, film: i.film, image: i.image })),
+      total: cart.reduce((s, i) => s + i.price * i.quantity, 0),
+      status: 'новый',
+      createdAt: new Date().toISOString()
+    };
 
-  // Глобальные заказы
-  database.ref('orders').push(order).then(() => {
+    const uid = getCurrentUserId();
+    if (!uid) { alert('Ошибка аутентификации'); return; }
+
+    // Глобальные заказы
+    await database.ref('orders').push(order);
     // Личные заказы пользователя
-    database.ref('users/' + uid + '/orders').push(order).then(() => {
-      cart = [];
-      saveCartToFirebase();
-      updateCartUI();
-      alert(`✅ Заказ #${order.id} оформлен!`);
-      toggleCart();
-    });
-  });
+    await database.ref('users/' + uid + '/orders').push(order);
+
+    cart = [];
+    saveCartToFirebase();
+    updateCartUI();
+    alert(`✅ Заказ #${order.id} оформлен!`);
+    toggleCart();
+  } catch (error) {
+    console.error('Ошибка оформления заказа:', error);
+    alert('❌ Произошла ошибка при оформлении заказа. Попробуйте позже.');
+  }
 }
 
 // ===== ФИЛЬТРЫ, ПОИСК, ПАГИНАЦИЯ =====

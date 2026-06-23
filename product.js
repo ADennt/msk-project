@@ -104,7 +104,7 @@ function buyNow() {
   window.location.href = 'index.html';
 }
 
-// ===== ОФОРМЛЕНИЕ ЗАКАЗА (копия из script.js) =====
+// ===== ОФОРМЛЕНИЕ ЗАКАЗА =====
 function showCheckoutForm() {
   if (!cart.length) { alert('Корзина пуста'); return; }
   const overlay = document.getElementById('cartOverlay');
@@ -146,7 +146,7 @@ function closeCheckoutForm() {
   updateCartUI();
 }
 
-function submitOrder() {
+async function submitOrder() {
   const name = document.getElementById('orderName').value.trim();
   const phone = document.getElementById('orderPhone').value.trim();
   const email = document.getElementById('orderEmail').value.trim();
@@ -158,27 +158,37 @@ function submitOrder() {
     return;
   }
 
-  const order = {
-    id: Date.now(),
-    name, phone, email: email || 'Не указан', address, comment: comment || 'Нет',
-    items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, size: i.size, film: i.film, image: i.image })),
-    total: cart.reduce((s, i) => s + i.price * i.quantity, 0),
-    status: 'новый',
-    createdAt: new Date().toISOString()
-  };
+  try {
+    const orderId = await getNextOrderId();
+    if (!orderId) {
+      alert('Ошибка генерации ID заказа');
+      return;
+    }
 
-  const uid = getCurrentUserId();
-  if (!uid) { alert('Ошибка аутентификации'); return; }
+    const order = {
+      id: orderId,
+      name, phone, email: email || 'Не указан', address, comment: comment || 'Нет',
+      items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, size: i.size, film: i.film, image: i.image })),
+      total: cart.reduce((s, i) => s + i.price * i.quantity, 0),
+      status: 'новый',
+      createdAt: new Date().toISOString()
+    };
 
-  database.ref('orders').push(order).then(() => {
-    database.ref('users/' + uid + '/orders').push(order).then(() => {
-      cart = [];
-      saveCartToFirebase();
-      updateCartUI();
-      alert(`✅ Заказ #${order.id} оформлен!`);
-      toggleCart();
-    });
-  });
+    const uid = getCurrentUserId();
+    if (!uid) { alert('Ошибка аутентификации'); return; }
+
+    await database.ref('orders').push(order);
+    await database.ref('users/' + uid + '/orders').push(order);
+
+    cart = [];
+    saveCartToFirebase();
+    updateCartUI();
+    alert(`✅ Заказ #${order.id} оформлен!`);
+    toggleCart();
+  } catch (error) {
+    console.error('Ошибка оформления заказа:', error);
+    alert('❌ Произошла ошибка при оформлении заказа. Попробуйте позже.');
+  }
 }
 
 // ===== ЗАГРУЗКА ТОВАРА =====
@@ -186,7 +196,6 @@ function loadProduct() {
   const params = new URLSearchParams(window.location.search);
   const id = parseInt(params.get('id'));
   
-  // Ждём Firebase и загружаем товары
   waitForFirebase(() => {
     database.ref('products').once('value').then(snapshot => {
       const data = snapshot.val();

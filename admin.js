@@ -215,9 +215,8 @@ function saveProduct() {
     variants
   };
 
-  // Сохраняем в Firebase
   database.ref('products/' + id).set(productData).then(() => {
-    loadProducts(); // обновляем таблицу
+    loadProducts();
     hideForm();
     alert('✅ Товар сохранён!');
   });
@@ -231,7 +230,7 @@ function deleteProduct(id) {
   });
 }
 
-// ===== ЭКСПОРТ / ИМПОРТ (работают с Firebase) =====
+// ===== ЭКСПОРТ / ИМПОРТ =====
 function exportData() {
   database.ref('products').once('value').then(snapshot => {
     const data = snapshot.val();
@@ -274,13 +273,11 @@ function importData() {
   input.click();
 }
 
-// ===== ВЫХОД =====
 function logout() {
   sessionStorage.removeItem('adminAuth');
   window.location.href = 'login.html';
 }
 
-// Ждём Firebase
 waitForFirebase(() => {
   loadProducts();
 });

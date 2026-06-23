@@ -2,11 +2,10 @@
 //  🔥 Firebase конфигурация (compat-версия для скриптов)
 // ============================================================
 
-// Ваш конфиг с правильным databaseURL (с учётом региона)
 const firebaseConfig = {
   apiKey: "AIzaSyBD7GGC00wr_3Ggkbtz9WmYscZ3NQlVkPM",
   authDomain: "msk-project-d0f5f.firebaseapp.com",
-  databaseURL: "https://msk-project-d0f5f-default-rtdb.europe-west1.firebasedatabase.app", // <-- ИСПРАВЛЕНО
+  databaseURL: "https://msk-project-d0f5f-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "msk-project-d0f5f",
   storageBucket: "msk-project-d0f5f.firebasestorage.app",
   messagingSenderId: "834093900937",
@@ -14,18 +13,14 @@ const firebaseConfig = {
   measurementId: "G-KE8FNH95KP"
 };
 
-// Инициализация Firebase (compat-версия)
 firebase.initializeApp(firebaseConfig);
 
-// Получаем ссылки на сервисы
 const database = firebase.database();
 const auth = firebase.auth();
 
-// Флаг готовности Firebase
 let firebaseReady = false;
 let currentUserId = null;
 
-// Анонимная аутентификация
 auth.signInAnonymously()
   .then(result => {
     currentUserId = result.user.uid;
@@ -47,4 +42,22 @@ function waitForFirebase(callback) {
   } else {
     window.onFirebaseReady = callback;
   }
+}
+
+// ===== ГЕНЕРАЦИЯ ИНКРЕМЕНТАЛЬНОГО ID ДЛЯ ЗАКАЗОВ =====
+function getNextOrderId() {
+  return new Promise((resolve, reject) => {
+    const counterRef = database.ref('meta/orderCounter');
+    counterRef.transaction(current => {
+      return (current || 0) + 1;
+    }, (error, committed, snapshot) => {
+      if (error) {
+        reject(error);
+      } else if (committed) {
+        resolve(snapshot.val());
+      } else {
+        resolve(null);
+      }
+    }, false);
+  });
 }

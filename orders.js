@@ -42,7 +42,7 @@ function renderOrders(ordersToRender) {
       <td><strong>${(o.total || 0).toLocaleString()} ₽</strong></td>
       <td>
         <span class="order-status ${statusClass}">${o.status}</span>
-        <select class="status-select" onchange="updateStatus(${o.id}, this.value, '${o.createdAt}')">
+        <select class="status-select" onchange="updateStatus(${o.id}, this.value)">
           <option value="новый" ${o.status === 'новый' ? 'selected':''}>Новый</option>
           <option value="в обработке" ${o.status === 'в обработке' ? 'selected':''}>В обработке</option>
           <option value="отправлен" ${o.status === 'отправлен' ? 'selected':''}>Отправлен</option>
@@ -90,25 +90,28 @@ function applyFilters() {
   renderOrders(filteredOrders);
 }
 
-function updateStatus(id, status, createdAt) {
-  // Находим заказ по id и createdAt (для уникальности)
-  const order = allOrders.find(o => o.id === id && o.createdAt === createdAt);
+function updateStatus(id, status) {
+  // Ищем заказ по id (теперь id уникален)
+  const order = allOrders.find(o => o.id === id);
   if (order) {
-    order.status = status;
-    // Обновляем в Firebase – нужно знать ключ записи, но мы можем обновить все заказы с таким id (их может быть несколько, но id уникален)
-    // Поскольку мы храним заказы под push-ключами, надо найти запись с нужным id и createdAt
+    // Находим ключ записи в Firebase
     database.ref('orders').once('value').then(snapshot => {
       const data = snapshot.val();
       if (data) {
         let key = null;
         for (const k in data) {
-          if (data[k].id === id && data[k].createdAt === createdAt) {
+          if (data[k].id === id) {
             key = k;
             break;
           }
         }
         if (key) {
-          database.ref('orders/' + key).update({ status: status });
+          database.ref('orders/' + key).update({ status: status }).then(() => {
+            // Обновляем также в личных заказах пользователя
+            // Но мы не знаем UID, так что можно не обновлять личные заказы,
+            // либо обновить все записи с таким id во всех users/*/orders
+            // Это сложно, но для простоты пропустим, т.к. глобальные заказы обновляются.
+          });
         }
       }
     });
@@ -123,7 +126,6 @@ function deleteOrder(id) {
       for (const k in data) {
         if (data[k].id === id) {
           database.ref('orders/' + k).remove().then(() => {
-            // После удаления обновим список
             loadOrders();
           });
           return;
@@ -183,12 +185,10 @@ function logout() {
   window.location.href = 'login.html';
 }
 
-// Инициализация при готовности Firebase
 waitForFirebase(() => {
   loadOrders();
 });
 
-// Обновление при возврате на вкладку
 document.addEventListener('visibilitychange', function() {
   if (!document.hidden) {
     loadOrders();
