@@ -6,19 +6,29 @@ let allOrders = [];
 let filteredOrders = [];
 
 function loadOrders() {
+  console.log('🔄 Загрузка заказов...');
   database.ref('orders').on('value', snapshot => {
     const data = snapshot.val();
+    console.log('📦 Данные из Firebase (orders):', data);
     if (data) {
       allOrders = Object.values(data);
+      console.log('✅ Заказов загружено:', allOrders.length);
     } else {
       allOrders = [];
+      console.log('⚠️ Нет заказов в Firebase');
     }
     applyFilters();
+  }, error => {
+    console.error('❌ Ошибка чтения заказов:', error);
   });
 }
 
 function renderOrders(ordersToRender) {
   const tbody = document.getElementById('ordersTableBody');
+  if (!tbody) {
+    console.error('❌ Элемент #ordersTableBody не найден!');
+    return;
+  }
   if (!ordersToRender || !ordersToRender.length) {
     tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:#999;">Нет заказов</td></tr>';
     updateOrderCount(0);
@@ -62,12 +72,13 @@ function renderOrders(ordersToRender) {
 }
 
 function updateOrderCount(count) {
-  document.getElementById('orderCountNumber').textContent = count;
+  const el = document.getElementById('orderCountNumber');
+  if (el) el.textContent = count;
 }
 
 function applyFilters() {
-  const statusFilter = document.getElementById('statusFilter').value;
-  const searchQuery = document.getElementById('searchOrders').value.trim().toLowerCase();
+  const statusFilter = document.getElementById('statusFilter')?.value || 'all';
+  const searchQuery = document.getElementById('searchOrders')?.value?.trim().toLowerCase() || '';
 
   let statusFiltered = (statusFilter === 'all') ? [...allOrders] : allOrders.filter(o => o.status === statusFilter);
 
@@ -91,10 +102,8 @@ function applyFilters() {
 }
 
 function updateStatus(id, status) {
-  // Ищем заказ по id (теперь id уникален)
   const order = allOrders.find(o => o.id === id);
   if (order) {
-    // Находим ключ записи в Firebase
     database.ref('orders').once('value').then(snapshot => {
       const data = snapshot.val();
       if (data) {
@@ -106,12 +115,7 @@ function updateStatus(id, status) {
           }
         }
         if (key) {
-          database.ref('orders/' + key).update({ status: status }).then(() => {
-            // Обновляем также в личных заказах пользователя
-            // Но мы не знаем UID, так что можно не обновлять личные заказы,
-            // либо обновить все записи с таким id во всех users/*/orders
-            // Это сложно, но для простоты пропустим, т.к. глобальные заказы обновляются.
-          });
+          database.ref('orders/' + key).update({ status: status });
         }
       }
     });
@@ -185,12 +189,16 @@ function logout() {
   window.location.href = 'login.html';
 }
 
+// ===== ИНИЦИАЛИЗАЦИЯ =====
 waitForFirebase(() => {
+  console.log('🚀 Инициализация orders.js');
   loadOrders();
 });
 
+// Обновление при возврате на вкладку
 document.addEventListener('visibilitychange', function() {
   if (!document.hidden) {
+    console.log('👁️ Вкладка активна, обновляем заказы');
     loadOrders();
   }
 });

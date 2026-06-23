@@ -1,6 +1,5 @@
 /* ========================================
    МСК — СТИЛИ АДМИН-ПАНЕЛИ И ЗАКАЗОВ
-   Основной стиль модалки – вариант 1 (классический)
    ======================================== */
 
 /* ---- Базовые стили для админки ---- */
@@ -258,7 +257,7 @@
     background: #b71c1c;
 }
 
-/* ---- Таблица ---- */
+/* ---- Таблицы (админка и заказы) ---- */
 .admin-table-wrap {
     background: #fff;
     border-radius: 20px;
@@ -275,20 +274,30 @@
     border-collapse: collapse;
     font-size: 15px;
 }
-
 .admin-table th {
     background: #f8f9fb;
     padding: 14px 12px;
     text-align: left;
     font-weight: 700;
-    color: #555;
-    border-bottom: 2px solid #f7c948;
+    color: #444;
+    border-bottom: 3px solid #f7c948;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
-
 .admin-table td {
     padding: 14px 12px;
     border-bottom: 1px solid #eee;
     vertical-align: middle;
+}
+.admin-table tbody tr:hover {
+    background: #fafbfc;
+}
+.admin-table tbody tr:nth-child(even) {
+    background: #f8f9fa;
+}
+.admin-table tbody tr:nth-child(even):hover {
+    background: #f0f2f5;
 }
 
 .admin-table .table-image {
@@ -566,43 +575,20 @@
     to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
 }
 
-/* ---- Адаптив ---- */
-@media (max-width: 768px) {
-    .admin-wrapper { padding: 10px; }
-    .admin-form { padding: 20px; margin-left: 0; margin-right: 0; }
-    .form-grid { grid-template-columns: 1fr; }
-    .admin-table-wrap { padding: 10px; margin-left: 0; margin-right: 0; }
-    .admin-table { font-size: 13px; }
-    .admin-table th, .admin-table td { padding: 8px 6px; }
-    .admin-table .table-image { width: 35px; height: 35px; }
-    .admin-actions { justify-content: center; }
-    #serverStatus { margin-left: 0; margin-right: 0; }
-    .custom-notification { max-width: 95%; left: 50%; transform: translateX(-50%); top: 10px; }
-    .variant-input-group { flex-direction: column; align-items: stretch; }
-    .variant-input-group input { flex: 1 1 100%; }
-    .btn-remove-variant { align-self: flex-end; }
-}
-
-@media (max-width: 480px) {
-    .admin-actions { flex-direction: column; align-items: center; }
-    .admin-actions button, .admin-actions a { width: 100%; justify-content: center; }
-    .form-actions { flex-direction: column; align-items: center; }
-    .form-actions button { width: 100%; justify-content: center; }
-}
-
 /* ========================================
-   СТИЛИ ДЛЯ СТРАНИЦЫ ЗАКАЗОВ (обновлённые селекты + поиск)
+   СТИЛИ ДЛЯ СТРАНИЦЫ ЗАКАЗОВ (улучшенные, без накладной)
    ======================================== */
 
 /* ---- Статусы заказов ---- */
 .order-status {
     display: inline-block;
-    padding: 4px 14px;
+    padding: 5px 16px;
     border-radius: 30px;
     font-size: 13px;
     font-weight: 700;
     text-transform: capitalize;
     margin-right: 8px;
+    letter-spacing: 0.3px;
 }
 .order-status.new {
     background: #e3f2fd;
@@ -625,11 +611,11 @@
     color: #b71c1c;
 }
 
-/* ---- Выпадающий список статуса в каждой строке (.status-select) ---- */
+/* ---- Выпадающий список статуса в строке ---- */
 .status-select {
-    padding: 6px 14px 6px 12px;
-    border: 2px solid #ccc;
-    border-radius: 10px;
+    padding: 6px 12px;
+    border: 2px solid #d0d0d0;
+    border-radius: 8px;
     font-size: 13px;
     font-weight: 600;
     color: #333;
@@ -638,31 +624,25 @@
     transition: border 0.2s, box-shadow 0.2s;
     outline: none;
     min-width: 130px;
-    appearance: auto;
-    -webkit-appearance: auto;
-    -moz-appearance: auto;
 }
 .status-select:hover {
-    border-color: #999;
+    border-color: #aaa;
 }
 .status-select:focus {
     border-color: #f7c948;
     box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.3);
 }
 .status-select option {
-    padding: 6px 12px;
+    padding: 6px 10px;
     background: #fff;
     color: #333;
-    font-weight: 500;
 }
-.status-select option:hover,
-.status-select option:focus,
-.status-select option:active {
-    background: #f7c948 !important;
-    color: #000 !important;
+.status-select option:hover {
+    background: #f7c948;
+    color: #000;
 }
 
-/* ---- Выпадающий список фильтра (#statusFilter) ---- */
+/* ---- Фильтр статуса (верхний) ---- */
 #statusFilter {
     padding: 8px 36px 8px 16px;
     border: 2px solid #ddd;
@@ -679,9 +659,10 @@
     transition: border-color 0.2s, box-shadow 0.2s;
     outline: none;
     min-width: 150px;
+    height: 42px;
 }
 #statusFilter:hover {
-    border-color: #aaa;
+    border-color: #bbb;
 }
 #statusFilter:focus {
     border-color: #f7c948;
@@ -693,14 +674,12 @@
     color: #333;
     font-weight: 500;
 }
-#statusFilter option:hover,
-#statusFilter option:focus,
-#statusFilter option:active {
-    background: #f7c948 !important;
-    color: #000 !important;
+#statusFilter option:hover {
+    background: #f7c948;
+    color: #000;
 }
 
-/* ---- Поле поиска по заказам (расширенное) ---- */
+/* ---- Поле поиска ---- */
 #searchOrders {
     padding: 8px 18px;
     border: 2px solid #ddd;
@@ -716,7 +695,7 @@
     height: 42px;
 }
 #searchOrders:hover {
-    border-color: #aaa;
+    border-color: #bbb;
 }
 #searchOrders:focus {
     border-color: #f7c948;
@@ -738,9 +717,13 @@
     cursor: pointer;
     transition: 0.2s;
     font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 .btn-view:hover {
     background: #e0b03a;
+    transform: scale(1.05);
 }
 
 .admin-table .btn-delete {
@@ -753,13 +736,17 @@
     cursor: pointer;
     transition: 0.2s;
     font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 .admin-table .btn-delete:hover {
     background: #b71c1c;
+    transform: scale(1.05);
 }
 
 /* ========================================
-   МОДАЛЬНОЕ ОКНО – ОСНОВНОЙ ВАРИАНТ (КЛАССИЧЕСКИЙ)
+   МОДАЛЬНОЕ ОКНО ПРОСМОТРА ЗАКАЗА
    ======================================== */
 .order-modal {
     display: none;
@@ -773,7 +760,6 @@
     justify-content: center;
     align-items: center;
 }
-
 .order-modal-content {
     background: #fff;
     border-radius: 16px;
@@ -786,7 +772,6 @@
     box-shadow: 0 8px 30px rgba(0,0,0,0.12);
     border-left: 6px solid #f7c948;
 }
-
 .order-modal-close {
     position: absolute;
     top: 12px;
@@ -803,7 +788,6 @@
     color: #000;
     transform: rotate(90deg);
 }
-
 .order-modal-content h2 {
     margin-top: 0;
     font-size: 24px;
@@ -812,7 +796,6 @@
     padding-bottom: 10px;
     margin-bottom: 18px;
 }
-
 .order-modal-content .info-block {
     background: #f8f9fb;
     padding: 14px 16px;
@@ -828,7 +811,6 @@
     color: #333;
     font-weight: 700;
 }
-
 .order-modal-content .items-list {
     margin-bottom: 16px;
 }
@@ -850,7 +832,6 @@
     padding-top: 10px;
     border-top: 2px solid #f7c948;
 }
-
 .order-modal-content .close-btn {
     background: #0b0b0b;
     color: #fff;
@@ -868,17 +849,54 @@
     background: #333;
 }
 
-/* Адаптив для модалки */
+/* ========================================
+   АДАПТИВ
+   ======================================== */
 @media (max-width: 768px) {
-    .order-modal-content {
-        padding: 20px;
+    .admin-wrapper { padding: 10px; }
+    .admin-form { padding: 20px; margin-left: 0; margin-right: 0; }
+    .form-grid { grid-template-columns: 1fr; }
+    .admin-table-wrap { padding: 10px; margin-left: 0; margin-right: 0; }
+    .admin-table { font-size: 13px; }
+    .admin-table th, .admin-table td { padding: 8px 6px; }
+    .admin-table .table-image { width: 35px; height: 35px; }
+    .admin-actions { justify-content: center; }
+    #serverStatus { margin-left: 0; margin-right: 0; }
+    .custom-notification { max-width: 95%; left: 50%; transform: translateX(-50%); top: 10px; }
+    .variant-input-group { flex-direction: column; align-items: stretch; }
+    .variant-input-group input { flex: 1 1 100%; }
+    .btn-remove-variant { align-self: flex-end; }
+    .order-modal-content { padding: 20px; }
+    .admin-table .btn-view,
+    .admin-table .btn-delete {
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+    .admin-table .btn-view i,
+    .admin-table .btn-delete i {
+        font-size: 12px;
+    }
+    #searchOrders {
+        min-width: 200px;
+        width: 100%;
+    }
+    #statusFilter {
+        min-width: 120px;
     }
 }
+
 @media (max-width: 480px) {
-    .order-modal-content {
-        padding: 16px;
-    }
-    .order-modal-content h2 {
-        font-size: 22px;
+    .admin-actions { flex-direction: column; align-items: center; }
+    .admin-actions button, .admin-actions a { width: 100%; justify-content: center; }
+    .form-actions { flex-direction: column; align-items: center; }
+    .form-actions button { width: 100%; justify-content: center; }
+    .order-modal-content { padding: 16px; }
+    .order-modal-content h2 { font-size: 22px; }
+    .admin-table { font-size: 12px; }
+    .admin-table th, .admin-table td { padding: 6px 4px; }
+    .admin-table .btn-view,
+    .admin-table .btn-delete {
+        padding: 3px 8px;
+        font-size: 10px;
     }
 }

@@ -26,7 +26,10 @@ auth.signInAnonymously()
     currentUserId = result.user.uid;
     firebaseReady = true;
     console.log('✅ Анонимный вход выполнен, UID:', currentUserId);
-    if (window.onFirebaseReady) window.onFirebaseReady();
+    if (window.onFirebaseReady) {
+      console.log('📢 Вызываем onFirebaseReady');
+      window.onFirebaseReady();
+    }
   })
   .catch(error => {
     console.error('❌ Ошибка анонимной аутентификации:', error);
@@ -38,8 +41,10 @@ function getCurrentUserId() {
 
 function waitForFirebase(callback) {
   if (firebaseReady && getCurrentUserId()) {
+    console.log('⚡ Firebase уже готова, вызываем колбэк');
     callback();
   } else {
+    console.log('⏳ Ожидаем Firebase...');
     window.onFirebaseReady = callback;
   }
 }
