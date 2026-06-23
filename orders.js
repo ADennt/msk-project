@@ -1,5 +1,5 @@
 // ========================================
-// МСК — УПРАВЛЕНИЕ ЗАКАЗАМИ (с Firebase)
+// МСК — УПРАВЛЕНИЕ ЗАКАЗАМИ (с Firebase и накладной)
 // ========================================
 
 let allOrders = [];
@@ -182,7 +182,6 @@ function showInvoice(id) {
   const modal = document.getElementById('invoiceModal');
   const content = document.getElementById('invoiceContent');
 
-  // Формируем таблицу товаров
   let itemsHtml = '';
   if (order.items && order.items.length) {
     itemsHtml = `
@@ -223,7 +222,6 @@ function showInvoice(id) {
     itemsHtml = '<p style="color:#888;">Нет товаров</p>';
   }
 
-  // Дата в формате ДД.ММ.ГГГГ
   const orderDate = new Date(order.createdAt);
   const dateStr = orderDate.toLocaleDateString('ru-RU', {
     day: '2-digit', month: '2-digit', year: 'numeric'
@@ -232,7 +230,6 @@ function showInvoice(id) {
     hour: '2-digit', minute: '2-digit'
   });
 
-  // Документ накладной
   content.innerHTML = `
     <div class="invoice-document">
       <div class="invoice-header-block">

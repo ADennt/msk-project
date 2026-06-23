@@ -1,6 +1,5 @@
 /* ========================================
    МСК — СТИЛИ АДМИН-ПАНЕЛИ И ЗАКАЗОВ
-   (дополнительно: накладная и печать)
    ======================================== */
 
 /* ---- Базовые стили для админки ---- */
@@ -332,6 +331,240 @@
     background: #b71c1c;
 }
 
+/* ---- Блок вариантов ---- */
+.variants-group {
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 16px;
+    background: #fafafa;
+}
+
+.variant-row {
+    margin-bottom: 10px;
+}
+.variant-row:last-child {
+    margin-bottom: 0;
+}
+
+.variant-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.variant-input-group input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: 0.3s;
+    min-width: 100px;
+}
+.variant-input-group input:focus {
+    border-color: #f7c948;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.2);
+}
+.variant-input-group .variant-size {
+    flex: 2;
+}
+.variant-input-group .variant-film {
+    flex: 1.5;
+}
+.variant-input-group .variant-price {
+    flex: 1;
+}
+
+.btn-remove-variant {
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.btn-remove-variant:hover {
+    background: #b71c1c;
+    transform: rotate(90deg);
+}
+
+.btn-add-variant {
+    background: #f7c948;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+.btn-add-variant:hover {
+    background: #e0b03a;
+}
+
+/* ---- Изображение ---- */
+.image-upload-group {
+    border: 2px dashed #e0e0e0;
+    border-radius: 16px;
+    padding: 20px;
+    transition: 0.3s;
+    background: #fafafa;
+}
+.image-upload-group:hover {
+    border-color: #f7c948;
+    background: #f7c94808;
+}
+
+.image-upload-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.image-preview {
+    width: 100%;
+    max-width: 300px;
+    height: 200px;
+    background: #fff;
+    border-radius: 12px;
+    border: 2px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #999;
+    font-size: 14px;
+    overflow: hidden;
+    transition: 0.3s;
+}
+.image-preview.has-image {
+    border-color: #f7c948;
+}
+.image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.image-preview i {
+    font-size: 48px;
+    color: #ddd;
+}
+
+.image-upload-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #888;
+}
+.image-upload-info i {
+    color: #f7c948;
+}
+
+.btn-upload-image {
+    background: #f7c948;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-upload-image:hover {
+    background: #e0b03a;
+}
+
+.btn-remove-image {
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-remove-image:hover {
+    background: #b71c1c;
+}
+
+#fImage {
+    display: none;
+}
+
+/* ---- Статус сервера ---- */
+#serverStatus {
+    padding: 10px 20px;
+    border-radius: 10px;
+    margin: 10px auto 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 1300px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    justify-content: center;
+}
+
+#statusDot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #888;
+}
+
+#statusText {
+    font-weight: 600;
+    color: #555;
+}
+
+/* ---- Уведомления ---- */
+.custom-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    z-index: 9999;
+    animation: slideDown 0.4s ease;
+    max-width: 500px;
+    text-align: center;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes slideUp {
+    from { opacity: 1; transform: translateX(-50%) translateY(0); }
+    to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+}
+
 /* ---- Стили для страницы заказов ---- */
 .order-status {
     display: inline-block;
@@ -459,6 +692,7 @@
     font-weight: 400;
 }
 
+/* ---- Кнопки действий в заказах ---- */
 .btn-view {
     background: #f7c948;
     color: #000;
@@ -658,7 +892,6 @@
     color: #000;
 }
 
-/* Документ накладной */
 .invoice-document {
     font-family: 'Times New Roman', serif;
     background: #fff;
@@ -801,9 +1034,20 @@
 
 /* ---- Адаптив ---- */
 @media (max-width: 768px) {
-    .invoice-modal-content {
-        padding: 10px;
-    }
+    .admin-wrapper { padding: 10px; }
+    .admin-form { padding: 20px; margin-left: 0; margin-right: 0; }
+    .form-grid { grid-template-columns: 1fr; }
+    .admin-table-wrap { padding: 10px; margin-left: 0; margin-right: 0; }
+    .admin-table { font-size: 13px; }
+    .admin-table th, .admin-table td { padding: 8px 6px; }
+    .admin-table .table-image { width: 35px; height: 35px; }
+    .admin-actions { justify-content: center; }
+    #serverStatus { margin-left: 0; margin-right: 0; }
+    .custom-notification { max-width: 95%; left: 50%; transform: translateX(-50%); top: 10px; }
+    .variant-input-group { flex-direction: column; align-items: stretch; }
+    .variant-input-group input { flex: 1 1 100%; }
+    .btn-remove-variant { align-self: flex-end; }
+    .invoice-modal-content { padding: 10px; }
     .invoice-header-block {
         flex-direction: column;
         align-items: flex-start;
@@ -822,4 +1066,14 @@
         flex-direction: column;
         align-items: stretch;
     }
+    .order-modal-content { padding: 20px; }
+}
+
+@media (max-width: 480px) {
+    .admin-actions { flex-direction: column; align-items: center; }
+    .admin-actions button, .admin-actions a { width: 100%; justify-content: center; }
+    .form-actions { flex-direction: column; align-items: center; }
+    .form-actions button { width: 100%; justify-content: center; }
+    .order-modal-content { padding: 16px; }
+    .order-modal-content h2 { font-size: 22px; }
 }
