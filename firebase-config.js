@@ -2,10 +2,11 @@
 //  🔥 Firebase конфигурация (compat-версия для скриптов)
 // ============================================================
 
-// Ваш конфиг из консоли Firebase
+// Ваш конфиг с правильным databaseURL (с учётом региона)
 const firebaseConfig = {
   apiKey: "AIzaSyBD7GGC00wr_3Ggkbtz9WmYscZ3NQlVkPM",
   authDomain: "msk-project-d0f5f.firebaseapp.com",
+  databaseURL: "https://msk-project-d0f5f-default-rtdb.europe-west1.firebasedatabase.app", // <-- ИСПРАВЛЕНО
   projectId: "msk-project-d0f5f",
   storageBucket: "msk-project-d0f5f.firebasestorage.app",
   messagingSenderId: "834093900937",
@@ -30,14 +31,20 @@ auth.signInAnonymously()
     currentUserId = result.user.uid;
     firebaseReady = true;
     console.log('✅ Анонимный вход выполнен, UID:', currentUserId);
-    // Запускаем инициализацию, которая ждёт этого события
     if (window.onFirebaseReady) window.onFirebaseReady();
   })
   .catch(error => {
     console.error('❌ Ошибка анонимной аутентификации:', error);
   });
 
-// Функция получения текущего UID (для использования в скриптах)
 function getCurrentUserId() {
   return currentUserId;
+}
+
+function waitForFirebase(callback) {
+  if (firebaseReady && getCurrentUserId()) {
+    callback();
+  } else {
+    window.onFirebaseReady = callback;
+  }
 }
