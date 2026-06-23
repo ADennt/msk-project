@@ -3471,31 +3471,6 @@
       ]
     },
     {
-      "id": 163,
-      "name": "6.3 «Рекомендуемая скорость (с направлением)»",
-      "type": "special",
-      "typeLabel": "Особых предписаний",
-      "tag": "",
-      "image": "images/products/6.3.svg",
-      "description": "Рекомендует скорость с указанием направления.",
-      "characteristics": {
-        "material": "Оцинкованная сталь 1.5 мм"
-      },
-      "inStock": 8,
-      "variants": [
-        {
-          "size": "700×700 мм",
-          "film": "Тип А",
-          "price": 3200
-        },
-        {
-          "size": "900×900 мм",
-          "film": "Тип А",
-          "price": 4200
-        }
-      ]
-    },
-    {
       "id": 164,
       "name": "6.4 «Парковка»",
       "type": "special",
@@ -3656,31 +3631,6 @@
       ]
     },
     {
-      "id": 170,
-      "name": "6.10 «Парковка для автобусов»",
-      "type": "special",
-      "typeLabel": "Особых предписаний",
-      "tag": "",
-      "image": "images/products/6.10.svg",
-      "description": "Указывает место парковки для автобусов.",
-      "characteristics": {
-        "material": "Оцинкованная сталь 1.5 мм"
-      },
-      "inStock": 4,
-      "variants": [
-        {
-          "size": "700×700 мм",
-          "film": "Тип А",
-          "price": 3400
-        },
-        {
-          "size": "900×900 мм",
-          "film": "Тип А",
-          "price": 4400
-        }
-      ]
-    },
-    {
       "id": 171,
       "name": "6.11 «Парковка для грузовых автомобилей»",
       "type": "special",
@@ -3752,56 +3702,6 @@
           "size": "900×900 мм",
           "film": "Тип А",
           "price": 4400
-        }
-      ]
-    },
-    {
-      "id": 174,
-      "name": "6.14 «Парковка для мотоциклов»",
-      "type": "special",
-      "typeLabel": "Особых предписаний",
-      "tag": "",
-      "image": "images/products/6.14.svg",
-      "description": "Указывает место парковки для мотоциклов.",
-      "characteristics": {
-        "material": "Оцинкованная сталь 1.5 мм"
-      },
-      "inStock": 4,
-      "variants": [
-        {
-          "size": "700×700 мм",
-          "film": "Тип А",
-          "price": 3100
-        },
-        {
-          "size": "900×900 мм",
-          "film": "Тип А",
-          "price": 4100
-        }
-      ]
-    },
-    {
-      "id": 175,
-      "name": "6.15 «Парковка для такси»",
-      "type": "special",
-      "typeLabel": "Особых предписаний",
-      "tag": "",
-      "image": "images/products/6.15.svg",
-      "description": "Указывает место стоянки такси.",
-      "characteristics": {
-        "material": "Оцинкованная сталь 1.5 мм"
-      },
-      "inStock": 6,
-      "variants": [
-        {
-          "size": "700×700 мм",
-          "film": "Тип А",
-          "price": 3200
-        },
-        {
-          "size": "900×900 мм",
-          "film": "Тип А",
-          "price": 4200
         }
       ]
     },
@@ -4152,31 +4052,6 @@
           "size": "900×900 мм",
           "film": "Тип А",
           "price": 4200
-        }
-      ]
-    },
-    {
-      "id": 190,
-      "name": "7.14 «Автомойка»",
-      "type": "service",
-      "typeLabel": "Сервиса",
-      "tag": "",
-      "image": "images/products/7.14.svg",
-      "description": "Указывает на автомойку (дополнительный).",
-      "characteristics": {
-        "material": "Оцинкованная сталь 1.5 мм"
-      },
-      "inStock": 4,
-      "variants": [
-        {
-          "size": "700×700 мм",
-          "film": "Тип А",
-          "price": 3100
-        },
-        {
-          "size": "900×900 мм",
-          "film": "Тип А",
-          "price": 4100
         }
       ]
     },
