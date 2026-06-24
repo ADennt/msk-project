@@ -11,7 +11,8 @@ function loadOrders() {
         database.ref(`users/${uid}/orders`).once('value').then(snapshot => {
             const data = snapshot.val();
             if (data) {
-                orders = data;
+                // Преобразуем объект в массив
+                orders = Object.values(data);
             } else {
                 const saved = localStorage.getItem('msk_orders');
                 orders = saved ? JSON.parse(saved) : [];
@@ -23,7 +24,7 @@ function loadOrders() {
             database.ref(`users/${uid}/orders`).on('value', snap => {
                 const val = snap.val();
                 if (val) {
-                    orders = val;
+                    orders = Object.values(val);
                     localStorage.setItem('msk_orders', JSON.stringify(orders));
                     applyFilters();
                 }
@@ -118,7 +119,6 @@ function updateStatus(id, status) {
     if (!order) return;
     order.status = status;
     order.updatedAt = new Date().toISOString();
-    // Сохраняем в localStorage и Firebase
     localStorage.setItem('msk_orders', JSON.stringify(orders));
     const uid = window.getCurrentUserId ? window.getCurrentUserId() : null;
     if (uid && window.database) {

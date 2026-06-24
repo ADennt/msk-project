@@ -83,7 +83,7 @@ async function loadCartFromFirebase() {
         const snapshot = await database.ref(`users/${uid}/cart`).once('value');
         const data = snapshot.val();
         if (data) {
-            cart = data; // корзина уже массив
+            cart = data;
         } else {
             const saved = localStorage.getItem('msk_cart');
             cart = saved ? JSON.parse(saved) : [];

@@ -4,7 +4,7 @@
 
 let products = [];
 let editingId = null;
-let selectedImageData = null;
+let selectedImageData = null; // null – не выбрано, '' – удалить, строка – новое изображение
 const FILM_TYPES = ['Тип А', 'Тип Б', 'Тип В'];
 
 function loadProducts() {
@@ -13,7 +13,8 @@ function loadProducts() {
         database.ref('products').once('value').then(snapshot => {
             const data = snapshot.val();
             if (data) {
-                products = data;
+                // Преобразуем объект в массив
+                products = Object.values(data);
                 localStorage.setItem('msk_products', JSON.stringify(products));
             } else {
                 const saved = localStorage.getItem('msk_products');
@@ -25,7 +26,7 @@ function loadProducts() {
             database.ref('products').on('value', snap => {
                 const val = snap.val();
                 if (val) {
-                    products = val;
+                    products = Object.values(val);
                     localStorage.setItem('msk_products', JSON.stringify(products));
                     renderTable();
                 }
@@ -58,7 +59,16 @@ function renderTable() {
     }
     tbody.innerHTML = products.map(p => {
         const imageSrc = p.image || 'images/placeholder.png';
-        const typeLabels = { warning:'Предупреждающий', forbid:'Запрещающий', mandatory:'Предписывающий', info:'Информационный' };
+        const typeLabels = {
+            warning:'Предупреждающий',
+            forbid:'Запрещающий',
+            mandatory:'Предписывающий',
+            info:'Информационный',
+            priority:'Приоритета',
+            special:'Особых предписаний',
+            service:'Сервиса',
+            additional:'Дополнительной информации'
+        };
         const displayPrice = p.variants?.[0]?.price ? `${p.variants[0].price.toLocaleString()} ₽` : '—';
         return `
         <tr>
@@ -103,12 +113,13 @@ function editProduct(id) {
     document.getElementById('fDescription').value = product.description || '';
     document.getElementById('fMaterial').value = product.characteristics?.material || 'Оцинкованная сталь';
 
+    // Восстанавливаем изображение
     if (product.image && product.image !== 'images/placeholder.png') {
-        selectedImageData = product.image;
+        selectedImageData = product.image; // сохраняем строку
         updateImagePreview(product.image);
         document.getElementById('removeImageBtn').style.display = 'inline-flex';
     } else {
-        removeImage();
+        removeImage(); // selectedImageData = null, визуально сбрасываем
     }
 
     if (product.variants) loadVariants(product.variants);
@@ -185,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!file.type.startsWith('image/')) { alert('Не изображение'); this.value=''; return; }
         const reader = new FileReader();
         reader.onload = function(ev) {
-            selectedImageData = ev.target.result;
+            selectedImageData = ev.target.result; // сохраняем base64
             updateImagePreview(selectedImageData);
             document.getElementById('removeImageBtn').style.display = 'inline-flex';
         };
@@ -200,7 +211,8 @@ function updateImagePreview(src) {
 }
 
 function removeImage() {
-    selectedImageData = null;
+    selectedImageData = null; // null означает "не выбрано новое, оставить как было"
+    // Визуально сбрасываем на заглушку
     document.getElementById('imagePreview').innerHTML = `<i class="fas fa-image"></i><span>Выберите изображение</span>`;
     document.getElementById('imagePreview').classList.remove('has-image');
     document.getElementById('fImage').value = '';
@@ -208,7 +220,7 @@ function removeImage() {
 }
 
 function deleteImage() {
-    selectedImageData = '';
+    selectedImageData = ''; // пустая строка означает "удалить"
     document.getElementById('imagePreview').innerHTML = `<i class="fas fa-image"></i><span>Изображение удалено</span>`;
     document.getElementById('imagePreview').classList.remove('has-image');
     document.getElementById('fImage').value = '';
@@ -229,11 +241,14 @@ function saveProduct() {
     if (!variants.length) { alert('Добавьте хотя бы один вариант'); return; }
 
     let image = '';
+    // Приоритет: если выбран новый файл (selectedImageData – строка base64) – используем его
     if (typeof selectedImageData === 'string' && selectedImageData.startsWith('data:image')) {
         image = selectedImageData;
     } else if (selectedImageData === '') {
+        // Явно удалено – ставим заглушку
         image = 'images/placeholder.png';
     } else if (editId) {
+        // Иначе оставляем старое изображение, если оно есть
         const existing = products.find(p => p.id === parseInt(editId));
         if (existing && existing.image) {
             image = existing.image;
@@ -245,7 +260,16 @@ function saveProduct() {
     }
 
     let id = editId ? parseInt(editId) : Date.now();
-    const typeLabels = { warning:'Предупреждающий', forbid:'Запрещающий', mandatory:'Предписывающий', info:'Информационный' };
+    const typeLabels = {
+        warning:'Предупреждающий',
+        forbid:'Запрещающий',
+        mandatory:'Предписывающий',
+        info:'Информационный',
+        priority:'Приоритета',
+        special:'Особых предписаний',
+        service:'Сервиса',
+        additional:'Дополнительной информации'
+    };
 
     const productData = {
         id, name, type, typeLabel: typeLabels[type] || type,
