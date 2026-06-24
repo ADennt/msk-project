@@ -1,46 +1,20 @@
 // ========================================
-// МСК — УПРАВЛЕНИЕ ЗАКАЗАМИ (Firebase + миграция)
+// МСК — УПРАВЛЕНИЕ ЗАКАЗАМИ (Firebase, без localStorage)
 // ========================================
 
 let orders = [];
 let filteredOrders = [];
-let migrationDone = false;
 
 function loadOrders() {
-    if (window.database) {
-        // Проверяем, есть ли заказы в Firebase
-        window.database.ref('orders').once('value', snapshot => {
-            const data = snapshot.val();
-            if (!data || Object.keys(data).length === 0) {
-                // Если в Firebase нет заказов, пробуем загрузить из localStorage
-                const saved = localStorage.getItem('msk_orders');
-                if (saved) {
-                    const localOrders = JSON.parse(saved);
-                    if (localOrders.length > 0) {
-                        console.log('📦 Найдены заказы в localStorage, переносим в Firebase...');
-                        // Переносим каждый заказ в Firebase
-                        localOrders.forEach(order => {
-                            window.database.ref('orders').push(order);
-                        });
-                        // Очищаем localStorage, чтобы не дублировать
-                        localStorage.removeItem('msk_orders');
-                        console.log('✅ Заказы перенесены в Firebase');
-                    }
-                }
-            }
-            // Подписываемся на изменения после миграции
-            window.database.ref('orders').on('value', snapshot => {
-                const data = snapshot.val() || {};
-                orders = Object.values(data);
-                applyFilters();
-            });
-        });
-    } else {
-        // fallback на localStorage
-        const saved = localStorage.getItem('msk_orders');
-        orders = saved ? JSON.parse(saved) : [];
-        applyFilters();
+    if (!window.database) {
+        alert('Ошибка подключения к Firebase');
+        return;
     }
+    window.database.ref('orders').on('value', snapshot => {
+        const data = snapshot.val() || {};
+        orders = Object.values(data);
+        applyFilters();
+    });
 }
 
 function renderOrders(ordersToRender) {
@@ -116,43 +90,28 @@ function applyFilters() {
 }
 
 function updateStatus(id, status) {
-    const order = orders.find(o => o.id === id);
-    if (order && window.database) {
-        const ref = window.database.ref('orders');
-        ref.orderByChild('id').equalTo(id).once('value', snapshot => {
-            const data = snapshot.val();
-            if (data) {
-                const key = Object.keys(data)[0];
-                ref.child(key).update({ status: status });
-            }
-        });
-    } else {
-        // fallback на localStorage
-        const order = orders.find(o => o.id === id);
-        if (order) {
-            order.status = status;
-            localStorage.setItem('msk_orders', JSON.stringify(orders));
-            applyFilters();
+    if (!window.database) return;
+    const ref = window.database.ref('orders');
+    ref.orderByChild('id').equalTo(id).once('value', snapshot => {
+        const data = snapshot.val();
+        if (data) {
+            const key = Object.keys(data)[0];
+            ref.child(key).update({ status: status });
         }
-    }
+    });
 }
 
 function deleteOrder(id) {
     if (!confirm('Удалить заказ?')) return;
-    if (window.database) {
-        const ref = window.database.ref('orders');
-        ref.orderByChild('id').equalTo(id).once('value', snapshot => {
-            const data = snapshot.val();
-            if (data) {
-                const key = Object.keys(data)[0];
-                ref.child(key).remove();
-            }
-        });
-    } else {
-        orders = orders.filter(o => o.id !== id);
-        localStorage.setItem('msk_orders', JSON.stringify(orders));
-        applyFilters();
-    }
+    if (!window.database) return;
+    const ref = window.database.ref('orders');
+    ref.orderByChild('id').equalTo(id).once('value', snapshot => {
+        const data = snapshot.val();
+        if (data) {
+            const key = Object.keys(data)[0];
+            ref.child(key).remove();
+        }
+    });
 }
 
 function viewOrder(id) {
@@ -205,7 +164,6 @@ function logout() {
     window.location.href = 'login.html';
 }
 
-// Автоматическое обновление при возврате на вкладку
 document.addEventListener('visibilitychange', function() {
     if (!document.hidden) {
         loadOrders();

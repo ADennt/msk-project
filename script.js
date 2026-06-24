@@ -1,5 +1,5 @@
 // ========================================
-// МСК — ОСНОВНАЯ ЛОГИКА (Firebase + товары)
+// МСК — ОСНОВНАЯ ЛОГИКА (Firebase, без localStorage)
 // ========================================
 
 let products = [];
@@ -11,32 +11,31 @@ let filteredProducts = [];
 
 // ===== ИНИЦИАЛИЗАЦИЯ =====
 function initData() {
-    // Сначала пробуем загрузить товары из Firebase
-    if (window.database) {
-        window.database.ref('products').on('value', snapshot => {
-            const data = snapshot.val() || {};
-            // Преобразуем объект в массив
-            const productsArray = Object.values(data);
-            if (productsArray.length > 0) {
-                products = productsArray;
-                // Сохраняем в localStorage для быстрого доступа (опционально)
-                localStorage.setItem('msk_products', JSON.stringify(products));
-                afterProductsLoaded();
-            } else {
-                // Если в Firebase нет товаров, загружаем из data.json
-                loadFromDataJson();
-            }
-        });
-    } else {
-        // fallback на localStorage или data.json
-        const saved = localStorage.getItem('msk_products');
-        if (saved) {
-            products = JSON.parse(saved);
-            afterProductsLoaded();
-        } else {
-            loadFromDataJson();
-        }
+    if (!window.database) {
+        alert('Ошибка подключения к Firebase. Проверьте интернет.');
+        return;
     }
+
+    // Загружаем товары из Firebase
+    window.database.ref('products').on('value', snapshot => {
+        const data = snapshot.val() || {};
+        products = Object.values(data);
+        if (products.length === 0) {
+            // Если товаров нет, загружаем из data.json
+            loadFromDataJson();
+        } else {
+            afterProductsLoaded();
+        }
+    }, error => {
+        console.error('Ошибка загрузки товаров:', error);
+        alert('Не удалось загрузить товары. Проверьте подключение.');
+    });
+
+    // Загружаем корзину из Firebase
+    window.database.ref('cart').on('value', snapshot => {
+        cart = snapshot.val() || [];
+        updateCartUI();
+    });
 }
 
 function loadFromDataJson() {
@@ -47,59 +46,39 @@ function loadFromDataJson() {
         })
         .then(data => {
             products = data.products || [];
-            // Сохраняем в localStorage и Firebase
-            localStorage.setItem('msk_products', JSON.stringify(products));
-            if (window.database) {
-                // Сохраняем каждый товар в Firebase (если их нет)
-                const ref = window.database.ref('products');
-                // Проверяем, есть ли уже товары в Firebase
-                ref.once('value', snapshot => {
-                    if (!snapshot.exists()) {
-                        // Если нет, загружаем все
-                        products.forEach(p => ref.push(p));
-                    }
-                });
-            }
+            // Сохраняем в Firebase
+            const ref = window.database.ref('products');
+            ref.once('value', snapshot => {
+                if (!snapshot.exists()) {
+                    products.forEach(p => ref.push(p));
+                }
+            });
             afterProductsLoaded();
         })
         .catch(e => {
-            console.warn('Не удалось загрузить data.json, используется fallback', e);
+            console.error('Ошибка загрузки data.json:', e);
             products = getFallbackProducts();
-            localStorage.setItem('msk_products', JSON.stringify(products));
-            if (window.database) {
-                const ref = window.database.ref('products');
-                ref.once('value', snapshot => {
-                    if (!snapshot.exists()) {
-                        products.forEach(p => ref.push(p));
-                    }
-                });
-            }
             afterProductsLoaded();
         });
 }
 
+function getFallbackProducts() {
+    return [
+        { id: 1, name: '2.4 «Уступи дорогу»', type: 'warning', typeLabel: 'Предупреждающий', tag: 'Хит', image: 'images/placeholder.png', variants: [{ size: '700×700 мм', film: 'Тип А', price: 3250 }], inStock: 10 },
+        { id: 2, name: '3.1 «Въезд запрещён»', type: 'forbid', typeLabel: 'Запрещающий', tag: '', image: 'images/placeholder.png', variants: [{ size: '700×700 мм', film: 'Тип А', price: 2850 }], inStock: 5 },
+        { id: 3, name: '4.1.1 «Движение прямо»', type: 'mandatory', typeLabel: 'Предписывающий', tag: '', image: 'images/placeholder.png', variants: [{ size: '700×700 мм', film: 'Тип А', price: 3100 }], inStock: 8 }
+    ];
+}
+
 function afterProductsLoaded() {
-    // Загружаем корзину из Firebase
-    loadCartFromFirebase();
-    // Определяем, на какой мы странице
     const grid = document.getElementById('catalogGrid');
     const popularGrid = document.getElementById('popularGrid');
     if (grid) {
-        // Страница каталога – применяем фильтры и пагинацию
         applyFiltersAndPagination();
     } else if (popularGrid) {
-        // Главная страница – показываем популярные товары
         renderPopularProducts();
     }
     updateCartUI();
-}
-
-function getFallbackProducts() {
-    return [
-        { id:1, name:'2.4 «Уступи дорогу»', type:'warning', typeLabel:'Предупреждающий', tag:'Хит', image:'images/placeholder.png', variants:[{ size:'700×700 мм', film:'Тип А', price:3250 }], inStock:10 },
-        { id:2, name:'3.1 «Въезд запрещён»', type:'forbid', typeLabel:'Запрещающий', tag:'', image:'images/placeholder.png', variants:[{ size:'700×700 мм', film:'Тип А', price:2850 }], inStock:5 },
-        { id:3, name:'4.1.1 «Движение прямо»', type:'mandatory', typeLabel:'Предписывающий', tag:'', image:'images/placeholder.png', variants:[{ size:'700×700 мм', film:'Тип А', price:3100 }], inStock:8 }
-    ];
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -118,25 +97,9 @@ function updateGreetingTime() {
 }
 
 // ===== КОРЗИНА (Firebase) =====
-function loadCartFromFirebase() {
-    if (window.database) {
-        window.database.ref('cart').on('value', snapshot => {
-            const data = snapshot.val() || [];
-            cart = data;
-            updateCartUI();
-        });
-    } else {
-        const saved = localStorage.getItem('msk_cart');
-        cart = saved ? JSON.parse(saved) : [];
-        updateCartUI();
-    }
-}
-
 function saveCartToFirebase() {
     if (window.database) {
         window.database.ref('cart').set(cart);
-    } else {
-        localStorage.setItem('msk_cart', JSON.stringify(cart));
     }
 }
 
@@ -321,9 +284,8 @@ function createOrder(id) {
     if (window.database) {
         window.database.ref('orders').push(order);
     } else {
-        let orders = JSON.parse(localStorage.getItem('msk_orders') || '[]');
-        orders.push(order);
-        localStorage.setItem('msk_orders', JSON.stringify(orders));
+        alert('Ошибка: нет подключения к Firebase');
+        return;
     }
 
     cart = [];

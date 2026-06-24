@@ -1,5 +1,5 @@
 // ========================================
-// МСК — АДМИН-ПАНЕЛЬ (Firebase)
+// МСК — АДМИН-ПАНЕЛЬ (Firebase, без localStorage)
 // ========================================
 
 let products = [];
@@ -8,17 +8,15 @@ let selectedImageData = null;
 const FILM_TYPES = ['Тип А', 'Тип Б', 'Тип В'];
 
 function loadProducts() {
-    if (window.database) {
-        window.database.ref('products').on('value', snapshot => {
-            const data = snapshot.val() || {};
-            products = Object.values(data);
-            renderTable();
-        });
-    } else {
-        const saved = localStorage.getItem('msk_products');
-        products = saved ? JSON.parse(saved) : [];
-        renderTable();
+    if (!window.database) {
+        alert('Ошибка подключения к Firebase');
+        return;
     }
+    window.database.ref('products').on('value', snapshot => {
+        const data = snapshot.val() || {};
+        products = Object.values(data);
+        renderTable();
+    });
 }
 
 function renderTable() {
@@ -215,26 +213,24 @@ function saveProduct() {
         variants
     };
 
-    if (window.database) {
-        const ref = window.database.ref('products');
-        if (editId) {
-            ref.orderByChild('id').equalTo(id).once('value', snapshot => {
-                const data = snapshot.val();
-                if (data) {
-                    const key = Object.keys(data)[0];
-                    ref.child(key).update(productData);
-                } else {
-                    ref.push(productData);
-                }
-            });
-        } else {
-            ref.push(productData);
-        }
+    if (!window.database) {
+        alert('Ошибка подключения к Firebase');
+        return;
+    }
+
+    const ref = window.database.ref('products');
+    if (editId) {
+        ref.orderByChild('id').equalTo(id).once('value', snapshot => {
+            const data = snapshot.val();
+            if (data) {
+                const key = Object.keys(data)[0];
+                ref.child(key).update(productData);
+            } else {
+                ref.push(productData);
+            }
+        });
     } else {
-        const idx = products.findIndex(p => p.id === id);
-        if (idx >= 0) products[idx] = productData;
-        else products.push(productData);
-        localStorage.setItem('msk_products', JSON.stringify(products));
+        ref.push(productData);
     }
 
     hideForm();
@@ -243,20 +239,15 @@ function saveProduct() {
 
 function deleteProduct(id) {
     if (!confirm('Удалить товар?')) return;
-    if (window.database) {
-        const ref = window.database.ref('products');
-        ref.orderByChild('id').equalTo(id).once('value', snapshot => {
-            const data = snapshot.val();
-            if (data) {
-                const key = Object.keys(data)[0];
-                ref.child(key).remove();
-            }
-        });
-    } else {
-        products = products.filter(p => p.id !== id);
-        localStorage.setItem('msk_products', JSON.stringify(products));
-        renderTable();
-    }
+    if (!window.database) return;
+    const ref = window.database.ref('products');
+    ref.orderByChild('id').equalTo(id).once('value', snapshot => {
+        const data = snapshot.val();
+        if (data) {
+            const key = Object.keys(data)[0];
+            ref.child(key).remove();
+        }
+    });
 }
 
 // ===== ЭКСПОРТ / ИМПОРТ =====
@@ -283,21 +274,22 @@ function importData() {
             try {
                 const data = JSON.parse(ev.target.result);
                 if (data.products) {
-                    if (window.database) {
-                        const ref = window.database.ref('products');
-                        // Удаляем старые товары перед импортом
-                        ref.remove().then(() => {
-                            data.products.forEach(p => ref.push(p));
-                            alert('✅ Данные импортированы');
-                        });
-                    } else {
-                        products = data.products;
-                        localStorage.setItem('msk_products', JSON.stringify(products));
-                        renderTable();
-                        alert('✅ Данные импортированы');
+                    if (!window.database) {
+                        alert('Ошибка подключения к Firebase');
+                        return;
                     }
-                } else alert('Неверный формат');
-            } catch(err) { alert('Ошибка чтения'); }
+                    const ref = window.database.ref('products');
+                    // Удаляем старые товары
+                    ref.remove().then(() => {
+                        data.products.forEach(p => ref.push(p));
+                        alert('✅ Данные импортированы');
+                    });
+                } else {
+                    alert('Неверный формат');
+                }
+            } catch(err) {
+                alert('Ошибка чтения');
+            }
         };
         reader.readAsText(file);
     };
