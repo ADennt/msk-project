@@ -1,5 +1,5 @@
 // ========================================
-// МСК — АДМИН-ПАНЕЛЬ (Firebase, без localStorage)
+// МСК — АДМИН-ПАНЕЛЬ (Firebase)
 // ========================================
 
 let products = [];
@@ -279,7 +279,6 @@ function importData() {
                         return;
                     }
                     const ref = window.database.ref('products');
-                    // Удаляем старые товары
                     ref.remove().then(() => {
                         data.products.forEach(p => ref.push(p));
                         alert('✅ Данные импортированы');

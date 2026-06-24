@@ -1,5 +1,5 @@
 // ========================================
-// МСК — ОСНОВНАЯ ЛОГИКА (Firebase, без localStorage)
+// МСК — ОСНОВНАЯ ЛОГИКА (Firebase)
 // ========================================
 
 let products = [];
@@ -12,11 +12,12 @@ let filteredProducts = [];
 // ===== ИНИЦИАЛИЗАЦИЯ =====
 function initData() {
     if (!window.database) {
+        console.error('Firebase не инициализирована');
         alert('Ошибка подключения к Firebase. Проверьте интернет.');
         return;
     }
 
-    // Загружаем товары из Firebase
+    // Подписываемся на товары
     window.database.ref('products').on('value', snapshot => {
         const data = snapshot.val() || {};
         products = Object.values(data);
@@ -28,10 +29,9 @@ function initData() {
         }
     }, error => {
         console.error('Ошибка загрузки товаров:', error);
-        alert('Не удалось загрузить товары. Проверьте подключение.');
     });
 
-    // Загружаем корзину из Firebase
+    // Подписываемся на корзину
     window.database.ref('cart').on('value', snapshot => {
         cart = snapshot.val() || [];
         updateCartUI();
@@ -46,7 +46,7 @@ function loadFromDataJson() {
         })
         .then(data => {
             products = data.products || [];
-            // Сохраняем в Firebase
+            // Сохраняем в Firebase, если там пусто
             const ref = window.database.ref('products');
             ref.once('value', snapshot => {
                 if (!snapshot.exists()) {
@@ -103,7 +103,6 @@ function saveCartToFirebase() {
     }
 }
 
-// ===== ОБНОВЛЕНИЕ ИНТЕРФЕЙСА КОРЗИНЫ =====
 function updateCartUI() {
     const count = document.getElementById('cartCount');
     const items = document.getElementById('cartItems');
@@ -142,7 +141,7 @@ function updateCartUI() {
     if (total) total.textContent = `Итого: ${totalSum.toLocaleString()} ₽`;
 }
 
-// ===== УПРАВЛЕНИЕ ТОВАРАМИ В КОРЗИНЕ =====
+// ===== УПРАВЛЕНИЕ КОРЗИНОЙ =====
 function addToCart(id, btn) {
     const product = products.find(p => p.id === id);
     if (!product) return;
@@ -294,7 +293,7 @@ function createOrder(id) {
     toggleCart();
 }
 
-// ===== ПОПУЛЯРНЫЕ ТОВАРЫ (для главной) =====
+// ===== ПОПУЛЯРНЫЕ ТОВАРЫ =====
 function renderPopularProducts() {
     const grid = document.getElementById('popularGrid');
     if (!grid) return;
@@ -425,7 +424,7 @@ function goToProduct(id) {
     window.location.href = `product.html?id=${id}`;
 }
 
-// ===== ФИЛЬТРЫ (категории) =====
+// ===== ФИЛЬТРЫ КАТЕГОРИЙ =====
 document.querySelectorAll('.nav-categories button').forEach(btn => {
     btn.addEventListener('click', function() {
         document.querySelectorAll('.nav-categories button').forEach(b => b.classList.remove('active'));

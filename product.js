@@ -1,5 +1,5 @@
 // ========================================
-// МСК — СТРАНИЦА ТОВАРА (Firebase, без localStorage)
+// МСК — СТРАНИЦА ТОВАРА (Firebase)
 // ========================================
 
 let cart = [];
@@ -11,14 +11,14 @@ function loadProduct() {
         return;
     }
 
-    // Загружаем товары из Firebase
+    // Подписываемся на товары
     window.database.ref('products').on('value', snapshot => {
         const data = snapshot.val() || {};
         products = Object.values(data);
         displayProduct();
     });
 
-    // Загружаем корзину из Firebase
+    // Подписываемся на корзину
     window.database.ref('cart').on('value', snapshot => {
         cart = snapshot.val() || [];
         updateCartUI();
