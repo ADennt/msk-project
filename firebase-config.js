@@ -1,6 +1,6 @@
 // ============================================================
 //  🔥 Firebase конфигурация (compat-версия)
-//  Обновлено: 24.06.2026
+//  Используется email/пароль, без анонимной аутентификации
 // ============================================================
 
 const firebaseConfig = {
@@ -17,48 +17,16 @@ const firebaseConfig = {
 // Инициализация Firebase
 firebase.initializeApp(firebaseConfig);
 
-const database = firebase.database();
-const auth = firebase.auth();
+// Экспортируем в глобальную область
+window.database = firebase.database();
+window.auth = firebase.auth();
 
-let firebaseReady = false;
-let currentUserId = null;
-
-// ===== АНОНИМНАЯ АУТЕНТИФИКАЦИЯ =====
-// Включите анонимный вход в консоли Firebase:
-// Authentication → Sign-in methods → Anonymous (включить)
-auth.signInAnonymously()
-  .then(result => {
-    currentUserId = result.user.uid;
-    firebaseReady = true;
-    console.log('✅ Анонимный вход выполнен, UID:', currentUserId);
-    if (window.onFirebaseReady) {
-      console.log('📢 Вызываем onFirebaseReady');
-      window.onFirebaseReady();
-    }
-  })
-  .catch(error => {
-    console.error('❌ Ошибка анонимной аутентификации:', error);
-    // Если анонимный вход не включён, вы увидите эту ошибку
-  });
-
-function getCurrentUserId() {
-  return currentUserId;
-}
-
-function waitForFirebase(callback) {
-  if (firebaseReady && getCurrentUserId()) {
-    console.log('⚡ Firebase уже готова, вызываем колбэк');
-    callback();
-  } else {
-    console.log('⏳ Ожидаем Firebase...');
-    window.onFirebaseReady = callback;
-  }
-}
+console.log('✅ Firebase инициализирована (email/пароль)');
 
 // ===== ГЕНЕРАЦИЯ ИНКРЕМЕНТАЛЬНОГО ID ДЛЯ ЗАКАЗОВ =====
 function getNextOrderId() {
   return new Promise((resolve, reject) => {
-    const counterRef = database.ref('meta/orderCounter');
+    const counterRef = window.database.ref('meta/orderCounter');
     counterRef.transaction(current => {
       return (current || 0) + 1;
     }, (error, committed, snapshot) => {
@@ -73,10 +41,13 @@ function getNextOrderId() {
   });
 }
 
-// Экспортируем в глобальную область (для использования в других скриптах)
-window.database = database;
-window.auth = auth;
-window.getCurrentUserId = getCurrentUserId;
-window.waitForFirebase = waitForFirebase;
+// Экспортируем в глобальную область
 window.getNextOrderId = getNextOrderId;
-window.firebaseReady = firebaseReady;
+window.waitForFirebase = function(callback) {
+  if (window.database && window.auth) {
+    callback();
+  } else {
+    console.warn('⏳ Ожидаем Firebase...');
+    setTimeout(() => window.waitForFirebase(callback), 200);
+  }
+};
