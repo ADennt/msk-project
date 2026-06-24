@@ -1389,6 +1389,12 @@ body:has(.login-container) {
     background: #f0f2f5;
 }
 
+/* ===== Ошибки валидации ===== */
+.input-error {
+    border-color: #d32f2f !important;
+    background-color: #fff5f5;
+}
+
 /* ===== Адаптив для мобильных ===== */
 @media (max-width: 768px) {
     .header .container { flex-wrap: wrap; }
