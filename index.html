@@ -4,12 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>МСК — Дорожные знаки</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- Ваш конфиг -->
+    <script src="firebase-config.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-    <!-- Верхняя планка -->
     <div class="topbar">
         <div class="container">
             <span><i class="fas fa-truck"></i> Доставка по всей России</span>
@@ -21,18 +26,20 @@
         </div>
     </div>
 
-    <!-- Шапка -->
     <header class="header">
         <div class="container">
             <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
                 <i class="fas fa-triangle-exclamation"></i> МСК<span>Знак</span>
             </div>
-
-            <div class="search-form">
-                <input type="text" placeholder="Поиск по названию, номеру, размеру, цене..." id="searchInput" onkeypress="if(event.key==='Enter') searchProducts()" />
-                <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
+            <nav class="nav-links">
+                <a href="index.html" class="active">Главная</a>
+                <a href="catalog.html">Каталог</a>
+                <a href="about.html">О нас</a>
+            </nav>
+            <div class="search-form search-hidden">
+                <input type="text" placeholder="Поиск..." disabled />
+                <button disabled><i class="fas fa-search"></i></button>
             </div>
-
             <button class="cart-icon" onclick="toggleCart()">
                 <i class="fas fa-shopping-cart"></i> Корзина
                 <span class="badge" id="cartCount">0</span>
@@ -40,28 +47,69 @@
         </div>
     </header>
 
-    <!-- Навигация -->
-    <nav class="nav-categories">
-        <button class="active" data-filter="all">Все знаки</button>
-        <button data-filter="warning">Предупреждающие</button>
-        <button data-filter="priority">Приоритета</button>
-        <button data-filter="forbid">Запрещающие</button>
-        <button data-filter="mandatory">Предписывающие</button>
-        <button data-filter="info">Информационные</button>
-        <button data-filter="special">Особых предписаний</button>
-        <button data-filter="service">Сервиса</button>
-        <button data-filter="additional">Дополнительной информации</button>
-    </nav>
-
-    <!-- Каталог -->
-    <div class="container">
-        <div class="catalog-header">
-            <h2><i class="fas fa-road"></i> Каталог знаков</h2>
-            <span id="catalogInfo" style="font-weight:600;color:#888;">Всего: 0 товаров</span>
+    <section class="hero-new">
+        <div class="container hero-new-container">
+            <div class="hero-new-content">
+                <span class="hero-new-tag">Производство в России</span>
+                <h1>Дорожные знаки <span>по ГОСТ</span></h1>
+                <p class="hero-new-subtitle">
+                    <i class="fas fa-check-circle"></i> Сертифицированная продукция
+                    <i class="fas fa-check-circle"></i> Доставка по всей стране
+                    <i class="fas fa-check-circle"></i> Цены от производителя
+                </p>
+                <p class="hero-new-desc">Качественные знаки для дорог, парковок и частных территорий. Собственное производство, быстрая доставка.</p>
+                <div class="hero-new-buttons">
+                    <a href="catalog.html" class="btn-hero-new">Перейти в каталог</a>
+                    <a href="about.html" class="btn-hero-new-outline">О компании</a>
+                </div>
+            </div>
         </div>
-        <div class="catalog-grid" id="catalogGrid"></div>
-        <div class="pagination-container" id="pagination"></div>
-    </div>
+        <div class="hero-new-wave">
+            <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,0 C300,100 700,0 1200,60 L1200,120 L0,120 Z" fill="#ffffff" />
+            </svg>
+        </div>
+    </section>
+
+    <section class="advantages">
+        <div class="container">
+            <h2>Почему выбирают нас</h2>
+            <div class="advantages-grid">
+                <div class="advantage-item">
+                    <i class="fas fa-certificate"></i>
+                    <h3>ГОСТ 52290-2023</h3>
+                    <p>Все знаки соответствуют актуальным требованиям ГОСТ.</p>
+                </div>
+                <div class="advantage-item">
+                    <i class="fas fa-truck-fast"></i>
+                    <h3>Доставка по России</h3>
+                    <p>Отправляем в любой регион, быстро и надёжно.</p>
+                </div>
+                <div class="advantage-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Гарантия качества</h3>
+                    <p>Используем оцинкованную сталь и плёнку высшего качества.</p>
+                </div>
+                <div class="advantage-item">
+                    <i class="fas fa-hand-holding-dollar"></i>
+                    <h3>Цены от производителя</h3>
+                    <p>Собственное производство – выгодные цены без посредников.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="popular-products">
+        <div class="container">
+            <h2>Популярные знаки</h2>
+            <div class="catalog-grid" id="popularGrid">
+                <!-- Рендерится через JS -->
+            </div>
+            <div style="text-align:center;margin-top:20px;">
+                <a href="catalog.html" class="btn-hero-new" style="display:inline-block;">Смотреть все знаки</a>
+            </div>
+        </div>
+    </section>
 
     <!-- Корзина -->
     <div class="cart-overlay" id="cartOverlay">
@@ -112,7 +160,6 @@
         <div class="chat-overlay" id="chatOverlay"></div>
     </div>
 
-    <!-- Футер -->
     <footer class="footer">
         <div class="container">
             <div>© 2026 МСК. Все права защищены.</div>
@@ -127,15 +174,6 @@
         </div>
     </footer>
 
-    <!-- Firebase SDK (compat-версия) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    
-    <!-- Конфигурация Firebase -->
-    <script src="firebase-config.js"></script>
-    
-    <!-- Основной скрипт -->
     <script src="script.js"></script>
 </body>
 </html>
