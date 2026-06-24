@@ -1,53 +1,23 @@
 // ========================================
-// МСК — АДМИН-ПАНЕЛЬ (с Firebase)
+// МСК — АДМИН-ПАНЕЛЬ (Firebase)
 // ========================================
 
 let products = [];
 let editingId = null;
-let selectedImageData = null; // null – не выбрано, '' – удалить, строка – новое изображение
+let selectedImageData = null;
 const FILM_TYPES = ['Тип А', 'Тип Б', 'Тип В'];
 
 function loadProducts() {
-    // Загружаем из Firebase
     if (window.database) {
-        database.ref('products').once('value').then(snapshot => {
-            const data = snapshot.val();
-            if (data) {
-                // Преобразуем объект в массив
-                products = Object.values(data);
-                localStorage.setItem('msk_products', JSON.stringify(products));
-            } else {
-                const saved = localStorage.getItem('msk_products');
-                products = saved ? JSON.parse(saved) : [];
-                database.ref('products').set(products);
-            }
-            renderTable();
-            // Слушаем изменения
-            database.ref('products').on('value', snap => {
-                const val = snap.val();
-                if (val) {
-                    products = Object.values(val);
-                    localStorage.setItem('msk_products', JSON.stringify(products));
-                    renderTable();
-                }
-            });
-        }).catch(e => {
-            console.warn('Ошибка загрузки товаров из Firebase, используем localStorage', e);
-            const saved = localStorage.getItem('msk_products');
-            products = saved ? JSON.parse(saved) : [];
+        window.database.ref('products').on('value', snapshot => {
+            const data = snapshot.val() || {};
+            products = Object.values(data);
             renderTable();
         });
     } else {
         const saved = localStorage.getItem('msk_products');
         products = saved ? JSON.parse(saved) : [];
         renderTable();
-    }
-}
-
-function saveProductsToFirebase() {
-    localStorage.setItem('msk_products', JSON.stringify(products));
-    if (window.database) {
-        database.ref('products').set(products).catch(e => console.error('Ошибка сохранения товаров в Firebase', e));
     }
 }
 
@@ -59,16 +29,7 @@ function renderTable() {
     }
     tbody.innerHTML = products.map(p => {
         const imageSrc = p.image || 'images/placeholder.png';
-        const typeLabels = {
-            warning:'Предупреждающий',
-            forbid:'Запрещающий',
-            mandatory:'Предписывающий',
-            info:'Информационный',
-            priority:'Приоритета',
-            special:'Особых предписаний',
-            service:'Сервиса',
-            additional:'Дополнительной информации'
-        };
+        const typeLabels = { warning:'Предупреждающий', priority:'Приоритета', forbid:'Запрещающий', mandatory:'Предписывающий', info:'Информационный', special:'Особых предписаний', service:'Сервиса', additional:'Дополнительной информации' };
         const displayPrice = p.variants?.[0]?.price ? `${p.variants[0].price.toLocaleString()} ₽` : '—';
         return `
         <tr>
@@ -113,14 +74,11 @@ function editProduct(id) {
     document.getElementById('fDescription').value = product.description || '';
     document.getElementById('fMaterial').value = product.characteristics?.material || 'Оцинкованная сталь';
 
-    // Восстанавливаем изображение
     if (product.image && product.image !== 'images/placeholder.png') {
-        selectedImageData = product.image; // сохраняем строку
+        selectedImageData = product.image;
         updateImagePreview(product.image);
         document.getElementById('removeImageBtn').style.display = 'inline-flex';
-    } else {
-        removeImage(); // selectedImageData = null, визуально сбрасываем
-    }
+    } else removeImage();
 
     if (product.variants) loadVariants(product.variants);
     else loadVariants([]);
@@ -144,6 +102,7 @@ function clearForm() {
     document.getElementById('fMaterial').value = 'Оцинкованная сталь';
 }
 
+// ===== ВАРИАНТЫ =====
 function addVariantRow(size = '', film = '', price = '') {
     const container = document.getElementById('variantsContainer');
     const row = document.createElement('div');
@@ -188,6 +147,7 @@ function getVariantsFromForm() {
     return variants;
 }
 
+// ===== ИЗОБРАЖЕНИЕ =====
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('fImage').addEventListener('change', function(e) {
         const file = e.target.files[0];
@@ -196,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!file.type.startsWith('image/')) { alert('Не изображение'); this.value=''; return; }
         const reader = new FileReader();
         reader.onload = function(ev) {
-            selectedImageData = ev.target.result; // сохраняем base64
+            selectedImageData = ev.target.result;
             updateImagePreview(selectedImageData);
             document.getElementById('removeImageBtn').style.display = 'inline-flex';
         };
@@ -211,22 +171,14 @@ function updateImagePreview(src) {
 }
 
 function removeImage() {
-    selectedImageData = null; // null означает "не выбрано новое, оставить как было"
-    // Визуально сбрасываем на заглушку
+    selectedImageData = null;
     document.getElementById('imagePreview').innerHTML = `<i class="fas fa-image"></i><span>Выберите изображение</span>`;
     document.getElementById('imagePreview').classList.remove('has-image');
     document.getElementById('fImage').value = '';
     document.getElementById('removeImageBtn').style.display = 'none';
 }
 
-function deleteImage() {
-    selectedImageData = ''; // пустая строка означает "удалить"
-    document.getElementById('imagePreview').innerHTML = `<i class="fas fa-image"></i><span>Изображение удалено</span>`;
-    document.getElementById('imagePreview').classList.remove('has-image');
-    document.getElementById('fImage').value = '';
-    document.getElementById('removeImageBtn').style.display = 'none';
-}
-
+// ===== СОХРАНЕНИЕ =====
 function saveProduct() {
     const editId = document.getElementById('editId').value;
     const name = document.getElementById('fName').value.trim();
@@ -241,35 +193,20 @@ function saveProduct() {
     if (!variants.length) { alert('Добавьте хотя бы один вариант'); return; }
 
     let image = '';
-    // Приоритет: если выбран новый файл (selectedImageData – строка base64) – используем его
     if (typeof selectedImageData === 'string' && selectedImageData.startsWith('data:image')) {
         image = selectedImageData;
     } else if (selectedImageData === '') {
-        // Явно удалено – ставим заглушку
         image = 'images/placeholder.png';
     } else if (editId) {
-        // Иначе оставляем старое изображение, если оно есть
         const existing = products.find(p => p.id === parseInt(editId));
-        if (existing && existing.image) {
-            image = existing.image;
-        } else {
-            image = 'images/placeholder.png';
-        }
+        if (existing && existing.image) image = existing.image;
+        else image = 'images/placeholder.png';
     } else {
         image = 'images/placeholder.png';
     }
 
     let id = editId ? parseInt(editId) : Date.now();
-    const typeLabels = {
-        warning:'Предупреждающий',
-        forbid:'Запрещающий',
-        mandatory:'Предписывающий',
-        info:'Информационный',
-        priority:'Приоритета',
-        special:'Особых предписаний',
-        service:'Сервиса',
-        additional:'Дополнительной информации'
-    };
+    const typeLabels = { warning:'Предупреждающий', priority:'Приоритета', forbid:'Запрещающий', mandatory:'Предписывающий', info:'Информационный', special:'Особых предписаний', service:'Сервиса', additional:'Дополнительной информации' };
 
     const productData = {
         id, name, type, typeLabel: typeLabels[type] || type,
@@ -278,23 +215,51 @@ function saveProduct() {
         variants
     };
 
-    const idx = products.findIndex(p => p.id === id);
-    if (idx >= 0) products[idx] = productData;
-    else products.push(productData);
+    if (window.database) {
+        const ref = window.database.ref('products');
+        if (editId) {
+            ref.orderByChild('id').equalTo(id).once('value', snapshot => {
+                const data = snapshot.val();
+                if (data) {
+                    const key = Object.keys(data)[0];
+                    ref.child(key).update(productData);
+                } else {
+                    ref.push(productData);
+                }
+            });
+        } else {
+            ref.push(productData);
+        }
+    } else {
+        const idx = products.findIndex(p => p.id === id);
+        if (idx >= 0) products[idx] = productData;
+        else products.push(productData);
+        localStorage.setItem('msk_products', JSON.stringify(products));
+    }
 
-    saveProductsToFirebase();
-    renderTable();
     hideForm();
     alert('✅ Товар сохранён!');
 }
 
 function deleteProduct(id) {
     if (!confirm('Удалить товар?')) return;
-    products = products.filter(p => p.id !== id);
-    saveProductsToFirebase();
-    renderTable();
+    if (window.database) {
+        const ref = window.database.ref('products');
+        ref.orderByChild('id').equalTo(id).once('value', snapshot => {
+            const data = snapshot.val();
+            if (data) {
+                const key = Object.keys(data)[0];
+                ref.child(key).remove();
+            }
+        });
+    } else {
+        products = products.filter(p => p.id !== id);
+        localStorage.setItem('msk_products', JSON.stringify(products));
+        renderTable();
+    }
 }
 
+// ===== ЭКСПОРТ / ИМПОРТ (оставляем без изменений) =====
 function exportData() {
     const dataStr = JSON.stringify({ products }, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
@@ -318,9 +283,14 @@ function importData() {
             try {
                 const data = JSON.parse(ev.target.result);
                 if (data.products) {
-                    products = data.products;
-                    saveProductsToFirebase();
-                    renderTable();
+                    if (window.database) {
+                        const ref = window.database.ref('products');
+                        data.products.forEach(p => ref.push(p));
+                    } else {
+                        products = data.products;
+                        localStorage.setItem('msk_products', JSON.stringify(products));
+                        renderTable();
+                    }
                     alert('✅ Данные импортированы');
                 } else alert('Неверный формат');
             } catch(err) { alert('Ошибка чтения'); }
@@ -335,10 +305,4 @@ function logout() {
     window.location.href = 'login.html';
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    if (window.waitForFirebase) {
-        window.waitForFirebase(loadProducts);
-    } else {
-        loadProducts();
-    }
-});
+document.addEventListener('DOMContentLoaded', loadProducts);

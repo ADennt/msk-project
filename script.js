@@ -1,5 +1,5 @@
 // ========================================
-// МСК — ОСНОВНАЯ ЛОГИКА (с Firebase)
+// МСК — ОСНОВНАЯ ЛОГИКА (Firebase)
 // ========================================
 
 let products = [];
@@ -10,120 +10,26 @@ const itemsPerPage = 20;
 let filteredProducts = [];
 
 // ===== ИНИЦИАЛИЗАЦИЯ =====
-function initData() {
-    if (window.waitForFirebase) {
-        window.waitForFirebase(() => {
-            console.log('🚀 Инициализация данных (Firebase готов)');
-            loadProductsFromFirebase();
-            loadCartFromFirebase();
-            setupRealTimeListeners();
-        });
-    } else {
-        console.warn('Firebase не доступен, работаем из localStorage');
-        loadProductsFromLocal();
-        loadCartFromLocal();
-        renderContent();
-    }
-}
-
-function loadProductsFromLocal() {
+async function initData() {
     const saved = localStorage.getItem('msk_products');
     if (saved) {
         products = JSON.parse(saved);
     } else {
-        products = getFallbackProducts();
+        try {
+            const resp = await fetch('data.json');
+            if (!resp.ok) throw new Error('Сеть ответила ошибкой');
+            const data = await resp.json();
+            products = data.products || [];
+        } catch (e) {
+            console.warn('Не удалось загрузить data.json, используется fallback', e);
+            products = getFallbackProducts();
+        }
         localStorage.setItem('msk_products', JSON.stringify(products));
     }
-    renderContent();
-}
-
-async function loadProductsFromFirebase() {
-    try {
-        const snapshot = await database.ref('products').once('value');
-        const data = snapshot.val();
-        if (data) {
-            // Преобразуем объект в массив
-            products = Object.values(data);
-            localStorage.setItem('msk_products', JSON.stringify(products));
-        } else {
-            // Если в Firebase нет товаров, загружаем из data.json или localStorage
-            const saved = localStorage.getItem('msk_products');
-            if (saved) {
-                products = JSON.parse(saved);
-            } else {
-                const resp = await fetch('data.json');
-                if (!resp.ok) throw new Error('Ошибка загрузки data.json');
-                const json = await resp.json();
-                products = json.products || [];
-                localStorage.setItem('msk_products', JSON.stringify(products));
-            }
-            // Сохраняем в Firebase (массив будет преобразован в объект)
-            await database.ref('products').set(products);
-        }
-    } catch (e) {
-        console.warn('Ошибка загрузки товаров из Firebase, используем localStorage', e);
-        loadProductsFromLocal();
-    }
-    renderContent();
-}
-
-function loadCartFromLocal() {
-    const saved = localStorage.getItem('msk_cart');
-    cart = saved ? JSON.parse(saved) : [];
+    // Загружаем корзину из Firebase
+    loadCartFromFirebase();
+    renderCatalog();
     updateCartUI();
-}
-
-async function loadCartFromFirebase() {
-    const uid = window.getCurrentUserId ? window.getCurrentUserId() : null;
-    if (!uid) {
-        loadCartFromLocal();
-        return;
-    }
-    try {
-        const snapshot = await database.ref(`users/${uid}/cart`).once('value');
-        const data = snapshot.val();
-        if (data) {
-            cart = data;
-        } else {
-            const saved = localStorage.getItem('msk_cart');
-            cart = saved ? JSON.parse(saved) : [];
-            await database.ref(`users/${uid}/cart`).set(cart);
-        }
-        localStorage.setItem('msk_cart', JSON.stringify(cart));
-    } catch (e) {
-        console.warn('Ошибка загрузки корзины из Firebase, используем localStorage', e);
-        loadCartFromLocal();
-    }
-    updateCartUI();
-}
-
-function setupRealTimeListeners() {
-    // Слушаем изменения товаров
-    database.ref('products').on('value', snapshot => {
-        const data = snapshot.val();
-        if (data) {
-            products = Object.values(data);
-            localStorage.setItem('msk_products', JSON.stringify(products));
-            renderContent();
-        }
-    });
-
-    // Слушаем изменения корзины (для текущего пользователя)
-    const uid = window.getCurrentUserId ? window.getCurrentUserId() : null;
-    if (uid) {
-        database.ref(`users/${uid}/cart`).on('value', snapshot => {
-            const data = snapshot.val();
-            if (data) {
-                cart = data;
-                localStorage.setItem('msk_cart', JSON.stringify(cart));
-                updateCartUI();
-            } else {
-                cart = [];
-                localStorage.removeItem('msk_cart');
-                updateCartUI();
-            }
-        });
-    }
 }
 
 function getFallbackProducts() {
@@ -134,19 +40,9 @@ function getFallbackProducts() {
     ];
 }
 
-function renderContent() {
-    const grid = document.getElementById('catalogGrid');
-    const popularGrid = document.getElementById('popularGrid');
-    if (grid) {
-        applyFiltersAndPagination();
-    } else if (popularGrid) {
-        renderPopularProducts();
-    }
-    updateGreetingTime();
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     initData();
+    updateGreetingTime();
 });
 
 function updateGreetingTime() {
@@ -159,18 +55,229 @@ function updateGreetingTime() {
     }
 }
 
+// ===== КОРЗИНА (Firebase) =====
+function loadCartFromFirebase() {
+    if (window.database) {
+        window.database.ref('cart').on('value', snapshot => {
+            const data = snapshot.val() || [];
+            cart = data;
+            updateCartUI();
+        });
+    } else {
+        const saved = localStorage.getItem('msk_cart');
+        cart = saved ? JSON.parse(saved) : [];
+        updateCartUI();
+    }
+}
+
+function saveCartToFirebase() {
+    if (window.database) {
+        window.database.ref('cart').set(cart);
+    } else {
+        localStorage.setItem('msk_cart', JSON.stringify(cart));
+    }
+}
+
+// ===== ОБНОВЛЕНИЕ ИНТЕРФЕЙСА КОРЗИНЫ =====
+function updateCartUI() {
+    const count = document.getElementById('cartCount');
+    const items = document.getElementById('cartItems');
+    const total = document.getElementById('cartTotal');
+    const clearBtn = document.getElementById('clearCartBtn');
+
+    const totalItems = cart.reduce((s, i) => s + i.quantity, 0);
+    if (count) count.textContent = totalItems;
+    if (clearBtn) clearBtn.disabled = cart.length === 0;
+
+    if (!items) return;
+    if (!cart.length) {
+        items.innerHTML = '<div class="empty-cart">Корзина пуста</div>';
+        if (total) total.textContent = 'Итого: 0 ₽';
+        return;
+    }
+
+    items.innerHTML = cart.map(item => `
+        <div class="cart-item">
+            <img src="${item.image}" alt="${item.name}" />
+            <div class="item-details">
+                <div class="name">${item.name}</div>
+                <div class="options">${item.size} | ${item.film}</div>
+            </div>
+            <div class="qty">
+                <button onclick="changeQty(${item.id}, -1)">−</button>
+                <span>${item.quantity}</span>
+                <button onclick="changeQty(${item.id}, 1)">+</button>
+            </div>
+            <span class="item-price">${(item.price * item.quantity).toLocaleString()} ₽</span>
+            <button class="remove-btn" onclick="removeFromCart(${item.id})"><i class="fas fa-times"></i></button>
+        </div>
+    `).join('');
+
+    const totalSum = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+    if (total) total.textContent = `Итого: ${totalSum.toLocaleString()} ₽`;
+}
+
+// ===== УПРАВЛЕНИЕ ТОВАРАМИ В КОРЗИНЕ =====
+function addToCart(id, btn) {
+    const product = products.find(p => p.id === id);
+    if (!product) return;
+    let size, film;
+    const card = btn ? btn.closest('.product-card') : null;
+    if (card) {
+        size = card.querySelector('.size-select')?.value || product.variants[0].size;
+        film = card.querySelector('.film-select')?.value || product.variants[0].film;
+    } else {
+        size = product.variants[0].size;
+        film = product.variants[0].film;
+    }
+    const variant = product.variants.find(v => v.size === size && v.film === film);
+    if (!variant) { alert('Комбинация недоступна'); return; }
+
+    const existing = cart.find(i => i.id === id && i.size === size && i.film === film);
+    if (existing) existing.quantity += 1;
+    else cart.push({ ...product, quantity: 1, size, film, price: variant.price, image: product.image || 'images/placeholder.png' });
+
+    saveCartToFirebase();
+    if (btn) {
+        btn.innerHTML = '✅ Добавлено';
+        btn.style.background = '#2e7d32';
+        setTimeout(() => {
+            btn.innerHTML = 'В корзину';
+            btn.style.background = '';
+        }, 1200);
+    }
+}
+
+function removeFromCart(id) {
+    cart = cart.filter(item => item.id !== id);
+    saveCartToFirebase();
+}
+
+function clearCart() {
+    if (!cart.length) return;
+    if (!confirm('Очистить корзину?')) return;
+    cart = [];
+    saveCartToFirebase();
+}
+
+function changeQty(id, delta) {
+    const item = cart.find(i => i.id === id);
+    if (!item) return;
+    item.quantity += delta;
+    if (item.quantity <= 0) removeFromCart(id);
+    else saveCartToFirebase();
+}
+
+function toggleCart() {
+    const overlay = document.getElementById('cartOverlay');
+    if (overlay) overlay.classList.toggle('open');
+    if (overlay.classList.contains('open')) updateCartUI();
+}
+
+// ===== ОФОРМЛЕНИЕ ЗАКАЗА =====
+function showCheckoutForm() {
+    if (!cart.length) { alert('Корзина пуста'); return; }
+    const overlay = document.getElementById('cartOverlay');
+    const panel = overlay.querySelector('.cart-panel');
+    panel.innerHTML = `
+        <h2>📝 Оформление заказа <button onclick="closeCheckoutForm()">&times;</button></h2>
+        <div class="checkout-form" style="margin-top:20px;">
+            <div><label>Имя *</label><input type="text" id="orderName" placeholder="Иван Петров" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;"></div>
+            <div><label>Телефон *</label><input type="tel" id="orderPhone" placeholder="+7 (999) 123-45-67" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;"></div>
+            <div><label>Email</label><input type="email" id="orderEmail" placeholder="example@mail.ru" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;"></div>
+            <div><label>Адрес *</label><input type="text" id="orderAddress" placeholder="Москва, ул. Дорожная, д. 15" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;"></div>
+            <div><label>Комментарий</label><textarea id="orderComment" rows="3" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;"></textarea></div>
+            <div style="background:#f8f9fb;padding:15px;border-radius:10px;margin:15px 0;">
+                <strong>Состав:</strong>
+                ${cart.map(item => `<div>${item.name} (${item.size}, ${item.film}) × ${item.quantity} — ${(item.price*item.quantity).toLocaleString()} ₽</div>`).join('')}
+                <div style="font-size:20px;font-weight:900;margin-top:10px;">Итого: ${cart.reduce((s,i) => s + i.price*i.quantity, 0).toLocaleString()} ₽</div>
+            </div>
+            <button onclick="submitOrder()" style="width:100%;padding:16px;background:#f7c948;border:none;border-radius:40px;font-weight:900;font-size:18px;cursor:pointer;">Оформить заказ</button>
+            <button onclick="closeCheckoutForm()" style="width:100%;padding:12px;margin-top:10px;background:#0b0b0b;color:#fff;border:none;border-radius:40px;font-weight:700;font-size:16px;cursor:pointer;">Назад</button>
+        </div>
+    `;
+    overlay.classList.add('open');
+}
+
+function closeCheckoutForm() {
+    const overlay = document.getElementById('cartOverlay');
+    const panel = overlay.querySelector('.cart-panel');
+    panel.innerHTML = `
+        <h2>🛒 Корзина <button onclick="toggleCart()">&times;</button></h2>
+        <div id="cartItems"></div>
+        <div class="cart-total" id="cartTotal">Итого: 0 ₽</div>
+        <div class="cart-actions">
+            <button class="btn-checkout" onclick="showCheckoutForm()">Оформить заказ</button>
+            <button class="btn-clear" onclick="clearCart()" id="clearCartBtn">Очистить</button>
+        </div>
+    `;
+    overlay.classList.remove('open');
+    overlay.classList.add('open');
+    updateCartUI();
+}
+
+function submitOrder() {
+    const name = document.getElementById('orderName').value.trim();
+    const phone = document.getElementById('orderPhone').value.trim();
+    const email = document.getElementById('orderEmail').value.trim();
+    const address = document.getElementById('orderAddress').value.trim();
+    const comment = document.getElementById('orderComment').value.trim();
+
+    if (!name || !phone || !address) {
+        alert('Заполните обязательные поля (имя, телефон, адрес)');
+        return;
+    }
+
+    // Генерируем новый ID через Firebase или localStorage
+    if (window.getNextOrderId) {
+        window.getNextOrderId().then(id => {
+            createOrder(id);
+        }).catch(err => {
+            console.error('Ошибка генерации ID:', err);
+            createOrder(Date.now());
+        });
+    } else {
+        createOrder(Date.now());
+    }
+}
+
+function createOrder(id) {
+    const name = document.getElementById('orderName').value.trim();
+    const phone = document.getElementById('orderPhone').value.trim();
+    const email = document.getElementById('orderEmail').value.trim();
+    const address = document.getElementById('orderAddress').value.trim();
+    const comment = document.getElementById('orderComment').value.trim();
+
+    const order = {
+        id: id,
+        name, phone, email: email || 'Не указан', address, comment: comment || 'Нет',
+        items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, size: i.size, film: i.film, image: i.image })),
+        total: cart.reduce((s, i) => s + i.price * i.quantity, 0),
+        status: 'новый',
+        createdAt: new Date().toISOString()
+    };
+
+    if (window.database) {
+        window.database.ref('orders').push(order);
+    } else {
+        let orders = JSON.parse(localStorage.getItem('msk_orders') || '[]');
+        orders.push(order);
+        localStorage.setItem('msk_orders', JSON.stringify(orders));
+    }
+
+    cart = [];
+    saveCartToFirebase();
+    alert(`✅ Заказ #${order.id} оформлен!`);
+    toggleCart();
+}
+
 // ===== ПОПУЛЯРНЫЕ ТОВАРЫ (для главной) =====
 function renderPopularProducts() {
     const grid = document.getElementById('popularGrid');
     if (!grid) return;
-    // Проверяем, что products массив и имеет длину
-    if (!Array.isArray(products) || products.length === 0) {
-        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">Товары загружаются...</div>';
-        return;
-    }
     const popular = products.slice(0, 8);
     if (!popular.length) {
-        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">Нет товаров для отображения</div>';
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">Товары загружаются...</div>';
         return;
     }
     grid.innerHTML = popular.map(p => {
@@ -190,12 +297,8 @@ function renderPopularProducts() {
     `}).join('');
 }
 
-// ===== ФИЛЬТРАЦИЯ И ПАГИНАЦИЯ (для каталога) =====
+// ===== КАТАЛОГ (фильтрация, пагинация) =====
 function applyFiltersAndPagination() {
-    // Проверяем, что products массив
-    if (!Array.isArray(products)) {
-        products = [];
-    }
     filteredProducts = (currentFilter === 'all') ? [...products] : products.filter(p => p.type === currentFilter);
     currentPage = 1;
     renderCatalog();
@@ -299,7 +402,7 @@ function goToProduct(id) {
     window.location.href = `product.html?id=${id}`;
 }
 
-// ===== ФИЛЬТРЫ =====
+// ===== ФИЛЬТРЫ (категории) =====
 document.querySelectorAll('.nav-categories button').forEach(btn => {
     btn.addEventListener('click', function() {
         document.querySelectorAll('.nav-categories button').forEach(b => b.classList.remove('active'));
@@ -339,248 +442,6 @@ function searchProducts() {
     renderPagination();
     const info = document.getElementById('catalogInfo');
     if (info) info.textContent = `Найдено: ${filteredProducts.length} товаров`;
-}
-
-// ===== КОРЗИНА =====
-function addToCart(id, btn) {
-    const product = products.find(p => p.id === id);
-    if (!product) return;
-    let size, film;
-    const card = btn ? btn.closest('.product-card') : null;
-    if (card) {
-        size = card.querySelector('.size-select')?.value || product.variants[0].size;
-        film = card.querySelector('.film-select')?.value || product.variants[0].film;
-    } else {
-        size = product.variants[0].size;
-        film = product.variants[0].film;
-    }
-    const variant = product.variants.find(v => v.size === size && v.film === film);
-    if (!variant) { alert('Комбинация недоступна'); return; }
-
-    const existing = cart.find(item => item.id === id && item.size === size && item.film === film);
-    if (existing) existing.quantity += 1;
-    else cart.push({ ...product, quantity: 1, size, film, price: variant.price, image: product.image || 'images/placeholder.png' });
-
-    saveCart();
-    updateCartUI();
-    if (btn) {
-        btn.innerHTML = '✅ Добавлено';
-        btn.style.background = '#2e7d32';
-        setTimeout(() => {
-            btn.innerHTML = 'В корзину';
-            btn.style.background = '';
-        }, 1200);
-    }
-}
-
-function removeFromCart(id) {
-    cart = cart.filter(item => item.id !== id);
-    saveCart();
-    updateCartUI();
-}
-
-function clearCart() {
-    if (!cart.length) return;
-    if (!confirm('Очистить корзину?')) return;
-    cart = [];
-    saveCart();
-    updateCartUI();
-}
-
-function changeQty(id, delta) {
-    const item = cart.find(i => i.id === id);
-    if (!item) return;
-    item.quantity += delta;
-    if (item.quantity <= 0) removeFromCart(id);
-    else { saveCart(); updateCartUI(); }
-}
-
-function saveCart() {
-    localStorage.setItem('msk_cart', JSON.stringify(cart));
-    const uid = window.getCurrentUserId ? window.getCurrentUserId() : null;
-    if (uid && window.database) {
-        database.ref(`users/${uid}/cart`).set(cart).catch(e => console.error('Ошибка сохранения корзины в Firebase', e));
-    }
-}
-
-function updateCartUI() {
-    const count = document.getElementById('cartCount');
-    const items = document.getElementById('cartItems');
-    const total = document.getElementById('cartTotal');
-    const clearBtn = document.getElementById('clearCartBtn');
-
-    const totalItems = cart.reduce((s, i) => s + i.quantity, 0);
-    if (count) count.textContent = totalItems;
-    if (clearBtn) clearBtn.disabled = cart.length === 0;
-
-    if (!items) return;
-    if (!cart.length) {
-        items.innerHTML = '<div class="empty-cart">Корзина пуста</div>';
-        if (total) total.textContent = 'Итого: 0 ₽';
-        return;
-    }
-
-    items.innerHTML = cart.map(item => `
-        <div class="cart-item">
-            <img src="${item.image}" alt="${item.name}" />
-            <div class="item-details">
-                <div class="name">${item.name}</div>
-                <div class="options">${item.size} | ${item.film}</div>
-            </div>
-            <div class="qty">
-                <button onclick="changeQty(${item.id}, -1)">−</button>
-                <span>${item.quantity}</span>
-                <button onclick="changeQty(${item.id}, 1)">+</button>
-            </div>
-            <span class="item-price">${(item.price * item.quantity).toLocaleString()} ₽</span>
-            <button class="remove-btn" onclick="removeFromCart(${item.id})"><i class="fas fa-times"></i></button>
-        </div>
-    `).join('');
-
-    const totalSum = cart.reduce((s, i) => s + i.price * i.quantity, 0);
-    if (total) total.textContent = `Итого: ${totalSum.toLocaleString()} ₽`;
-}
-
-function toggleCart() {
-    const overlay = document.getElementById('cartOverlay');
-    if (overlay) overlay.classList.toggle('open');
-    if (overlay.classList.contains('open')) updateCartUI();
-}
-
-// ===== ОФОРМЛЕНИЕ ЗАКАЗА =====
-function showCheckoutForm() {
-    if (!cart.length) { alert('Корзина пуста'); return; }
-    const overlay = document.getElementById('cartOverlay');
-    const panel = overlay.querySelector('.cart-panel');
-    panel.innerHTML = `
-        <h2>📝 Оформление заказа <button onclick="closeCheckoutForm()">&times;</button></h2>
-        <div class="checkout-form" style="margin-top:20px;">
-            <div><label>Имя *</label><input type="text" id="orderName" placeholder="Иван Петров" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;"></div>
-            <div><label>Телефон *</label><input type="tel" id="orderPhone" placeholder="+7 (999) 123-45-67" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;"></div>
-            <div><label>Email</label><input type="email" id="orderEmail" placeholder="example@mail.ru" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;"></div>
-            <div><label>Адрес *</label><input type="text" id="orderAddress" placeholder="Москва, ул. Дорожная, д. 15" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;"></div>
-            <div><label>Комментарий</label><textarea id="orderComment" rows="3" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;"></textarea></div>
-            <div style="background:#f8f9fb;padding:15px;border-radius:10px;margin:15px 0;">
-                <strong>Состав:</strong>
-                ${cart.map(item => `<div>${item.name} (${item.size}, ${item.film}) × ${item.quantity} — ${(item.price*item.quantity).toLocaleString()} ₽</div>`).join('')}
-                <div style="font-size:20px;font-weight:900;margin-top:10px;">Итого: ${cart.reduce((s,i) => s + i.price*i.quantity, 0).toLocaleString()} ₽</div>
-            </div>
-            <button onclick="submitOrder()" style="width:100%;padding:16px;background:#f7c948;border:none;border-radius:40px;font-weight:900;font-size:18px;cursor:pointer;">Оформить заказ</button>
-            <button onclick="closeCheckoutForm()" style="width:100%;padding:12px;margin-top:10px;background:#0b0b0b;color:#fff;border:none;border-radius:40px;font-weight:700;font-size:16px;cursor:pointer;">Назад</button>
-        </div>
-    `;
-    overlay.classList.add('open');
-}
-
-function closeCheckoutForm() {
-    const overlay = document.getElementById('cartOverlay');
-    const panel = overlay.querySelector('.cart-panel');
-    panel.innerHTML = `
-        <h2>🛒 Корзина <button onclick="toggleCart()">&times;</button></h2>
-        <div id="cartItems"></div>
-        <div class="cart-total" id="cartTotal">Итого: 0 ₽</div>
-        <div class="cart-actions">
-            <button class="btn-checkout" onclick="showCheckoutForm()">Оформить заказ</button>
-            <button class="btn-clear" onclick="clearCart()" id="clearCartBtn">Очистить</button>
-        </div>
-    `;
-    overlay.classList.remove('open');
-    overlay.classList.add('open');
-    updateCartUI();
-}
-
-function submitOrder() {
-    const nameInput = document.getElementById('orderName');
-    const phoneInput = document.getElementById('orderPhone');
-    const emailInput = document.getElementById('orderEmail');
-    const addressInput = document.getElementById('orderAddress');
-    const commentInput = document.getElementById('orderComment');
-
-    [nameInput, phoneInput, emailInput, addressInput].forEach(el => {
-        if (el) el.style.borderColor = '#ddd';
-    });
-
-    const name = nameInput ? nameInput.value.trim() : '';
-    const phone = phoneInput ? phoneInput.value.trim() : '';
-    const email = emailInput ? emailInput.value.trim() : '';
-    const address = addressInput ? addressInput.value.trim() : '';
-    const comment = commentInput ? commentInput.value.trim() : '';
-
-    let errors = [];
-
-    if (!name || name.length < 2) {
-        errors.push('Имя должно содержать минимум 2 символа');
-        if (nameInput) nameInput.style.borderColor = '#d32f2f';
-    }
-
-    const phoneClean = phone.replace(/[^0-9+]/g, '');
-    if (!phone || phoneClean.length < 5 || !/^[\d+\s\-()]+$/.test(phone)) {
-        errors.push('Телефон должен содержать минимум 5 цифр (допустимы +, -, пробелы, скобки)');
-        if (phoneInput) phoneInput.style.borderColor = '#d32f2f';
-    }
-
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        errors.push('Email имеет некорректный формат');
-        if (emailInput) emailInput.style.borderColor = '#d32f2f';
-    }
-
-    if (!address || address.length < 3) {
-        errors.push('Адрес должен содержать минимум 3 символа');
-        if (addressInput) addressInput.style.borderColor = '#d32f2f';
-    }
-
-    if (errors.length) {
-        alert('❌ Пожалуйста, исправьте ошибки:\n\n' + errors.join('\n'));
-        return;
-    }
-
-    const orderData = {
-        name, phone, email: email || 'Не указан', address, comment: comment || 'Нет',
-        items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, size: i.size, film: i.film, image: i.image })),
-        total: cart.reduce((s, i) => s + i.price * i.quantity, 0),
-        status: 'новый',
-        createdAt: new Date().toISOString()
-    };
-
-    const getOrderId = async () => {
-        if (window.getNextOrderId) {
-            try {
-                return await window.getNextOrderId();
-            } catch (e) {
-                console.warn('Ошибка получения ID из Firebase', e);
-                let orders = JSON.parse(localStorage.getItem('msk_orders') || '[]');
-                const maxId = orders.length ? Math.max(...orders.map(o => o.id)) : 0;
-                return maxId + 1;
-            }
-        } else {
-            let orders = JSON.parse(localStorage.getItem('msk_orders') || '[]');
-            const maxId = orders.length ? Math.max(...orders.map(o => o.id)) : 0;
-            return maxId + 1;
-        }
-    };
-
-    getOrderId().then(newId => {
-        const order = { id: newId, ...orderData };
-
-        let orders = JSON.parse(localStorage.getItem('msk_orders') || '[]');
-        orders.push(order);
-        localStorage.setItem('msk_orders', JSON.stringify(orders));
-
-        const uid = window.getCurrentUserId ? window.getCurrentUserId() : null;
-        if (uid && window.database) {
-            database.ref(`users/${uid}/orders`).once('value').then(snapshot => {
-                let firebaseOrders = snapshot.val() || [];
-                firebaseOrders.push(order);
-                database.ref(`users/${uid}/orders`).set(firebaseOrders);
-            }).catch(e => console.error('Ошибка сохранения заказа в Firebase', e));
-        }
-
-        cart = [];
-        saveCart();
-        updateCartUI();
-        alert(`✅ Заказ #${order.id} оформлен!`);
-        toggleCart();
-    });
 }
 
 // ===== ЧАТ =====
