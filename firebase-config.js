@@ -1,5 +1,6 @@
 // ============================================================
-//  🔥 Firebase конфигурация (compat-версия для скриптов)
+//  🔥 Firebase конфигурация (compat-версия)
+//  Обновлено: 24.06.2026
 // ============================================================
 
 const firebaseConfig = {
@@ -9,10 +10,11 @@ const firebaseConfig = {
   projectId: "msk-project-d0f5f",
   storageBucket: "msk-project-d0f5f.firebasestorage.app",
   messagingSenderId: "834093900937",
-  appId: "1:834093900937:web:9b1e21177d4c7bdbf6d258",
-  measurementId: "G-KE8FNH95KP"
+  appId: "1:834093900937:web:485ba4850baf02a8f6d258",
+  measurementId: "G-YDEB6Z5HB5"
 };
 
+// Инициализация Firebase
 firebase.initializeApp(firebaseConfig);
 
 const database = firebase.database();
@@ -21,6 +23,9 @@ const auth = firebase.auth();
 let firebaseReady = false;
 let currentUserId = null;
 
+// ===== АНОНИМНАЯ АУТЕНТИФИКАЦИЯ =====
+// Включите анонимный вход в консоли Firebase:
+// Authentication → Sign-in methods → Anonymous (включить)
 auth.signInAnonymously()
   .then(result => {
     currentUserId = result.user.uid;
@@ -33,6 +38,7 @@ auth.signInAnonymously()
   })
   .catch(error => {
     console.error('❌ Ошибка анонимной аутентификации:', error);
+    // Если анонимный вход не включён, вы увидите эту ошибку
   });
 
 function getCurrentUserId() {
@@ -66,3 +72,11 @@ function getNextOrderId() {
     }, false);
   });
 }
+
+// Экспортируем в глобальную область (для использования в других скриптах)
+window.database = database;
+window.auth = auth;
+window.getCurrentUserId = getCurrentUserId;
+window.waitForFirebase = waitForFirebase;
+window.getNextOrderId = getNextOrderId;
+window.firebaseReady = firebaseReady;
