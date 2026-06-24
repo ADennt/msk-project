@@ -2,196 +2,203 @@
 // МСК — УПРАВЛЕНИЕ ЗАКАЗАМИ (с Firebase)
 // ========================================
 
-let orders = [];
+let allOrders = [];
 let filteredOrders = [];
 
 function loadOrders() {
-    const uid = window.getCurrentUserId ? window.getCurrentUserId() : null;
-    if (uid && window.database) {
-        database.ref(`users/${uid}/orders`).once('value').then(snapshot => {
-            const data = snapshot.val();
-            if (data) {
-                orders = data;
-            } else {
-                const saved = localStorage.getItem('msk_orders');
-                orders = saved ? JSON.parse(saved) : [];
-                database.ref(`users/${uid}/orders`).set(orders);
-            }
-            localStorage.setItem('msk_orders', JSON.stringify(orders));
-            applyFilters();
-            // Слушаем изменения в реальном времени
-            database.ref(`users/${uid}/orders`).on('value', snap => {
-                const val = snap.val();
-                if (val) {
-                    orders = val;
-                    localStorage.setItem('msk_orders', JSON.stringify(orders));
-                    applyFilters();
-                }
-            });
-        }).catch(e => {
-            console.warn('Ошибка загрузки заказов из Firebase, используем localStorage', e);
-            const saved = localStorage.getItem('msk_orders');
-            orders = saved ? JSON.parse(saved) : [];
-            applyFilters();
-        });
+  console.log('🔄 Загрузка заказов...');
+  database.ref('orders').on('value', snapshot => {
+    const data = snapshot.val();
+    console.log('📦 Данные из Firebase (orders):', data);
+    if (data) {
+      allOrders = Object.values(data);
+      console.log('✅ Заказов загружено:', allOrders.length);
     } else {
-        const saved = localStorage.getItem('msk_orders');
-        orders = saved ? JSON.parse(saved) : [];
-        applyFilters();
+      allOrders = [];
+      console.log('⚠️ Нет заказов в Firebase');
     }
+    applyFilters();
+  }, error => {
+    console.error('❌ Ошибка чтения заказов:', error);
+  });
 }
 
 function renderOrders(ordersToRender) {
-    const tbody = document.getElementById('ordersTableBody');
-    if (!ordersToRender || !ordersToRender.length) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:#999;">Нет заказов</td></tr>';
-        updateOrderCount(0);
-        return;
-    }
-    ordersToRender.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-    tbody.innerHTML = ordersToRender.map(o => {
-        const statusClass = {
-            'новый': 'new',
-            'в обработке': 'processing',
-            'отправлен': 'shipped',
-            'доставлен': 'delivered',
-            'отменён': 'cancelled'
-        }[o.status] || '';
-        return `
-        <tr>
-            <td><strong>#${o.id}</strong></td>
-            <td>${o.name || 'Не указан'}</td>
-            <td>${o.phone || 'Не указан'}</td>
-            <td>${o.items?.length || 0}</td>
-            <td><strong>${(o.total || 0).toLocaleString()} ₽</strong></td>
-            <td>
-                <span class="order-status ${statusClass}">${o.status}</span>
-                <select class="status-select" onchange="updateStatus(${o.id}, this.value)">
-                    <option value="новый" ${o.status === 'новый' ? 'selected':''}>Новый</option>
-                    <option value="в обработке" ${o.status === 'в обработке' ? 'selected':''}>В обработке</option>
-                    <option value="отправлен" ${o.status === 'отправлен' ? 'selected':''}>Отправлен</option>
-                    <option value="доставлен" ${o.status === 'доставлен' ? 'selected':''}>Доставлен</option>
-                    <option value="отменён" ${o.status === 'отменён' ? 'selected':''}>Отменён</option>
-                </select>
-            </td>
-            <td style="font-size:13px;color:#888;">${new Date(o.createdAt).toLocaleString('ru-RU')}</td>
-            <td>
-                <button class="btn-view" onclick="viewOrder(${o.id})"><i class="fas fa-eye"></i></button>
-                <button class="btn-delete" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button>
-            </td>
-        </tr>
-    `}).join('');
-    updateOrderCount(ordersToRender.length);
+  const tbody = document.getElementById('ordersTableBody');
+  if (!tbody) {
+    console.error('❌ Элемент #ordersTableBody не найден!');
+    return;
+  }
+  if (!ordersToRender || !ordersToRender.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:#999;">Нет заказов</td></tr>';
+    updateOrderCount(0);
+    return;
+  }
+  ordersToRender.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+  tbody.innerHTML = ordersToRender.map(o => {
+    const statusClass = {
+      'новый': 'new',
+      'в обработке': 'processing',
+      'отправлен': 'shipped',
+      'доставлен': 'delivered',
+      'отменён': 'cancelled'
+    }[o.status] || '';
+    return `
+    <tr>
+      <td><strong>#${o.id}</strong></td>
+      <td>${o.name || 'Не указан'}</td>
+      <td>${o.phone || 'Не указан'}</td>
+      <td>${o.items?.length || 0}</td>
+      <td><strong>${(o.total || 0).toLocaleString()} ₽</strong></td>
+      <td>
+        <span class="order-status ${statusClass}">${o.status}</span>
+        <select class="status-select" onchange="updateStatus(${o.id}, this.value)">
+          <option value="новый" ${o.status === 'новый' ? 'selected':''}>Новый</option>
+          <option value="в обработке" ${o.status === 'в обработке' ? 'selected':''}>В обработке</option>
+          <option value="отправлен" ${o.status === 'отправлен' ? 'selected':''}>Отправлен</option>
+          <option value="доставлен" ${o.status === 'доставлен' ? 'selected':''}>Доставлен</option>
+          <option value="отменён" ${o.status === 'отменён' ? 'selected':''}>Отменён</option>
+        </select>
+      </td>
+      <td style="font-size:13px;color:#888;">${new Date(o.createdAt).toLocaleString('ru-RU')}</td>
+      <td>
+        <button class="btn-view" onclick="viewOrder(${o.id})"><i class="fas fa-eye"></i></button>
+        <button class="btn-delete" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>
+    `;
+  }).join('');
+  updateOrderCount(ordersToRender.length);
 }
 
 function updateOrderCount(count) {
-    document.getElementById('orderCountNumber').textContent = count;
+  const el = document.getElementById('orderCountNumber');
+  if (el) el.textContent = count;
 }
 
 function applyFilters() {
-    const statusFilter = document.getElementById('statusFilter').value;
-    const searchQuery = document.getElementById('searchOrders').value.trim().toLowerCase();
+  const statusFilter = document.getElementById('statusFilter')?.value || 'all';
+  const searchQuery = document.getElementById('searchOrders')?.value?.trim().toLowerCase() || '';
 
-    let statusFiltered = (statusFilter === 'all') ? [...orders] : orders.filter(o => o.status === statusFilter);
+  let statusFiltered = (statusFilter === 'all') ? [...allOrders] : allOrders.filter(o => o.status === statusFilter);
 
-    if (searchQuery) {
-        filteredOrders = statusFiltered.filter(o => {
-            if (String(o.id).includes(searchQuery)) return true;
-            if (o.name && o.name.toLowerCase().includes(searchQuery)) return true;
-            if (o.phone && o.phone.includes(searchQuery)) return true;
-            if (o.email && o.email.toLowerCase().includes(searchQuery)) return true;
-            if (o.address && o.address.toLowerCase().includes(searchQuery)) return true;
-            if (o.items && o.items.some(item => item.name && item.name.toLowerCase().includes(searchQuery))) return true;
-            const dateStr = new Date(o.createdAt).toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' }) + ' ' + new Date(o.createdAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-            if (dateStr.toLowerCase().includes(searchQuery)) return true;
-            return false;
-        });
-    } else {
-        filteredOrders = statusFiltered;
-    }
+  if (searchQuery) {
+    filteredOrders = statusFiltered.filter(o => {
+      if (String(o.id).includes(searchQuery)) return true;
+      if (o.name && o.name.toLowerCase().includes(searchQuery)) return true;
+      if (o.phone && o.phone.includes(searchQuery)) return true;
+      if (o.email && o.email.toLowerCase().includes(searchQuery)) return true;
+      if (o.address && o.address.toLowerCase().includes(searchQuery)) return true;
+      if (o.items && o.items.some(item => item.name && item.name.toLowerCase().includes(searchQuery))) return true;
+      const dateStr = new Date(o.createdAt).toLocaleString('ru-RU');
+      if (dateStr.toLowerCase().includes(searchQuery)) return true;
+      return false;
+    });
+  } else {
+    filteredOrders = statusFiltered;
+  }
 
-    renderOrders(filteredOrders);
+  renderOrders(filteredOrders);
 }
 
 function updateStatus(id, status) {
-    const order = orders.find(o => o.id === id);
-    if (!order) return;
-    order.status = status;
-    order.updatedAt = new Date().toISOString();
-    // Сохраняем в localStorage и Firebase
-    localStorage.setItem('msk_orders', JSON.stringify(orders));
-    const uid = window.getCurrentUserId ? window.getCurrentUserId() : null;
-    if (uid && window.database) {
-        database.ref(`users/${uid}/orders`).set(orders).catch(e => console.error('Ошибка обновления статуса в Firebase', e));
-    }
-    applyFilters();
+  const order = allOrders.find(o => o.id === id);
+  if (order) {
+    database.ref('orders').once('value').then(snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        let key = null;
+        for (const k in data) {
+          if (data[k].id === id) {
+            key = k;
+            break;
+          }
+        }
+        if (key) {
+          database.ref('orders/' + key).update({ status: status });
+        }
+      }
+    });
+  }
 }
 
 function deleteOrder(id) {
-    if (!confirm('Удалить заказ?')) return;
-    orders = orders.filter(o => o.id !== id);
-    localStorage.setItem('msk_orders', JSON.stringify(orders));
-    const uid = window.getCurrentUserId ? window.getCurrentUserId() : null;
-    if (uid && window.database) {
-        database.ref(`users/${uid}/orders`).set(orders).catch(e => console.error('Ошибка удаления заказа из Firebase', e));
+  if (!confirm('Удалить заказ?')) return;
+  database.ref('orders').once('value').then(snapshot => {
+    const data = snapshot.val();
+    if (data) {
+      for (const k in data) {
+        if (data[k].id === id) {
+          database.ref('orders/' + k).remove().then(() => {
+            loadOrders();
+          });
+          return;
+        }
+      }
     }
-    applyFilters();
+  });
 }
 
 function viewOrder(id) {
-    const order = orders.find(o => o.id === id);
-    if (!order) return;
-    const modal = document.getElementById('orderModal');
-    const content = document.getElementById('orderModalContent');
+  const order = allOrders.find(o => o.id === id);
+  if (!order) return;
+  const modal = document.getElementById('orderModal');
+  const content = document.getElementById('orderModalContent');
 
-    let itemsHtml = '';
-    if (order.items && order.items.length) {
-        itemsHtml = order.items.map(i => `
-            <div class="item-row">
-                <span>${i.name} (${i.size || '—'}, плёнка ${i.film || '—'}) × ${i.quantity}</span>
-                <span>${(i.price * i.quantity).toLocaleString()} ₽</span>
-            </div>
-        `).join('');
-    } else {
-        itemsHtml = '<p style="color:#888;">Нет товаров</p>';
-    }
+  let itemsHtml = '';
+  if (order.items && order.items.length) {
+    itemsHtml = order.items.map(i => `
+      <div class="item-row">
+        <span>${i.name} (${i.size || '—'}, плёнка ${i.film || '—'}) × ${i.quantity}</span>
+        <span>${(i.price * i.quantity).toLocaleString()} ₽</span>
+      </div>
+    `).join('');
+  } else {
+    itemsHtml = '<p style="color:#888;">Нет товаров</p>';
+  }
 
-    content.innerHTML = `
-        <h2>Заказ #${order.id}</h2>
-        <div class="info-block">
-            <p><strong>Имя:</strong> ${order.name || 'Не указано'}</p>
-            <p><strong>Телефон:</strong> ${order.phone || 'Не указан'}</p>
-            <p><strong>Email:</strong> ${order.email || 'Не указан'}</p>
-            <p><strong>Адрес:</strong> ${order.address || 'Не указан'}</p>
-            ${order.comment ? `<p><strong>Комментарий:</strong> ${order.comment}</p>` : ''}
-        </div>
-        <div class="items-list">
-            <strong>Состав заказа:</strong>
-            ${itemsHtml}
-            <div class="total">Итого: ${(order.total || 0).toLocaleString()} ₽</div>
-        </div>
-        <div style="margin:15px 0;">
-            <strong>Статус:</strong> ${order.status}
-            &nbsp;|&nbsp; <strong>Дата:</strong> ${new Date(order.createdAt).toLocaleString('ru-RU')}
-        </div>
-        <button class="close-btn" onclick="closeModal()">Закрыть</button>
-    `;
-    modal.style.display = 'flex';
+  content.innerHTML = `
+    <h2>Заказ #${order.id}</h2>
+    <div class="info-block">
+      <p><strong>Имя:</strong> ${order.name || 'Не указано'}</p>
+      <p><strong>Телефон:</strong> ${order.phone || 'Не указан'}</p>
+      <p><strong>Email:</strong> ${order.email || 'Не указан'}</p>
+      <p><strong>Адрес:</strong> ${order.address || 'Не указан'}</p>
+      ${order.comment ? `<p><strong>Комментарий:</strong> ${order.comment}</p>` : ''}
+    </div>
+    <div class="items-list">
+      <strong>Состав заказа:</strong>
+      ${itemsHtml}
+      <div class="total">Итого: ${(order.total || 0).toLocaleString()} ₽</div>
+    </div>
+    <div style="margin:15px 0;">
+      <strong>Статус:</strong> ${order.status}
+      &nbsp;|&nbsp; <strong>Дата:</strong> ${new Date(order.createdAt).toLocaleString('ru-RU')}
+    </div>
+    <button class="close-btn" onclick="closeModal()">Закрыть</button>
+  `;
+  modal.style.display = 'flex';
 }
 
 function closeModal() {
-    document.getElementById('orderModal').style.display = 'none';
+  document.getElementById('orderModal').style.display = 'none';
 }
 
 function logout() {
-    sessionStorage.removeItem('adminAuth');
-    window.location.href = 'login.html';
+  sessionStorage.removeItem('adminAuth');
+  window.location.href = 'login.html';
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    if (window.waitForFirebase) {
-        window.waitForFirebase(loadOrders);
-    } else {
-        loadOrders();
-    }
+// ===== ИНИЦИАЛИЗАЦИЯ =====
+waitForFirebase(() => {
+  console.log('🚀 Инициализация orders.js');
+  loadOrders();
+});
+
+// Обновление при возврате на вкладку
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden) {
+    console.log('👁️ Вкладка активна, обновляем заказы');
+    loadOrders();
+  }
 });

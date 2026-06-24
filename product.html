@@ -4,11 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>МСК — Товар</title>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="firebase-config.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="style.css" />
 </head>
@@ -30,14 +25,9 @@
             <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
                 <i class="fas fa-triangle-exclamation"></i> МСК<span>Знак</span>
             </div>
-            <nav class="nav-links">
-                <a href="index.html">Главная</a>
-                <a href="catalog.html">Каталог</a>
-                <a href="about.html">О нас</a>
-            </nav>
-            <div class="search-form search-hidden">
-                <input type="text" placeholder="Поиск..." disabled />
-                <button disabled><i class="fas fa-search"></i></button>
+            <div class="search-form">
+                <input type="text" placeholder="Поиск..." />
+                <button><i class="fas fa-search"></i></button>
             </div>
             <button class="cart-icon" onclick="toggleCart()">
                 <i class="fas fa-shopping-cart"></i> Корзина
@@ -68,39 +58,6 @@
         </div>
     </div>
 
-    <!-- Чат -->
-    <div class="chat-widget" id="chatWidget">
-        <button class="chat-toggle" id="chatToggleBtn" onclick="toggleChat()">
-            <i class="fas fa-comment-dots"></i>
-            <span class="chat-badge">1</span>
-        </button>
-        <div class="chat-window" id="chatWindow">
-            <div class="chat-header">
-                <div class="chat-header-info">
-                    <i class="fas fa-headset"></i>
-                    <div>
-                        <span class="chat-header-name">Поддержка МСК</span>
-                        <span class="chat-header-status">🟢 Онлайн</span>
-                    </div>
-                </div>
-                <button class="chat-close" onclick="closeChat()">&times;</button>
-            </div>
-            <div class="chat-messages" id="chatMessages">
-                <div class="chat-message received old">
-                    <div class="chat-message-content">
-                        <p>👋 Здравствуйте! Чем можем помочь?</p>
-                        <span class="chat-message-time" id="greetingTime">10:00</span>
-                    </div>
-                </div>
-            </div>
-            <div class="chat-input">
-                <input type="text" id="chatInput" placeholder="Введите сообщение..." onkeypress="handleChatKeyPress(event)" />
-                <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
-            </div>
-        </div>
-        <div class="chat-overlay" id="chatOverlay"></div>
-    </div>
-
     <footer class="footer">
         <div class="container">
             <div>© 2026 МСК. Все права защищены.</div>
@@ -115,6 +72,12 @@
         </div>
     </footer>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
     <script src="product.js"></script>
 </body>
 </html>
