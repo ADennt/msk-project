@@ -28,14 +28,11 @@ async function initData() {
     }
     loadCart();
     
-    // Рендерим в зависимости от страницы
     const grid = document.getElementById('catalogGrid');
     const popularGrid = document.getElementById('popularGrid');
     if (grid) {
-        // Это страница каталога
         applyFiltersAndPagination();
     } else if (popularGrid) {
-        // Это главная страница – показываем популярные товары (первые 8)
         renderPopularProducts();
     }
     updateCartUI();
@@ -68,7 +65,7 @@ function updateGreetingTime() {
 function renderPopularProducts() {
     const grid = document.getElementById('popularGrid');
     if (!grid) return;
-    const popular = products.slice(0, 8); // берём первые 8 товаров
+    const popular = products.slice(0, 8);
     if (!popular.length) {
         grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">Товары загружаются...</div>';
         return;
@@ -101,7 +98,6 @@ function applyFiltersAndPagination() {
 function renderCatalog() {
     const grid = document.getElementById('catalogGrid');
     if (!grid) return;
-
     const start = (currentPage - 1) * itemsPerPage;
     const end = start + itemsPerPage;
     const pageItems = filteredProducts.slice(start, end);
@@ -156,13 +152,11 @@ function renderCatalog() {
 function renderPagination() {
     const container = document.getElementById('pagination');
     if (!container) return;
-
     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
     if (totalPages <= 1) {
         container.innerHTML = '';
         return;
     }
-
     let html = '';
     html += `<button onclick="goToPage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>`;
     for (let i = 1; i <= totalPages; i++) {
@@ -198,7 +192,7 @@ function goToProduct(id) {
     window.location.href = `product.html?id=${id}`;
 }
 
-// ===== ФИЛЬТРЫ (для каталога) =====
+// ===== ФИЛЬТРЫ =====
 document.querySelectorAll('.nav-categories button').forEach(btn => {
     btn.addEventListener('click', function() {
         document.querySelectorAll('.nav-categories button').forEach(b => b.classList.remove('active'));
@@ -208,7 +202,7 @@ document.querySelectorAll('.nav-categories button').forEach(btn => {
     });
 });
 
-// ===== ПОИСК (для каталога) =====
+// ===== ПОИСК =====
 function searchProducts() {
     const input = document.getElementById('searchInput');
     if (!input) return;
@@ -240,7 +234,7 @@ function searchProducts() {
     if (info) info.textContent = `Найдено: ${filteredProducts.length} товаров`;
 }
 
-// ===== КОРЗИНА (общая для всех страниц) =====
+// ===== КОРЗИНА =====
 function addToCart(id, btn) {
     const product = products.find(p => p.id === id);
     if (!product) return;
@@ -347,7 +341,7 @@ function toggleCart() {
     if (overlay.classList.contains('open')) updateCartUI();
 }
 
-// ===== ОФОРМЛЕНИЕ ЗАКАЗА (общее) =====
+// ===== ОФОРМЛЕНИЕ ЗАКАЗА =====
 function showCheckoutForm() {
     if (!cart.length) { alert('Корзина пуста'); return; }
     const overlay = document.getElementById('cartOverlay');
@@ -390,14 +384,48 @@ function closeCheckoutForm() {
 }
 
 function submitOrder() {
-    const name = document.getElementById('orderName').value.trim();
-    const phone = document.getElementById('orderPhone').value.trim();
-    const email = document.getElementById('orderEmail').value.trim();
-    const address = document.getElementById('orderAddress').value.trim();
-    const comment = document.getElementById('orderComment').value.trim();
+    const nameInput = document.getElementById('orderName');
+    const phoneInput = document.getElementById('orderPhone');
+    const emailInput = document.getElementById('orderEmail');
+    const addressInput = document.getElementById('orderAddress');
+    const commentInput = document.getElementById('orderComment');
 
-    if (!name || !phone || !address) {
-        alert('Заполните обязательные поля (имя, телефон, адрес)');
+    // Сбрасываем ошибки
+    [nameInput, phoneInput, emailInput, addressInput].forEach(el => {
+        if (el) el.style.borderColor = '#ddd';
+    });
+
+    const name = nameInput ? nameInput.value.trim() : '';
+    const phone = phoneInput ? phoneInput.value.trim() : '';
+    const email = emailInput ? emailInput.value.trim() : '';
+    const address = addressInput ? addressInput.value.trim() : '';
+    const comment = commentInput ? commentInput.value.trim() : '';
+
+    let errors = [];
+
+    if (!name || name.length < 2) {
+        errors.push('Имя должно содержать минимум 2 символа');
+        if (nameInput) nameInput.style.borderColor = '#d32f2f';
+    }
+
+    const phoneClean = phone.replace(/[^0-9+]/g, '');
+    if (!phone || phoneClean.length < 5 || !/^[\d+\s\-()]+$/.test(phone)) {
+        errors.push('Телефон должен содержать минимум 5 цифр (допустимы +, -, пробелы, скобки)');
+        if (phoneInput) phoneInput.style.borderColor = '#d32f2f';
+    }
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errors.push('Email имеет некорректный формат');
+        if (emailInput) emailInput.style.borderColor = '#d32f2f';
+    }
+
+    if (!address || address.length < 3) {
+        errors.push('Адрес должен содержать минимум 3 символа');
+        if (addressInput) addressInput.style.borderColor = '#d32f2f';
+    }
+
+    if (errors.length) {
+        alert('❌ Пожалуйста, исправьте ошибки:\n\n' + errors.join('\n'));
         return;
     }
 
@@ -428,7 +456,7 @@ function submitOrder() {
     toggleCart();
 }
 
-// ===== ЧАТ (общий) =====
+// ===== ЧАТ =====
 function toggleChat() {
     const win = document.getElementById('chatWindow');
     const btn = document.getElementById('chatToggleBtn');

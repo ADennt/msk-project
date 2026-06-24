@@ -9,7 +9,6 @@
 </head>
 <body>
 
-    <!-- Верхняя планка -->
     <div class="topbar">
         <div class="container">
             <span><i class="fas fa-truck"></i> Доставка по всей России</span>
@@ -21,7 +20,6 @@
         </div>
     </div>
 
-    <!-- Шапка -->
     <header class="header">
         <div class="container">
             <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
@@ -32,6 +30,10 @@
                 <a href="catalog.html">Каталог</a>
                 <a href="about.html">О нас</a>
             </nav>
+            <div class="search-form search-hidden">
+                <input type="text" placeholder="Поиск..." disabled />
+                <button disabled><i class="fas fa-search"></i></button>
+            </div>
             <button class="cart-icon" onclick="toggleCart()">
                 <i class="fas fa-shopping-cart"></i> Корзина
                 <span class="badge" id="cartCount">0</span>
@@ -39,61 +41,72 @@
         </div>
     </header>
 
-    <!-- Основной контент -->
-    <main>
-        <section class="hero">
-            <div class="container">
-                <div class="hero-content">
-                    <h1>Дорожные знаки<br>по ГОСТ</h1>
-                    <p>Качественные знаки для дорог, парковок и частных территорий. Собственное производство, доставка по всей России.</p>
-                    <a href="catalog.html" class="btn-hero">Перейти в каталог</a>
-                </div>
-                <div class="hero-image">
-                    <img src="images/hero-sign.png" alt="Дорожные знаки" />
+    <!-- HERO-БЛОК (без изображения и бейджа) -->
+    <section class="hero-new">
+        <div class="container hero-new-container">
+            <div class="hero-new-content">
+                <span class="hero-new-tag">Производство в России</span>
+                <h1>Дорожные знаки <span>по ГОСТ</span></h1>
+                <p class="hero-new-subtitle">
+                    <i class="fas fa-check-circle"></i> Сертифицированная продукция
+                    <i class="fas fa-check-circle"></i> Доставка по всей стране
+                    <i class="fas fa-check-circle"></i> Цены от производителя
+                </p>
+                <p class="hero-new-desc">Качественные знаки для дорог, парковок и частных территорий. Собственное производство, быстрая доставка.</p>
+                <div class="hero-new-buttons">
+                    <a href="catalog.html" class="btn-hero-new">Перейти в каталог</a>
+                    <a href="about.html" class="btn-hero-new-outline">О компании</a>
                 </div>
             </div>
-        </section>
+        </div>
+        <div class="hero-new-wave">
+            <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,0 C300,100 700,0 1200,60 L1200,120 L0,120 Z" fill="#ffffff" />
+            </svg>
+        </div>
+    </section>
 
-        <section class="advantages">
-            <div class="container">
-                <h2>Почему выбирают нас</h2>
-                <div class="advantages-grid">
-                    <div class="advantage-item">
-                        <i class="fas fa-certificate"></i>
-                        <h3>ГОСТ 52290-2023</h3>
-                        <p>Все знаки соответствуют актуальным требованиям ГОСТ.</p>
-                    </div>
-                    <div class="advantage-item">
-                        <i class="fas fa-truck-fast"></i>
-                        <h3>Доставка по России</h3>
-                        <p>Отправляем в любой регион, быстро и надёжно.</p>
-                    </div>
-                    <div class="advantage-item">
-                        <i class="fas fa-shield-halved"></i>
-                        <h3>Гарантия качества</h3>
-                        <p>Используем оцинкованную сталь и плёнку высшего качества.</p>
-                    </div>
-                    <div class="advantage-item">
-                        <i class="fas fa-hand-holding-dollar"></i>
-                        <h3>Цены от производителя</h3>
-                        <p>Собственное производство – выгодные цены без посредников.</p>
-                    </div>
+    <!-- Секция преимуществ -->
+    <section class="advantages">
+        <div class="container">
+            <h2>Почему выбирают нас</h2>
+            <div class="advantages-grid">
+                <div class="advantage-item">
+                    <i class="fas fa-certificate"></i>
+                    <h3>ГОСТ 52290-2023</h3>
+                    <p>Все знаки соответствуют актуальным требованиям ГОСТ.</p>
+                </div>
+                <div class="advantage-item">
+                    <i class="fas fa-truck-fast"></i>
+                    <h3>Доставка по России</h3>
+                    <p>Отправляем в любой регион, быстро и надёжно.</p>
+                </div>
+                <div class="advantage-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Гарантия качества</h3>
+                    <p>Используем оцинкованную сталь и плёнку высшего качества.</p>
+                </div>
+                <div class="advantage-item">
+                    <i class="fas fa-hand-holding-dollar"></i>
+                    <h3>Цены от производителя</h3>
+                    <p>Собственное производство – выгодные цены без посредников.</p>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="popular-products">
-            <div class="container">
-                <h2>Популярные знаки</h2>
-                <div class="catalog-grid" id="popularGrid">
-                    <!-- Рендерится через JS -->
-                </div>
-                <div style="text-align:center;margin-top:20px;">
-                    <a href="catalog.html" class="btn-hero" style="display:inline-block;">Смотреть все знаки</a>
-                </div>
+    <!-- Популярные товары -->
+    <section class="popular-products">
+        <div class="container">
+            <h2>Популярные знаки</h2>
+            <div class="catalog-grid" id="popularGrid">
+                <!-- Рендерится через JS -->
             </div>
-        </section>
-    </main>
+            <div style="text-align:center;margin-top:20px;">
+                <a href="catalog.html" class="btn-hero-new" style="display:inline-block;">Смотреть все знаки</a>
+            </div>
+        </div>
+    </section>
 
     <!-- Корзина -->
     <div class="cart-overlay" id="cartOverlay">
@@ -144,7 +157,6 @@
         <div class="chat-overlay" id="chatOverlay"></div>
     </div>
 
-    <!-- Футер -->
     <footer class="footer">
         <div class="container">
             <div>© 2026 МСК. Все права защищены.</div>

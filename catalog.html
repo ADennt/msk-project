@@ -9,7 +9,6 @@
 </head>
 <body>
 
-    <!-- Верхняя планка -->
     <div class="topbar">
         <div class="container">
             <span><i class="fas fa-truck"></i> Доставка по всей России</span>
@@ -21,7 +20,6 @@
         </div>
     </div>
 
-    <!-- Шапка -->
     <header class="header">
         <div class="container">
             <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
@@ -32,6 +30,11 @@
                 <a href="catalog.html" class="active">Каталог</a>
                 <a href="about.html">О нас</a>
             </nav>
+            <!-- Поиск видимый только на каталоге -->
+            <div class="search-form">
+                <input type="text" placeholder="Поиск по названию, номеру, размеру, цене..." id="searchInput" onkeypress="if(event.key==='Enter') searchProducts()" />
+                <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
+            </div>
             <button class="cart-icon" onclick="toggleCart()">
                 <i class="fas fa-shopping-cart"></i> Корзина
                 <span class="badge" id="cartCount">0</span>
@@ -39,15 +42,6 @@
         </div>
     </header>
 
-    <!-- Поиск (добавлен для удобства) -->
-    <div class="container" style="margin-top:15px;">
-        <div class="search-form" style="max-width:500px;margin:0 auto;">
-            <input type="text" placeholder="Поиск по названию, номеру, размеру, цене..." id="searchInput" onkeypress="if(event.key==='Enter') searchProducts()" />
-            <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
-        </div>
-    </div>
-
-    <!-- Навигация по категориям -->
     <nav class="nav-categories">
         <button class="active" data-filter="all">Все знаки</button>
         <button data-filter="warning">Предупреждающие</button>
@@ -60,7 +54,6 @@
         <button data-filter="additional">Дополнительной информации</button>
     </nav>
 
-    <!-- Каталог -->
     <div class="container">
         <div class="catalog-header">
             <h2><i class="fas fa-road"></i> Каталог знаков</h2>
@@ -119,7 +112,6 @@
         <div class="chat-overlay" id="chatOverlay"></div>
     </div>
 
-    <!-- Футер -->
     <footer class="footer">
         <div class="container">
             <div>© 2026 МСК. Все права защищены.</div>
@@ -134,7 +126,6 @@
         </div>
     </footer>
 
-    <!-- ВАЖНО: используем универсальный script.js -->
     <script src="script.js"></script>
 </body>
 </html>

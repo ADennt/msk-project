@@ -9,7 +9,6 @@
 </head>
 <body>
 
-    <!-- Верхняя планка -->
     <div class="topbar">
         <div class="container">
             <span><i class="fas fa-truck"></i> Доставка по всей России</span>
@@ -21,7 +20,6 @@
         </div>
     </div>
 
-    <!-- Шапка -->
     <header class="header">
         <div class="container">
             <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
@@ -32,6 +30,10 @@
                 <a href="catalog.html">Каталог</a>
                 <a href="about.html" class="active">О нас</a>
             </nav>
+            <div class="search-form search-hidden">
+                <input type="text" placeholder="Поиск..." disabled />
+                <button disabled><i class="fas fa-search"></i></button>
+            </div>
             <button class="cart-icon" onclick="toggleCart()">
                 <i class="fas fa-shopping-cart"></i> Корзина
                 <span class="badge" id="cartCount">0</span>
@@ -39,7 +41,6 @@
         </div>
     </header>
 
-    <!-- Основной контент -->
     <main class="about-page">
         <div class="container">
             <div class="about-header">
@@ -70,8 +71,12 @@
                         <p><i class="fas fa-clock"></i> <strong>Режим работы:</strong> Пн–Пт, 9:00–18:00</p>
                     </div>
                 </div>
+
                 <div class="about-image">
-                    <img src="images/about-company.jpg" alt="Производство МСК" />
+                    <iframe src="https://yandex.ru/map-widget/v1/?ll=37.499534%2C55.918368&z=17&pt=37.499534,55.918368,flag" allowfullscreen></iframe>
+                    <div class="map-caption">
+                        <i class="fas fa-location-dot" style="color:#f7c948;"></i> Лихачевский пр-д, 31, Долгопрудный
+                    </div>
                 </div>
             </div>
         </div>
@@ -126,7 +131,6 @@
         <div class="chat-overlay" id="chatOverlay"></div>
     </div>
 
-    <!-- Футер -->
     <footer class="footer">
         <div class="container">
             <div>© 2026 МСК. Все права защищены.</div>
