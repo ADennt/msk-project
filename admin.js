@@ -259,7 +259,7 @@ function deleteProduct(id) {
     }
 }
 
-// ===== ЭКСПОРТ / ИМПОРТ (оставляем без изменений) =====
+// ===== ЭКСПОРТ / ИМПОРТ =====
 function exportData() {
     const dataStr = JSON.stringify({ products }, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
@@ -285,13 +285,17 @@ function importData() {
                 if (data.products) {
                     if (window.database) {
                         const ref = window.database.ref('products');
-                        data.products.forEach(p => ref.push(p));
+                        // Удаляем старые товары перед импортом
+                        ref.remove().then(() => {
+                            data.products.forEach(p => ref.push(p));
+                            alert('✅ Данные импортированы');
+                        });
                     } else {
                         products = data.products;
                         localStorage.setItem('msk_products', JSON.stringify(products));
                         renderTable();
+                        alert('✅ Данные импортированы');
                     }
-                    alert('✅ Данные импортированы');
                 } else alert('Неверный формат');
             } catch(err) { alert('Ошибка чтения'); }
         };

@@ -1,5 +1,5 @@
 // ========================================
-// МСК — ОСНОВНАЯ ЛОГИКА (Firebase)
+// МСК — ОСНОВНАЯ ЛОГИКА (Firebase + товары)
 // ========================================
 
 let products = [];
@@ -10,25 +10,87 @@ const itemsPerPage = 20;
 let filteredProducts = [];
 
 // ===== ИНИЦИАЛИЗАЦИЯ =====
-async function initData() {
-    const saved = localStorage.getItem('msk_products');
-    if (saved) {
-        products = JSON.parse(saved);
+function initData() {
+    // Сначала пробуем загрузить товары из Firebase
+    if (window.database) {
+        window.database.ref('products').on('value', snapshot => {
+            const data = snapshot.val() || {};
+            // Преобразуем объект в массив
+            const productsArray = Object.values(data);
+            if (productsArray.length > 0) {
+                products = productsArray;
+                // Сохраняем в localStorage для быстрого доступа (опционально)
+                localStorage.setItem('msk_products', JSON.stringify(products));
+                afterProductsLoaded();
+            } else {
+                // Если в Firebase нет товаров, загружаем из data.json
+                loadFromDataJson();
+            }
+        });
     } else {
-        try {
-            const resp = await fetch('data.json');
+        // fallback на localStorage или data.json
+        const saved = localStorage.getItem('msk_products');
+        if (saved) {
+            products = JSON.parse(saved);
+            afterProductsLoaded();
+        } else {
+            loadFromDataJson();
+        }
+    }
+}
+
+function loadFromDataJson() {
+    fetch('data.json')
+        .then(resp => {
             if (!resp.ok) throw new Error('Сеть ответила ошибкой');
-            const data = await resp.json();
+            return resp.json();
+        })
+        .then(data => {
             products = data.products || [];
-        } catch (e) {
+            // Сохраняем в localStorage и Firebase
+            localStorage.setItem('msk_products', JSON.stringify(products));
+            if (window.database) {
+                // Сохраняем каждый товар в Firebase (если их нет)
+                const ref = window.database.ref('products');
+                // Проверяем, есть ли уже товары в Firebase
+                ref.once('value', snapshot => {
+                    if (!snapshot.exists()) {
+                        // Если нет, загружаем все
+                        products.forEach(p => ref.push(p));
+                    }
+                });
+            }
+            afterProductsLoaded();
+        })
+        .catch(e => {
             console.warn('Не удалось загрузить data.json, используется fallback', e);
             products = getFallbackProducts();
-        }
-        localStorage.setItem('msk_products', JSON.stringify(products));
-    }
+            localStorage.setItem('msk_products', JSON.stringify(products));
+            if (window.database) {
+                const ref = window.database.ref('products');
+                ref.once('value', snapshot => {
+                    if (!snapshot.exists()) {
+                        products.forEach(p => ref.push(p));
+                    }
+                });
+            }
+            afterProductsLoaded();
+        });
+}
+
+function afterProductsLoaded() {
     // Загружаем корзину из Firebase
     loadCartFromFirebase();
-    renderCatalog();
+    // Определяем, на какой мы странице
+    const grid = document.getElementById('catalogGrid');
+    const popularGrid = document.getElementById('popularGrid');
+    if (grid) {
+        // Страница каталога – применяем фильтры и пагинацию
+        applyFiltersAndPagination();
+    } else if (popularGrid) {
+        // Главная страница – показываем популярные товары
+        renderPopularProducts();
+    }
     updateCartUI();
 }
 
@@ -228,7 +290,6 @@ function submitOrder() {
         return;
     }
 
-    // Генерируем новый ID через Firebase или localStorage
     if (window.getNextOrderId) {
         window.getNextOrderId().then(id => {
             createOrder(id);

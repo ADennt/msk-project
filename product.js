@@ -3,6 +3,35 @@
 // ========================================
 
 let cart = [];
+let products = [];
+
+function loadProduct() {
+    // Загружаем товары из Firebase (или из localStorage)
+    if (window.database) {
+        window.database.ref('products').on('value', snapshot => {
+            const data = snapshot.val() || {};
+            products = Object.values(data);
+            displayProduct();
+        });
+    } else {
+        const saved = localStorage.getItem('msk_products');
+        products = saved ? JSON.parse(saved) : [];
+        displayProduct();
+    }
+    // Загружаем корзину
+    loadCartFromFirebase();
+}
+
+function displayProduct() {
+    const params = new URLSearchParams(window.location.search);
+    const id = parseInt(params.get('id'));
+    const product = products.find(p => p.id === id);
+    if (!product) {
+        document.getElementById('productDetail').innerHTML = '<h2>Товар не найден</h2><a href="index.html">Вернуться</a>';
+        return;
+    }
+    renderProduct(product);
+}
 
 function loadCartFromFirebase() {
     if (window.database) {
@@ -110,27 +139,73 @@ function toggleCart() {
     if (overlay.classList.contains('open')) updateCartUI();
 }
 
-// ===== ОФОРМЛЕНИЕ ЗАКАЗА =====
-function showCheckoutForm() { /* ... (без изменений, как в script.js) */ }
+// ===== ОФОРМЛЕНИЕ ЗАКАЗА (аналогично script.js) =====
+function showCheckoutForm() { /* ... (такой же код, как в script.js) */ }
 function closeCheckoutForm() { /* ... */ }
-function submitOrder() { /* ... использует window.getNextOrderId */ }
+function submitOrder() { /* ... использует getNextOrderId */ }
 
-// ===== ЗАГРУЗКА ТОВАРА =====
-function loadProduct() {
-    const params = new URLSearchParams(window.location.search);
-    const id = parseInt(params.get('id'));
-    const saved = localStorage.getItem('msk_products');
-    const products = saved ? JSON.parse(saved) : [];
-    const product = products.find(p => p.id === id);
-    if (!product) {
-        document.getElementById('productDetail').innerHTML = '<h2>Товар не найден</h2><a href="index.html">Вернуться</a>';
-        return;
-    }
-    renderProduct(product);
-    loadCartFromFirebase();
+function renderProduct(product) {
+    const container = document.getElementById('productDetail');
+    const sizes = [...new Set(product.variants.map(v => v.size))];
+    const films = [...new Set(product.variants.map(v => v.film))];
+    const defaultVariant = product.variants[0];
+    const sizeOptions = sizes.map(s => `<option value="${s}" ${s === defaultVariant.size ? 'selected':''}>${s}</option>`).join('');
+    const filmOptions = films.map(f => `<option value="${f}" ${f === defaultVariant.film ? 'selected':''}>${f}</option>`).join('');
+
+    container.innerHTML = `
+        <div class="detail-header">
+            <div class="detail-image">
+                <img src="${product.image || 'images/placeholder.png'}" alt="${product.name}" />
+            </div>
+            <div class="detail-info">
+                <div style="display:flex;gap:10px;margin-bottom:10px;">
+                    <span style="color:#888;font-weight:600;">${product.typeLabel}</span>
+                    ${product.tag ? `<span style="background:#f7c948;padding:4px 16px;border-radius:20px;font-weight:700;font-size:12px;">${product.tag}</span>` : ''}
+                </div>
+                <h1>${product.name}</h1>
+                <div class="detail-price" id="detailPrice">${defaultVariant.price.toLocaleString()} ₽</div>
+                <div class="detail-stock">В наличии: ${product.inStock || 0} шт.</div>
+
+                <div class="selector-group">
+                    <div>
+                        <label for="sizeSelect">Размер:</label>
+                        <select id="sizeSelect" onchange="updateDetailPrice()">
+                            ${sizeOptions}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filmSelect">Плёнка:</label>
+                        <select id="filmSelect" onchange="updateDetailPrice()">
+                            ${filmOptions}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn-add" onclick="addToCartFromDetail()">В корзину</button>
+                    <button class="btn-buy" onclick="buyNow()">Купить сейчас</button>
+                </div>
+            </div>
+        </div>
+        <div class="detail-desc">
+            <h3>📋 Описание</h3>
+            <p>${product.description || 'Описание отсутствует'}</p>
+        </div>
+        <div class="detail-chars">
+            <div class="char-item"><strong>Материал</strong><span>${product.characteristics?.material || 'Не указано'}</span></div>
+        </div>
+        <a href="index.html" style="color:#f7c948;font-weight:700;text-decoration:none;display:inline-block;margin-top:20px;">← Вернуться в каталог</a>
+    `;
+    window.currentProduct = product;
 }
 
-function renderProduct(product) { /* ... (без изменений) */ }
-function updateDetailPrice() { /* ... */ }
+function updateDetailPrice() {
+    const size = document.getElementById('sizeSelect').value;
+    const film = document.getElementById('filmSelect').value;
+    const product = window.currentProduct;
+    const variant = product.variants.find(v => v.size === size && v.film === film);
+    const priceEl = document.getElementById('detailPrice');
+    if (variant && priceEl) priceEl.textContent = `${variant.price.toLocaleString()} ₽`;
+}
 
 document.addEventListener('DOMContentLoaded', loadProduct);
