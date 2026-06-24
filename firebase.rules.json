@@ -1,0 +1,70 @@
+{
+  "rules": {
+    "products": {
+      ".read": true,
+      ".write": "auth != null",
+      "$product": {
+        ".validate": "newData.hasChildren(['id', 'name', 'type', 'typeLabel', 'variants'])",
+        "id": { ".validate": "newData.isNumber()" },
+        "name": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "type": { ".validate": "newData.isString()" },
+        "typeLabel": { ".validate": "newData.isString()" },
+        "tag": { ".validate": "newData.isString()" },
+        "image": { ".validate": "newData.isString()" },
+        "description": { ".validate": "newData.isString()" },
+        "inStock": { ".validate": "newData.isNumber()" },
+        "characteristics": { ".validate": "newData.hasChildren(['material'])", "material": { ".validate": "newData.isString()" } },
+        "variants": { 
+          ".validate": "newData.isArray() && newData.val().length > 0",
+          "$variant": {
+            ".validate": "newData.hasChildren(['size', 'film', 'price'])",
+            "size": { ".validate": "newData.isString()" },
+            "film": { ".validate": "newData.isString()" },
+            "price": { ".validate": "newData.isNumber() && newData.val() > 0" }
+          }
+        }
+      }
+    },
+    "cart": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$userId": {
+        ".validate": "newData.isArray()",
+        "$item": {
+          ".validate": "newData.hasChildren(['id', 'name', 'price', 'quantity', 'size', 'film', 'image'])",
+          "id": { ".validate": "newData.isNumber()" },
+          "name": { ".validate": "newData.isString()" },
+          "price": { ".validate": "newData.isNumber() && newData.val() > 0" },
+          "quantity": { ".validate": "newData.isNumber() && newData.val() > 0" },
+          "size": { ".validate": "newData.isString()" },
+          "film": { ".validate": "newData.isString()" },
+          "image": { ".validate": "newData.isString()" }
+        }
+      }
+    },
+    "orders": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$orderId": {
+        ".validate": "newData.hasChildren(['id', 'name', 'phone', 'email', 'address', 'items', 'total', 'status', 'createdAt', 'userId'])",
+        "id": { ".validate": "newData.isNumber()" },
+        "name": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "phone": { ".validate": "newData.isString()" },
+        "email": { ".validate": "newData.isString()" },
+        "address": { ".validate": "newData.isString()" },
+        "items": { ".validate": "newData.isArray()" },
+        "total": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "status": { ".validate": "newData.isString() && newData.val().matches('новый|в обработке|отправлен|доставлен|отменён')" },
+        "createdAt": { ".validate": "newData.isString()" },
+        "userId": { ".validate": "newData.isString() && newData.val() == auth.uid" }
+      }
+    },
+    "meta": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "orderCounter": {
+        ".validate": "newData.isNumber()"
+      }
+    }
+  }
+}

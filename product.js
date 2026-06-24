@@ -1,8 +1,7 @@
 // ========================================
-// МСК — СТРАНИЦА ТОВАРА (Firebase)
+// МСК — СТРАНИЦА ТОВАРА (с cart.js)
 // ========================================
 
-let cart = [];
 let products = [];
 
 function loadProduct() {
@@ -10,17 +9,14 @@ function loadProduct() {
         alert('Ошибка подключения к Firebase');
         return;
     }
-
-    // Подписываемся на товары
     window.database.ref('products').on('value', snapshot => {
         const data = snapshot.val() || {};
         products = Object.values(data);
         displayProduct();
     });
 
-    // Подписываемся на корзину
-    window.database.ref('cart').on('value', snapshot => {
-        cart = snapshot.val() || [];
+    window.loadCartFromFirebase();
+    window.onCartUpdate(() => {
         updateCartUI();
     });
 }
@@ -36,24 +32,19 @@ function displayProduct() {
     renderProduct(product);
 }
 
-function saveCartToFirebase() {
-    if (window.database) {
-        window.database.ref('cart').set(cart);
-    }
-}
-
 function updateCartUI() {
     const count = document.getElementById('cartCount');
     const items = document.getElementById('cartItems');
     const total = document.getElementById('cartTotal');
     const clearBtn = document.getElementById('clearCartBtn');
 
-    const totalItems = cart.reduce((s, i) => s + i.quantity, 0);
+    const cart = window.getCart();
+    const totalItems = window.getTotalItems();
     if (count) count.textContent = totalItems;
     if (clearBtn) clearBtn.disabled = cart.length === 0;
 
     if (!items) return;
-    if (!cart.length) {
+    if (cart.length === 0) {
         items.innerHTML = '<div class="empty-cart">Корзина пуста</div>';
         if (total) total.textContent = 'Итого: 0 ₽';
         return;
@@ -61,63 +52,52 @@ function updateCartUI() {
 
     items.innerHTML = cart.map(item => `
         <div class="cart-item">
-            <img src="${item.image}" alt="${item.name}" />
+            <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" />
             <div class="item-details">
-                <div class="name">${item.name}</div>
-                <div class="options">${item.size} | ${item.film}</div>
+                <div class="name">${escapeHtml(item.name)}</div>
+                <div class="options">${escapeHtml(item.size)} | ${escapeHtml(item.film)}</div>
             </div>
             <div class="qty">
-                <button onclick="changeQty(${item.id}, -1)">−</button>
+                <button onclick="window.changeQuantity(${item.id}, -1)">−</button>
                 <span>${item.quantity}</span>
-                <button onclick="changeQty(${item.id}, 1)">+</button>
+                <button onclick="window.changeQuantity(${item.id}, 1)">+</button>
             </div>
             <span class="item-price">${(item.price * item.quantity).toLocaleString()} ₽</span>
-            <button class="remove-btn" onclick="removeFromCart(${item.id})"><i class="fas fa-times"></i></button>
+            <button class="remove-btn" onclick="window.removeFromCart(${item.id})"><i class="fas fa-times"></i></button>
         </div>
     `).join('');
 
-    const totalSum = cart.reduce((s, i) => s + i.price * i.quantity, 0);
-    if (total) total.textContent = `Итого: ${totalSum.toLocaleString()} ₽`;
+    const totalPrice = window.getTotalPrice();
+    if (total) total.textContent = `Итого: ${totalPrice.toLocaleString()} ₽`;
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
 }
 
 function addToCartFromDetail() {
     const product = window.currentProduct;
     const size = document.getElementById('sizeSelect').value;
     const film = document.getElementById('filmSelect').value;
-    const variant = product.variants.find(v => v.size === size && v.film === film);
-    if (!variant) { alert('Комбинация недоступна'); return; }
-
-    const existing = cart.find(i => i.id === product.id && i.size === size && i.film === film);
-    if (existing) existing.quantity += 1;
-    else cart.push({ ...product, quantity: 1, size, film, price: variant.price, image: product.image || 'images/placeholder.png' });
-
-    saveCartToFirebase();
-    alert('✅ Товар добавлен в корзину');
+    const success = window.addToCart(product, size, film);
+    if (success) {
+        alert('✅ Товар добавлен в корзину');
+    } else {
+        alert('Ошибка добавления товара');
+    }
 }
 
 function buyNow() {
     addToCartFromDetail();
     window.location.href = 'index.html';
-}
-
-function removeFromCart(id) {
-    cart = cart.filter(item => item.id !== id);
-    saveCartToFirebase();
-}
-
-function clearCart() {
-    if (!cart.length) return;
-    if (!confirm('Очистить корзину?')) return;
-    cart = [];
-    saveCartToFirebase();
-}
-
-function changeQty(id, delta) {
-    const item = cart.find(i => i.id === id);
-    if (!item) return;
-    item.quantity += delta;
-    if (item.quantity <= 0) removeFromCart(id);
-    else saveCartToFirebase();
 }
 
 function toggleCart() {
@@ -126,8 +106,9 @@ function toggleCart() {
     if (overlay.classList.contains('open')) updateCartUI();
 }
 
-// ===== ОФОРМЛЕНИЕ ЗАКАЗА =====
+// ===== ОФОРМЛЕНИЕ ЗАКАЗА (аналогично script.js) =====
 function showCheckoutForm() {
+    const cart = window.getCart();
     if (!cart.length) { alert('Корзина пуста'); return; }
     const overlay = document.getElementById('cartOverlay');
     const panel = overlay.querySelector('.cart-panel');
@@ -141,8 +122,8 @@ function showCheckoutForm() {
             <div><label>Комментарий</label><textarea id="orderComment" rows="3" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;"></textarea></div>
             <div style="background:#f8f9fb;padding:15px;border-radius:10px;margin:15px 0;">
                 <strong>Состав:</strong>
-                ${cart.map(item => `<div>${item.name} (${item.size}, ${item.film}) × ${item.quantity} — ${(item.price*item.quantity).toLocaleString()} ₽</div>`).join('')}
-                <div style="font-size:20px;font-weight:900;margin-top:10px;">Итого: ${cart.reduce((s,i) => s + i.price*i.quantity, 0).toLocaleString()} ₽</div>
+                ${cart.map(item => `<div>${escapeHtml(item.name)} (${escapeHtml(item.size)}, ${escapeHtml(item.film)}) × ${item.quantity} — ${(item.price*item.quantity).toLocaleString()} ₽</div>`).join('')}
+                <div style="font-size:20px;font-weight:900;margin-top:10px;">Итого: ${window.getTotalPrice().toLocaleString()} ₽</div>
             </div>
             <button onclick="submitOrder()" style="width:100%;padding:16px;background:#f7c948;border:none;border-radius:40px;font-weight:900;font-size:18px;cursor:pointer;">Оформить заказ</button>
             <button onclick="closeCheckoutForm()" style="width:100%;padding:12px;margin-top:10px;background:#0b0b0b;color:#fff;border:none;border-radius:40px;font-weight:700;font-size:16px;cursor:pointer;">Назад</button>
@@ -160,7 +141,7 @@ function closeCheckoutForm() {
         <div class="cart-total" id="cartTotal">Итого: 0 ₽</div>
         <div class="cart-actions">
             <button class="btn-checkout" onclick="showCheckoutForm()">Оформить заказ</button>
-            <button class="btn-clear" onclick="clearCart()" id="clearCartBtn">Очистить</button>
+            <button class="btn-clear" onclick="window.clearCart(); updateCartUI();" id="clearCartBtn">Очистить</button>
         </div>
     `;
     overlay.classList.remove('open');
@@ -180,32 +161,40 @@ function submitOrder() {
         return;
     }
 
+    const userId = window.getUserId();
+    if (!userId) {
+        alert('Вы не авторизованы. Пожалуйста, войдите в аккаунт.');
+        return;
+    }
+
     if (window.getNextOrderId) {
         window.getNextOrderId().then(id => {
-            createOrder(id);
+            createOrder(id, userId);
         }).catch(err => {
             console.error('Ошибка генерации ID:', err);
-            createOrder(Date.now());
+            createOrder(Date.now(), userId);
         });
     } else {
-        createOrder(Date.now());
+        createOrder(Date.now(), userId);
     }
 }
 
-function createOrder(id) {
+function createOrder(id, userId) {
     const name = document.getElementById('orderName').value.trim();
     const phone = document.getElementById('orderPhone').value.trim();
     const email = document.getElementById('orderEmail').value.trim();
     const address = document.getElementById('orderAddress').value.trim();
     const comment = document.getElementById('orderComment').value.trim();
+    const cart = window.getCart();
 
     const order = {
         id: id,
         name, phone, email: email || 'Не указан', address, comment: comment || 'Нет',
         items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, size: i.size, film: i.film, image: i.image })),
-        total: cart.reduce((s, i) => s + i.price * i.quantity, 0),
+        total: window.getTotalPrice(),
         status: 'новый',
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        userId: userId
     };
 
     if (window.database) {
@@ -215,8 +204,8 @@ function createOrder(id) {
         return;
     }
 
-    cart = [];
-    saveCartToFirebase();
+    window.clearCart();
+    updateCartUI();
     alert(`✅ Заказ #${order.id} оформлен!`);
     toggleCart();
 }
@@ -226,20 +215,20 @@ function renderProduct(product) {
     const sizes = [...new Set(product.variants.map(v => v.size))];
     const films = [...new Set(product.variants.map(v => v.film))];
     const defaultVariant = product.variants[0];
-    const sizeOptions = sizes.map(s => `<option value="${s}" ${s === defaultVariant.size ? 'selected':''}>${s}</option>`).join('');
-    const filmOptions = films.map(f => `<option value="${f}" ${f === defaultVariant.film ? 'selected':''}>${f}</option>`).join('');
+    const sizeOptions = sizes.map(s => `<option value="${escapeHtml(s)}" ${s === defaultVariant.size ? 'selected':''}>${escapeHtml(s)}</option>`).join('');
+    const filmOptions = films.map(f => `<option value="${escapeHtml(f)}" ${f === defaultVariant.film ? 'selected':''}>${escapeHtml(f)}</option>`).join('');
 
     container.innerHTML = `
         <div class="detail-header">
             <div class="detail-image">
-                <img src="${product.image || 'images/placeholder.png'}" alt="${product.name}" />
+                <img src="${escapeHtml(product.image || 'images/placeholder.png')}" alt="${escapeHtml(product.name)}" />
             </div>
             <div class="detail-info">
                 <div style="display:flex;gap:10px;margin-bottom:10px;">
-                    <span style="color:#888;font-weight:600;">${product.typeLabel}</span>
-                    ${product.tag ? `<span style="background:#f7c948;padding:4px 16px;border-radius:20px;font-weight:700;font-size:12px;">${product.tag}</span>` : ''}
+                    <span style="color:#888;font-weight:600;">${escapeHtml(product.typeLabel)}</span>
+                    ${product.tag ? `<span style="background:#f7c948;padding:4px 16px;border-radius:20px;font-weight:700;font-size:12px;">${escapeHtml(product.tag)}</span>` : ''}
                 </div>
-                <h1>${product.name}</h1>
+                <h1>${escapeHtml(product.name)}</h1>
                 <div class="detail-price" id="detailPrice">${defaultVariant.price.toLocaleString()} ₽</div>
                 <div class="detail-stock">В наличии: ${product.inStock || 0} шт.</div>
 
@@ -266,10 +255,10 @@ function renderProduct(product) {
         </div>
         <div class="detail-desc">
             <h3>📋 Описание</h3>
-            <p>${product.description || 'Описание отсутствует'}</p>
+            <p>${escapeHtml(product.description || 'Описание отсутствует')}</p>
         </div>
         <div class="detail-chars">
-            <div class="char-item"><strong>Материал</strong><span>${product.characteristics?.material || 'Не указано'}</span></div>
+            <div class="char-item"><strong>Материал</strong><span>${escapeHtml(product.characteristics?.material || 'Не указано')}</span></div>
         </div>
         <a href="index.html" style="color:#f7c948;font-weight:700;text-decoration:none;display:inline-block;margin-top:20px;">← Вернуться в каталог</a>
     `;
