@@ -280,6 +280,7 @@ function createOrder(id) {
         createdAt: new Date().toISOString()
     };
 
+    // Сохраняем заказ в общий узел orders (без userId)
     if (window.database) {
         window.database.ref('orders').push(order);
     } else {
@@ -292,6 +293,7 @@ function createOrder(id) {
     alert(`✅ Заказ #${order.id} оформлен!`);
     toggleCart();
 }
+
 
 // ===== ПОПУЛЯРНЫЕ ТОВАРЫ =====
 function renderPopularProducts() {

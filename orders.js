@@ -1,25 +1,20 @@
 // ========================================
-// МСК — УПРАВЛЕНИЕ ЗАКАЗАМИ (Firebase с ожиданием готовности)
+// МСК — УПРАВЛЕНИЕ ЗАКАЗАМИ (общие для всех пользователей)
 // ========================================
 
-let orders = [];
-let filteredOrders = [];
+let ordersData = [];
+let filteredOrdersData = [];
 
 function loadOrders() {
-    // Если Firebase ещё не готова, ждём
     if (typeof window.waitForFirebase === 'function') {
         window.waitForFirebase(() => {
             startListening();
         });
+    } else if (window.database) {
+        startListening();
     } else {
-        // fallback, если waitForFirebase не определена
-        console.warn('waitForFirebase не найдена, пробуем подключиться напрямую');
-        if (window.database) {
-            startListening();
-        } else {
-            console.error('Firebase не инициализирована');
-            alert('Ошибка подключения к Firebase. Проверьте интернет.');
-        }
+        console.error('Firebase не инициализирована');
+        alert('Ошибка подключения к Firebase. Проверьте интернет.');
     }
 }
 
@@ -29,12 +24,13 @@ function startListening() {
         return;
     }
 
-    console.log('📡 Подключаемся к Firebase для заказов...');
+    console.log('📡 Подключаемся к Firebase для заказов (общий узел)...');
+    // Подписываемся на общий узел orders – все заказы всех пользователей
     window.database.ref('orders').on('value', snapshot => {
         const data = snapshot.val() || {};
-        orders = Object.values(data);
-        console.log(`📦 Загружено заказов: ${orders.length}`);
-        applyFilters();
+        ordersData = Object.values(data);
+        console.log(`📦 Загружено заказов: ${ordersData.length}`);
+        applyOrdersFilters();
     }, error => {
         console.error('Ошибка при загрузке заказов:', error);
         alert('Не удалось загрузить заказы. Проверьте подключение.');
@@ -88,14 +84,14 @@ function updateOrderCount(count) {
     document.getElementById('orderCountNumber').textContent = count;
 }
 
-function applyFilters() {
+function applyOrdersFilters() {
     const statusFilter = document.getElementById('statusFilter')?.value || 'all';
     const searchQuery = document.getElementById('searchOrders')?.value.trim().toLowerCase() || '';
 
-    let statusFiltered = (statusFilter === 'all') ? [...orders] : orders.filter(o => o.status === statusFilter);
+    let statusFiltered = (statusFilter === 'all') ? [...ordersData] : ordersData.filter(o => o.status === statusFilter);
 
     if (searchQuery) {
-        filteredOrders = statusFiltered.filter(o => {
+        filteredOrdersData = statusFiltered.filter(o => {
             if (String(o.id).includes(searchQuery)) return true;
             if (o.name && o.name.toLowerCase().includes(searchQuery)) return true;
             if (o.phone && o.phone.includes(searchQuery)) return true;
@@ -107,10 +103,10 @@ function applyFilters() {
             return false;
         });
     } else {
-        filteredOrders = statusFiltered;
+        filteredOrdersData = statusFiltered;
     }
 
-    renderOrders(filteredOrders);
+    renderOrders(filteredOrdersData);
 }
 
 function updateStatus(id, status) {
@@ -139,7 +135,7 @@ function deleteOrder(id) {
 }
 
 function viewOrder(id) {
-    const order = orders.find(o => o.id === id);
+    const order = ordersData.find(o => o.id === id);
     if (!order) return;
     const modal = document.getElementById('orderModal');
     const content = document.getElementById('orderModalContent');
@@ -188,15 +184,13 @@ function logout() {
     window.location.href = 'login.html';
 }
 
-// Автоматическое обновление при возврате на вкладку
+// События для фильтров
+document.getElementById('statusFilter')?.addEventListener('change', applyOrdersFilters);
+document.getElementById('searchOrders')?.addEventListener('input', applyOrdersFilters);
+
 document.addEventListener('visibilitychange', function() {
     if (!document.hidden) {
-        // Перезагружаем заказы, но чтобы не создавать лишних подписок, просто обновляем данные
-        if (window.database) {
-            // Можно вызвать applyFilters, но данные уже обновляются через listener
-            // Просто перерисовываем
-            applyFilters();
-        }
+        applyOrdersFilters();
     }
 });
 
