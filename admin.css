@@ -1,0 +1,902 @@
+/* ========================================
+   МСК — СТИЛИ АДМИН-ПАНЕЛИ И ЗАКАЗОВ
+   ======================================== */
+
+/* ---- Базовые стили для админки ---- */
+.admin-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    background: #f0f2f5;
+}
+
+.admin-content {
+    max-width: 1300px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ---- Стили кнопок в шапке (header) – ЖЁЛТЫЕ ---- */
+.header-btn {
+    background: #f7c948;
+    color: #000;
+    padding: 8px 18px;
+    border-radius: 40px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 16px;
+}
+.header-btn:hover {
+    background: #d4a82a;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(212, 168, 42, 0.4);
+}
+
+.header-btn-logout {
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 40px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.header-btn-logout:hover {
+    background: #b71c1c;
+    transform: scale(1.02);
+}
+
+/* ---- Кнопки действий (добавить, обновить, импорт, экспорт, заказы) ---- */
+.btn-admin-add {
+    background: #f7c948;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.btn-admin-add:hover {
+    background: #e0b03a;
+    transform: scale(1.02);
+}
+
+.btn-admin-refresh {
+    background: #0b0b0b;
+    color: #fff;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.btn-admin-refresh:hover {
+    background: #333;
+}
+
+.btn-admin-import {
+    background: #1565c0;
+    color: #fff;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.btn-admin-import:hover {
+    background: #0d47a1;
+}
+
+.btn-admin-export {
+    background: #f7c948;
+    color: #000;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.btn-admin-export:hover {
+    background: #e0b03a;
+}
+
+.btn-admin-orders {
+    background: #2e7d32;
+    color: #fff;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+.btn-admin-orders:hover {
+    background: #1b5e20;
+}
+
+/* ---- Форма ---- */
+.admin-form {
+    background: #fff;
+    padding: 30px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.admin-form h3 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #0b0b0b;
+    text-align: center;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: #555;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 15px;
+    transition: 0.3s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #f7c948;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(247, 201, 72, 0.1);
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.btn-save {
+    background: #2e7d32;
+    color: #fff;
+    border: none;
+    padding: 12px 35px;
+    border-radius: 40px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-save:hover {
+    background: #1b5e20;
+}
+
+.btn-cancel {
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 12px 35px;
+    border-radius: 40px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-cancel:hover {
+    background: #b71c1c;
+}
+
+/* ---- Таблицы (админка и заказы) ---- */
+.admin-table-wrap {
+    background: #fff;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    overflow-x: auto;
+    max-width: 1300px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+}
+.admin-table th {
+    background: #f8f9fb;
+    padding: 14px 12px;
+    text-align: left;
+    font-weight: 700;
+    color: #444;
+    border-bottom: 3px solid #f7c948;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.admin-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+.admin-table tbody tr:hover {
+    background: #fafbfc;
+}
+.admin-table tbody tr:nth-child(even) {
+    background: #f8f9fa;
+}
+.admin-table tbody tr:nth-child(even):hover {
+    background: #f0f2f5;
+}
+
+.admin-table .table-image {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    background: #f8f9fb;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.admin-table .actions {
+    display: flex;
+    gap: 8px;
+}
+
+.admin-table .btn-edit {
+    background: #f7c948;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.admin-table .btn-edit:hover {
+    background: #e0b03a;
+}
+
+.admin-table .btn-delete {
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.admin-table .btn-delete:hover {
+    background: #b71c1c;
+}
+
+/* ---- Блок вариантов ---- */
+.variants-group {
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 16px;
+    background: #fafafa;
+}
+
+.variant-row {
+    margin-bottom: 10px;
+}
+.variant-row:last-child {
+    margin-bottom: 0;
+}
+
+.variant-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.variant-input-group input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: 0.3s;
+    min-width: 100px;
+}
+.variant-input-group input:focus {
+    border-color: #f7c948;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.2);
+}
+.variant-input-group .variant-size {
+    flex: 2;
+}
+.variant-input-group .variant-film {
+    flex: 1.5;
+}
+.variant-input-group .variant-price {
+    flex: 1;
+}
+
+.btn-remove-variant {
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.btn-remove-variant:hover {
+    background: #b71c1c;
+    transform: rotate(90deg);
+}
+
+.btn-add-variant {
+    background: #f7c948;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+.btn-add-variant:hover {
+    background: #e0b03a;
+}
+
+/* ---- Изображение ---- */
+.image-upload-group {
+    border: 2px dashed #e0e0e0;
+    border-radius: 16px;
+    padding: 20px;
+    transition: 0.3s;
+    background: #fafafa;
+}
+.image-upload-group:hover {
+    border-color: #f7c948;
+    background: #f7c94808;
+}
+
+.image-upload-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.image-preview {
+    width: 100%;
+    max-width: 300px;
+    height: 200px;
+    background: #fff;
+    border-radius: 12px;
+    border: 2px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #999;
+    font-size: 14px;
+    overflow: hidden;
+    transition: 0.3s;
+}
+.image-preview.has-image {
+    border-color: #f7c948;
+}
+.image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.image-preview i {
+    font-size: 48px;
+    color: #ddd;
+}
+
+.image-upload-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #888;
+}
+.image-upload-info i {
+    color: #f7c948;
+}
+
+.btn-upload-image {
+    background: #f7c948;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-upload-image:hover {
+    background: #e0b03a;
+}
+
+.btn-remove-image {
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-remove-image:hover {
+    background: #b71c1c;
+}
+
+#fImage {
+    display: none;
+}
+
+/* ---- Статус сервера ---- */
+#serverStatus {
+    padding: 10px 20px;
+    border-radius: 10px;
+    margin: 10px auto 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 1300px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    justify-content: center;
+}
+
+#statusDot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #888;
+}
+
+#statusText {
+    font-weight: 600;
+    color: #555;
+}
+
+/* ---- Уведомления ---- */
+.custom-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    z-index: 9999;
+    animation: slideDown 0.4s ease;
+    max-width: 500px;
+    text-align: center;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes slideUp {
+    from { opacity: 1; transform: translateX(-50%) translateY(0); }
+    to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+}
+
+/* ========================================
+   СТИЛИ ДЛЯ СТРАНИЦЫ ЗАКАЗОВ (улучшенные, без накладной)
+   ======================================== */
+
+/* ---- Статусы заказов ---- */
+.order-status {
+    display: inline-block;
+    padding: 5px 16px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: capitalize;
+    margin-right: 8px;
+    letter-spacing: 0.3px;
+}
+.order-status.new {
+    background: #e3f2fd;
+    color: #0d47a1;
+}
+.order-status.processing {
+    background: #fff3e0;
+    color: #e65100;
+}
+.order-status.shipped {
+    background: #e8f5e9;
+    color: #1b5e20;
+}
+.order-status.delivered {
+    background: #e0f7fa;
+    color: #006064;
+}
+.order-status.cancelled {
+    background: #ffebee;
+    color: #b71c1c;
+}
+
+/* ---- Выпадающий список статуса в строке ---- */
+.status-select {
+    padding: 6px 12px;
+    border: 2px solid #d0d0d0;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    background: #fff;
+    cursor: pointer;
+    transition: border 0.2s, box-shadow 0.2s;
+    outline: none;
+    min-width: 130px;
+}
+.status-select:hover {
+    border-color: #aaa;
+}
+.status-select:focus {
+    border-color: #f7c948;
+    box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.3);
+}
+.status-select option {
+    padding: 6px 10px;
+    background: #fff;
+    color: #333;
+}
+.status-select option:hover {
+    background: #f7c948;
+    color: #000;
+}
+
+/* ---- Фильтр статуса (верхний) ---- */
+#statusFilter {
+    padding: 8px 36px 8px 16px;
+    border: 2px solid #ddd;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;
+    background-size: 12px 8px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    min-width: 150px;
+    height: 42px;
+}
+#statusFilter:hover {
+    border-color: #bbb;
+}
+#statusFilter:focus {
+    border-color: #f7c948;
+    box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.25);
+}
+#statusFilter option {
+    padding: 8px 12px;
+    background: #fff;
+    color: #333;
+    font-weight: 500;
+}
+#statusFilter option:hover {
+    background: #f7c948;
+    color: #000;
+}
+
+/* ---- Поле поиска ---- */
+#searchOrders {
+    padding: 8px 18px;
+    border: 2px solid #ddd;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    min-width: 300px;
+    width: 350px;
+    height: 42px;
+}
+#searchOrders:hover {
+    border-color: #bbb;
+}
+#searchOrders:focus {
+    border-color: #f7c948;
+    box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.25);
+}
+#searchOrders::placeholder {
+    color: #aaa;
+    font-weight: 400;
+}
+
+/* ---- Кнопки действий в заказах ---- */
+.btn-view {
+    background: #f7c948;
+    color: #000;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.btn-view:hover {
+    background: #e0b03a;
+    transform: scale(1.05);
+}
+
+.admin-table .btn-delete {
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.admin-table .btn-delete:hover {
+    background: #b71c1c;
+    transform: scale(1.05);
+}
+
+/* ========================================
+   МОДАЛЬНОЕ ОКНО ПРОСМОТРА ЗАКАЗА
+   ======================================== */
+.order-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+.order-modal-content {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px 30px;
+    max-width: 650px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    border-left: 6px solid #f7c948;
+}
+.order-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 28px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    transition: 0.2s;
+    line-height: 1;
+}
+.order-modal-close:hover {
+    color: #000;
+    transform: rotate(90deg);
+}
+.order-modal-content h2 {
+    margin-top: 0;
+    font-size: 24px;
+    color: #0b0b0b;
+    border-bottom: 2px solid #f7c948;
+    padding-bottom: 10px;
+    margin-bottom: 18px;
+}
+.order-modal-content .info-block {
+    background: #f8f9fb;
+    padding: 14px 16px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+}
+.order-modal-content .info-block p {
+    margin: 4px 0;
+    font-size: 15px;
+    line-height: 1.5;
+}
+.order-modal-content .info-block strong {
+    color: #333;
+    font-weight: 700;
+}
+.order-modal-content .items-list {
+    margin-bottom: 16px;
+}
+.order-modal-content .items-list .item-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 15px;
+}
+.order-modal-content .items-list .item-row:last-child {
+    border-bottom: none;
+}
+.order-modal-content .items-list .total {
+    font-size: 20px;
+    font-weight: 900;
+    text-align: right;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 2px solid #f7c948;
+}
+.order-modal-content .close-btn {
+    background: #0b0b0b;
+    color: #fff;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: block;
+    margin: 0 auto;
+}
+.order-modal-content .close-btn:hover {
+    background: #333;
+}
+
+/* ========================================
+   АДАПТИВ
+   ======================================== */
+@media (max-width: 768px) {
+    .admin-wrapper { padding: 10px; }
+    .admin-form { padding: 20px; margin-left: 0; margin-right: 0; }
+    .form-grid { grid-template-columns: 1fr; }
+    .admin-table-wrap { padding: 10px; margin-left: 0; margin-right: 0; }
+    .admin-table { font-size: 13px; }
+    .admin-table th, .admin-table td { padding: 8px 6px; }
+    .admin-table .table-image { width: 35px; height: 35px; }
+    .admin-actions { justify-content: center; }
+    #serverStatus { margin-left: 0; margin-right: 0; }
+    .custom-notification { max-width: 95%; left: 50%; transform: translateX(-50%); top: 10px; }
+    .variant-input-group { flex-direction: column; align-items: stretch; }
+    .variant-input-group input { flex: 1 1 100%; }
+    .btn-remove-variant { align-self: flex-end; }
+    .order-modal-content { padding: 20px; }
+    .admin-table .btn-view,
+    .admin-table .btn-delete {
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+    .admin-table .btn-view i,
+    .admin-table .btn-delete i {
+        font-size: 12px;
+    }
+    #searchOrders {
+        min-width: 200px;
+        width: 100%;
+    }
+    #statusFilter {
+        min-width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-actions { flex-direction: column; align-items: center; }
+    .admin-actions button, .admin-actions a { width: 100%; justify-content: center; }
+    .form-actions { flex-direction: column; align-items: center; }
+    .form-actions button { width: 100%; justify-content: center; }
+    .order-modal-content { padding: 16px; }
+    .order-modal-content h2 { font-size: 22px; }
+    .admin-table { font-size: 12px; }
+    .admin-table th, .admin-table td { padding: 6px 4px; }
+    .admin-table .btn-view,
+    .admin-table .btn-delete {
+        padding: 3px 8px;
+        font-size: 10px;
+    }
+}
