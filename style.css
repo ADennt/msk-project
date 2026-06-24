@@ -1059,27 +1059,23 @@ body {
 
 /* ===== HERO-БЛОК (без изображения) ===== */
 .hero-new {
-    padding: 60px 0;
+    padding: 80px 0 60px;
     background: linear-gradient(135deg, #f8f9fb 0%, #ffffff 100%);
     position: relative;
     overflow: hidden;
-    min-height: 400px;
     display: flex;
     align-items: center;
+    min-height: 400px;
 }
 .hero-new-container {
     display: flex;
-    align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
     width: 100%;
 }
 .hero-new-content {
-    flex: 1;
-    min-width: 280px;
     max-width: 800px;
-    margin: 0 auto;
     text-align: center;
+    margin: 0 auto;
 }
 .hero-new-tag {
     display: inline-block;
@@ -1181,9 +1177,10 @@ body {
 .hero-new-wave path {
     fill: #ffffff;
 }
+
 @media (max-width: 768px) {
     .hero-new {
-        padding: 40px 0;
+        padding: 60px 0 40px;
         min-height: auto;
     }
     .hero-new-content h1 {
@@ -1195,6 +1192,7 @@ body {
     }
     .hero-new-desc {
         font-size: 16px;
+        padding: 0 15px;
     }
     .hero-new-buttons {
         flex-direction: column;
