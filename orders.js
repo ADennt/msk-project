@@ -1,19 +1,43 @@
 // ========================================
-// МСК — УПРАВЛЕНИЕ ЗАКАЗАМИ (Firebase)
+// МСК — УПРАВЛЕНИЕ ЗАКАЗАМИ (Firebase с ожиданием готовности)
 // ========================================
 
 let orders = [];
 let filteredOrders = [];
 
 function loadOrders() {
+    // Если Firebase ещё не готова, ждём
+    if (typeof window.waitForFirebase === 'function') {
+        window.waitForFirebase(() => {
+            startListening();
+        });
+    } else {
+        // fallback, если waitForFirebase не определена
+        console.warn('waitForFirebase не найдена, пробуем подключиться напрямую');
+        if (window.database) {
+            startListening();
+        } else {
+            console.error('Firebase не инициализирована');
+            alert('Ошибка подключения к Firebase. Проверьте интернет.');
+        }
+    }
+}
+
+function startListening() {
     if (!window.database) {
-        alert('Ошибка подключения к Firebase');
+        console.error('Firebase database не доступна');
         return;
     }
+
+    console.log('📡 Подключаемся к Firebase для заказов...');
     window.database.ref('orders').on('value', snapshot => {
         const data = snapshot.val() || {};
         orders = Object.values(data);
+        console.log(`📦 Загружено заказов: ${orders.length}`);
         applyFilters();
+    }, error => {
+        console.error('Ошибка при загрузке заказов:', error);
+        alert('Не удалось загрузить заказы. Проверьте подключение.');
     });
 }
 
@@ -164,9 +188,15 @@ function logout() {
     window.location.href = 'login.html';
 }
 
+// Автоматическое обновление при возврате на вкладку
 document.addEventListener('visibilitychange', function() {
     if (!document.hidden) {
-        loadOrders();
+        // Перезагружаем заказы, но чтобы не создавать лишних подписок, просто обновляем данные
+        if (window.database) {
+            // Можно вызвать applyFilters, но данные уже обновляются через listener
+            // Просто перерисовываем
+            applyFilters();
+        }
     }
 });
 
