@@ -1,18 +1,42 @@
 // ========================================
-// МСК — УПРАВЛЕНИЕ ЗАКАЗАМИ (Firebase)
+// МСК — УПРАВЛЕНИЕ ЗАКАЗАМИ (Firebase + миграция)
 // ========================================
 
 let orders = [];
 let filteredOrders = [];
+let migrationDone = false;
 
 function loadOrders() {
     if (window.database) {
-        window.database.ref('orders').on('value', snapshot => {
-            const data = snapshot.val() || {};
-            orders = Object.values(data);
-            applyFilters();
+        // Проверяем, есть ли заказы в Firebase
+        window.database.ref('orders').once('value', snapshot => {
+            const data = snapshot.val();
+            if (!data || Object.keys(data).length === 0) {
+                // Если в Firebase нет заказов, пробуем загрузить из localStorage
+                const saved = localStorage.getItem('msk_orders');
+                if (saved) {
+                    const localOrders = JSON.parse(saved);
+                    if (localOrders.length > 0) {
+                        console.log('📦 Найдены заказы в localStorage, переносим в Firebase...');
+                        // Переносим каждый заказ в Firebase
+                        localOrders.forEach(order => {
+                            window.database.ref('orders').push(order);
+                        });
+                        // Очищаем localStorage, чтобы не дублировать
+                        localStorage.removeItem('msk_orders');
+                        console.log('✅ Заказы перенесены в Firebase');
+                    }
+                }
+            }
+            // Подписываемся на изменения после миграции
+            window.database.ref('orders').on('value', snapshot => {
+                const data = snapshot.val() || {};
+                orders = Object.values(data);
+                applyFilters();
+            });
         });
     } else {
+        // fallback на localStorage
         const saved = localStorage.getItem('msk_orders');
         orders = saved ? JSON.parse(saved) : [];
         applyFilters();
@@ -181,6 +205,7 @@ function logout() {
     window.location.href = 'login.html';
 }
 
+// Автоматическое обновление при возврате на вкладку
 document.addEventListener('visibilitychange', function() {
     if (!document.hidden) {
         loadOrders();
