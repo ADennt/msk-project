@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>МСК — Дорожные знаки</title>
+    <title>МСК — О нас</title>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <!-- Ваш конфиг -->
     <script src="firebase-config.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="style.css" />
@@ -32,9 +31,9 @@
                 <i class="fas fa-triangle-exclamation"></i> МСК<span>Знак</span>
             </div>
             <nav class="nav-links">
-                <a href="index.html" class="active">Главная</a>
+                <a href="index.html">Главная</a>
                 <a href="catalog.html">Каталог</a>
-                <a href="about.html">О нас</a>
+                <a href="about.html" class="active">О нас</a>
             </nav>
             <div class="search-form search-hidden">
                 <input type="text" placeholder="Поиск..." disabled />
@@ -47,69 +46,42 @@
         </div>
     </header>
 
-    <section class="hero-new">
-        <div class="container hero-new-container">
-            <div class="hero-new-content">
-                <span class="hero-new-tag">Производство в России</span>
-                <h1>Дорожные знаки <span>по ГОСТ</span></h1>
-                <p class="hero-new-subtitle">
-                    <i class="fas fa-check-circle"></i> Сертифицированная продукция
-                    <i class="fas fa-check-circle"></i> Доставка по всей стране
-                    <i class="fas fa-check-circle"></i> Цены от производителя
-                </p>
-                <p class="hero-new-desc">Качественные знаки для дорог, парковок и частных территорий. Собственное производство, быстрая доставка.</p>
-                <div class="hero-new-buttons">
-                    <a href="catalog.html" class="btn-hero-new">Перейти в каталог</a>
-                    <a href="about.html" class="btn-hero-new-outline">О компании</a>
-                </div>
-            </div>
-        </div>
-        <div class="hero-new-wave">
-            <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
-                <path d="M0,0 C300,100 700,0 1200,60 L1200,120 L0,120 Z" fill="#ffffff" />
-            </svg>
-        </div>
-    </section>
-
-    <section class="advantages">
+    <main class="about-page">
         <div class="container">
-            <h2>Почему выбирают нас</h2>
-            <div class="advantages-grid">
-                <div class="advantage-item">
-                    <i class="fas fa-certificate"></i>
-                    <h3>ГОСТ 52290-2023</h3>
-                    <p>Все знаки соответствуют актуальным требованиям ГОСТ.</p>
+            <div class="about-header">
+                <h1>О компании <span>МСК</span></h1>
+                <p>Производство и продажа дорожных знаков с 2015 года</p>
+            </div>
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>Кто мы</h2>
+                    <p>Компания «МСК» — ведущий производитель дорожных знаков в России. Мы специализируемся на изготовлении знаков по ГОСТ Р 52290-2023 для дорог, парковок, частных территорий и строительных объектов.</p>
+                    <p>Собственное производство позволяет нам контролировать качество на всех этапах — от закупки сырья до финальной упаковки. Мы используем оцинкованную сталь толщиной 1,2–2,0 мм и плёнку высокой интенсивности (Типы А, Б, В), что гарантирует долгий срок службы.</p>
+                    <h2>Наши преимущества</h2>
+                    <ul>
+                        <li><i class="fas fa-check"></i> Сертифицированная продукция</li>
+                        <li><i class="fas fa-check"></i> Любые размеры — от 500×500 до 1500×1500 мм</li>
+                        <li><i class="fas fa-check"></i> Доставка по всей России</li>
+                        <li><i class="fas fa-check"></i> Гибкая система скидок для оптовых заказов</li>
+                        <li><i class="fas fa-check"></i> Собственная разработка и печать</li>
+                    </ul>
+                    <h2>Контакты</h2>
+                    <div class="contacts">
+                        <p><i class="fas fa-map-pin"></i> <strong>Адрес:</strong> Лихачевский пр-д, 31, Долгопрудный, Московская обл., 141701</p>
+                        <p><i class="fas fa-phone"></i> <strong>Телефон:</strong> 8 (800) 555-22-33</p>
+                        <p><i class="fas fa-envelope"></i> <strong>Email:</strong> info@msk.ru</p>
+                        <p><i class="fas fa-clock"></i> <strong>Режим работы:</strong> Пн–Пт, 9:00–18:00</p>
+                    </div>
                 </div>
-                <div class="advantage-item">
-                    <i class="fas fa-truck-fast"></i>
-                    <h3>Доставка по России</h3>
-                    <p>Отправляем в любой регион, быстро и надёжно.</p>
-                </div>
-                <div class="advantage-item">
-                    <i class="fas fa-shield-alt"></i>
-                    <h3>Гарантия качества</h3>
-                    <p>Используем оцинкованную сталь и плёнку высшего качества.</p>
-                </div>
-                <div class="advantage-item">
-                    <i class="fas fa-hand-holding-dollar"></i>
-                    <h3>Цены от производителя</h3>
-                    <p>Собственное производство – выгодные цены без посредников.</p>
+                <div class="about-image">
+                    <iframe src="https://yandex.ru/map-widget/v1/?ll=37.499534%2C55.918368&z=17&pt=37.499534,55.918368,flag" allowfullscreen></iframe>
+                    <div class="map-caption">
+                        <i class="fas fa-location-dot" style="color:#f7c948;"></i> Лихачевский пр-д, 31, Долгопрудный
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
-
-    <section class="popular-products">
-        <div class="container">
-            <h2>Популярные знаки</h2>
-            <div class="catalog-grid" id="popularGrid">
-                <!-- Рендерится через JS -->
-            </div>
-            <div style="text-align:center;margin-top:20px;">
-                <a href="catalog.html" class="btn-hero-new" style="display:inline-block;">Смотреть все знаки</a>
-            </div>
-        </div>
-    </section>
+    </main>
 
     <!-- Корзина -->
     <div class="cart-overlay" id="cartOverlay">

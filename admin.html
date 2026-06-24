@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>МСК — Админ-панель</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="admin.css" />
@@ -50,13 +55,9 @@
                         <label>Тип <span style="color:red;">*</span></label>
                         <select id="fType">
                             <option value="warning">Предупреждающий</option>
-                            <option value="priority">Приоритета</option>
                             <option value="forbid">Запрещающий</option>
                             <option value="mandatory">Предписывающий</option>
                             <option value="info">Информационный</option>
-                            <option value="special">Особых предписаний</option>
-                            <option value="service">Сервиса</option>
-                            <option value="additional">Дополнительной информации</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -67,13 +68,11 @@
                         <label>В наличии (шт.)</label>
                         <input type="number" id="fStock" value="0" />
                     </div>
-
                     <div class="form-group full-width variants-group">
                         <label>Варианты (размер, плёнка, цена) <span style="color:red;">*</span></label>
                         <div id="variantsContainer"></div>
                         <button type="button" class="btn-add-variant" onclick="addVariantRow()"><i class="fas fa-plus"></i> Добавить вариант</button>
                     </div>
-
                     <div class="form-group full-width image-upload-group">
                         <label>Изображение</label>
                         <div class="image-upload-wrapper">
@@ -86,7 +85,6 @@
                             <button type="button" class="btn-remove-image" id="removeImageBtn" style="display:none;" onclick="removeImage()">Удалить</button>
                         </div>
                     </div>
-
                     <div class="form-group full-width">
                         <label>Описание</label>
                         <textarea id="fDescription" rows="3"></textarea>
@@ -127,11 +125,6 @@
         </div>
     </footer>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="firebase-config.js"></script>
     <script src="admin.js"></script>
 </body>
 </html>

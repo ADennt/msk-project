@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>МСК — Заказы</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="admin.css" />
@@ -32,7 +37,6 @@
         <div class="admin-content">
             <div class="admin-actions">
                 <button class="btn-admin-refresh" onclick="loadOrders()"><i class="fas fa-sync"></i> Обновить</button>
-                
                 <div style="display:flex;align-items:center;gap:10px;background:#fff;padding:6px 16px;border-radius:40px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
                     <label style="font-weight:700;color:#555;font-size:14px;"><i class="fas fa-filter"></i> Статус:</label>
                     <select id="statusFilter" onchange="applyFilters()">
@@ -44,9 +48,7 @@
                         <option value="отменён">Отменён</option>
                     </select>
                 </div>
-
                 <input type="text" id="searchOrders" placeholder="🔍 Поиск (ID, имя, телефон, дата, месяц...)" oninput="applyFilters()" />
-
                 <span style="font-weight:700;color:#888;padding:14px 20px;background:#fff;border-radius:40px;">
                     Найдено: <span id="orderCountNumber">0</span>
                 </span>
@@ -66,7 +68,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно для просмотра заказа -->
     <div class="order-modal" id="orderModal">
         <div class="order-modal-content">
             <button class="order-modal-close" onclick="closeModal()">&times;</button>
@@ -88,11 +89,6 @@
         </div>
     </footer>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="firebase-config.js"></script>
     <script src="orders.js"></script>
 </body>
 </html>
