@@ -1,60 +1,91 @@
 // ========================================
-// МСК — УПРАВЛЕНИЕ ЗАКАЗАМИ (общие для всех пользователей)
+// МСК — УПРАВЛЕНИЕ ЗАКАЗАМИ (расширенное с уведомлениями)
 // ========================================
 
-let ordersData = [];
-let filteredOrdersData = [];
+let orders = [];
+let filteredOrders = [];
+let selectedOrders = new Set();
+let previousOrdersCount = 0;
 
+// ===== ЗАГРУЗКА =====
 function loadOrders() {
-    if (typeof window.waitForFirebase === 'function') {
-        window.waitForFirebase(() => {
-            startListening();
-        });
-    } else if (window.database) {
-        startListening();
-    } else {
-        console.error('Firebase не инициализирована');
-        alert('Ошибка подключения к Firebase. Проверьте интернет.');
-    }
-}
-
-function startListening() {
     if (!window.database) {
-        console.error('Firebase database не доступна');
+        window.showToast?.('Ошибка подключения к Firebase', 'error');
         return;
     }
 
-    console.log('📡 Подключаемся к Firebase для заказов (общий узел)...');
-    // Подписываемся на общий узел orders – все заказы всех пользователей
     window.database.ref('orders').on('value', snapshot => {
         const data = snapshot.val() || {};
-        ordersData = Object.values(data);
-        console.log(`📦 Загружено заказов: ${ordersData.length}`);
-        applyOrdersFilters();
-    }, error => {
-        console.error('Ошибка при загрузке заказов:', error);
-        alert('Не удалось загрузить заказы. Проверьте подключение.');
+        const newOrders = Object.values(data);
+
+        // Проверка на новые заказы (уведомление)
+        if (previousOrdersCount > 0 && newOrders.length > previousOrdersCount) {
+            // Есть новые заказы
+            const newCount = newOrders.length - previousOrdersCount;
+            window.showToast?.(`🔔 Новый заказ! (${newCount})`, 'success', 4000);
+            // Звуковой сигнал
+            try {
+                const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+                audio.play().catch(() => {});
+            } catch (e) {
+                console.log('Звук не воспроизведён');
+            }
+        }
+
+        // Обновляем счётчик для следующего сравнения
+        previousOrdersCount = newOrders.length;
+
+        // Сохраняем заказы и обновляем таблицу
+        orders = newOrders;
+        applyFilters();
     });
 }
 
+// ===== ФИЛЬТРАЦИЯ =====
+function applyFilters() {
+    const status = document.getElementById('statusFilter')?.value || 'all';
+    const search = document.getElementById('searchOrders')?.value.trim().toLowerCase() || '';
+    const dateFrom = document.getElementById('dateFrom')?.value;
+    const dateTo = document.getElementById('dateTo')?.value;
+    const minAmount = parseFloat(document.getElementById('minAmount')?.value) || 0;
+    const maxAmount = parseFloat(document.getElementById('maxAmount')?.value) || Infinity;
+
+    let result = orders.filter(o => {
+        if (status !== 'all' && o.status !== status) return false;
+        if (search) {
+            const match = o.id?.toString().includes(search) ||
+                         (o.name && o.name.toLowerCase().includes(search)) ||
+                         (o.phone && o.phone.includes(search)) ||
+                         (o.email && o.email.toLowerCase().includes(search)) ||
+                         (o.address && o.address.toLowerCase().includes(search));
+            if (!match) return false;
+        }
+        if (dateFrom && o.createdAt < new Date(dateFrom).toISOString()) return false;
+        if (dateTo && o.createdAt > new Date(dateTo + 'T23:59:59').toISOString()) return false;
+        const total = o.total || 0;
+        if (total < minAmount || total > maxAmount) return false;
+        return true;
+    });
+
+    filteredOrders = result;
+    renderOrders(filteredOrders);
+    updateSelectedCount();
+}
+
+// ===== ОТРИСОВКА С ЧЕКБОКСАМИ =====
 function renderOrders(ordersToRender) {
     const tbody = document.getElementById('ordersTableBody');
     if (!ordersToRender || !ordersToRender.length) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:#999;">Нет заказов</td></tr>';
-        updateOrderCount(0);
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:#999;">Нет заказов</td></tr>';
         return;
     }
     ordersToRender.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
     tbody.innerHTML = ordersToRender.map(o => {
-        const statusClass = {
-            'новый': 'new',
-            'в обработке': 'processing',
-            'отправлен': 'shipped',
-            'доставлен': 'delivered',
-            'отменён': 'cancelled'
-        }[o.status] || '';
+        const checked = selectedOrders.has(o.id) ? 'checked' : '';
+        const statusClass = o.status || 'новый';
         return `
         <tr>
+            <td><input type="checkbox" class="order-checkbox" data-id="${o.id}" ${checked} onchange="toggleOrder(${o.id})" /></td>
             <td><strong>#${o.id}</strong></td>
             <td>${o.name || 'Не указан'}</td>
             <td>${o.phone || 'Не указан'}</td>
@@ -77,38 +108,127 @@ function renderOrders(ordersToRender) {
             </td>
         </tr>
     `}).join('');
-    updateOrderCount(ordersToRender.length);
 }
 
-function updateOrderCount(count) {
-    document.getElementById('orderCountNumber').textContent = count;
+// ===== МАССОВЫЕ ОПЕРАЦИИ =====
+function toggleOrder(id) {
+    if (selectedOrders.has(id)) selectedOrders.delete(id);
+    else selectedOrders.add(id);
+    updateSelectedCount();
 }
 
-function applyOrdersFilters() {
-    const statusFilter = document.getElementById('statusFilter')?.value || 'all';
-    const searchQuery = document.getElementById('searchOrders')?.value.trim().toLowerCase() || '';
-
-    let statusFiltered = (statusFilter === 'all') ? [...ordersData] : ordersData.filter(o => o.status === statusFilter);
-
-    if (searchQuery) {
-        filteredOrdersData = statusFiltered.filter(o => {
-            if (String(o.id).includes(searchQuery)) return true;
-            if (o.name && o.name.toLowerCase().includes(searchQuery)) return true;
-            if (o.phone && o.phone.includes(searchQuery)) return true;
-            if (o.email && o.email.toLowerCase().includes(searchQuery)) return true;
-            if (o.address && o.address.toLowerCase().includes(searchQuery)) return true;
-            if (o.items && o.items.some(item => item.name && item.name.toLowerCase().includes(searchQuery))) return true;
-            const dateStr = new Date(o.createdAt).toLocaleString('ru-RU');
-            if (dateStr.toLowerCase().includes(searchQuery)) return true;
-            return false;
-        });
+function toggleAllOrders() {
+    const checked = document.getElementById('selectAll').checked;
+    if (checked) {
+        filteredOrders.forEach(o => selectedOrders.add(o.id));
     } else {
-        filteredOrdersData = statusFiltered;
+        selectedOrders.clear();
     }
-
-    renderOrders(filteredOrdersData);
+    document.querySelectorAll('.order-checkbox').forEach(cb => {
+        cb.checked = checked;
+    });
+    updateSelectedCount();
 }
 
+function updateSelectedCount() {
+    document.getElementById('selectedCount').textContent = `Выбрано: ${selectedOrders.size}`;
+}
+
+function massUpdateStatus() {
+    if (selectedOrders.size === 0) {
+        window.showToast?.('Выберите заказы', 'error');
+        return;
+    }
+    const newStatus = prompt('Введите новый статус (новый, в обработке, отправлен, доставлен, отменён):');
+    if (!newStatus) return;
+    const valid = ['новый', 'в обработке', 'отправлен', 'доставлен', 'отменён'];
+    if (!valid.includes(newStatus)) {
+        window.showToast?.('Неверный статус', 'error');
+        return;
+    }
+    const ref = window.database.ref('orders');
+    selectedOrders.forEach(id => {
+        ref.orderByChild('id').equalTo(id).once('value', snapshot => {
+            const data = snapshot.val();
+            if (data) {
+                const key = Object.keys(data)[0];
+                ref.child(key).update({ status: newStatus });
+            }
+        });
+    });
+    selectedOrders.clear();
+    window.showToast?.(`✅ Статус обновлён для ${selectedOrders.size} заказов`, 'success');
+    updateSelectedCount();
+}
+
+function massDeleteOrders() {
+    if (selectedOrders.size === 0) {
+        window.showToast?.('Выберите заказы', 'error');
+        return;
+    }
+    if (!confirm(`Удалить ${selectedOrders.size} заказов?`)) return;
+    const ref = window.database.ref('orders');
+    const deletePromises = [];
+
+    selectedOrders.forEach(id => {
+        const promise = new Promise((resolve, reject) => {
+            ref.orderByChild('id').equalTo(id).once('value', snapshot => {
+                const data = snapshot.val();
+                if (data) {
+                    const key = Object.keys(data)[0];
+                    ref.child(key).remove()
+                        .then(() => resolve())
+                        .catch(err => reject(err));
+                } else {
+                    resolve(); // если не найден – просто идём дальше
+                }
+            });
+        });
+        deletePromises.push(promise);
+    });
+
+    Promise.all(deletePromises)
+        .then(() => {
+            selectedOrders.clear();
+            window.showToast?.('🗑️ Заказы удалены', 'info');
+            updateOrderCounter(); // 👈 обновляем счётчик после всех удалений
+            updateSelectedCount();
+        })
+        .catch(err => {
+            console.error('Ошибка при массовом удалении:', err);
+            window.showToast?.('Ошибка при удалении', 'error');
+        });
+}
+
+// ===== ЭКСПОРТ CSV =====
+function exportOrdersCSV() {
+    if (!filteredOrders.length) {
+        window.showToast?.('Нет заказов для экспорта', 'error');
+        return;
+    }
+    const headers = ['ID', 'Клиент', 'Телефон', 'Email', 'Адрес', 'Сумма', 'Статус', 'Дата', 'Товары'];
+    const rows = filteredOrders.map(o => [
+        o.id,
+        o.name || '',
+        o.phone || '',
+        o.email || '',
+        o.address || '',
+        o.total || 0,
+        o.status,
+        new Date(o.createdAt).toLocaleString('ru-RU'),
+        (o.items || []).map(i => `${i.name} (${i.quantity})`).join('; ')
+    ]);
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `orders_${new Date().toISOString().slice(0,10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    window.showToast?.('✅ CSV экспортирован', 'success');
+}
+
+// ===== ОБНОВЛЕНИЕ СТАТУСА =====
 function updateStatus(id, status) {
     if (!window.database) return;
     const ref = window.database.ref('orders');
@@ -116,11 +236,14 @@ function updateStatus(id, status) {
         const data = snapshot.val();
         if (data) {
             const key = Object.keys(data)[0];
-            ref.child(key).update({ status: status });
+            ref.child(key).update({ status: status })
+                .then(() => window.showToast?.('✅ Статус обновлён', 'success'))
+                .catch(() => window.showToast?.('Ошибка обновления статуса', 'error'));
         }
     });
 }
 
+// ===== УДАЛЕНИЕ ЗАКАЗА =====
 function deleteOrder(id) {
     if (!confirm('Удалить заказ?')) return;
     if (!window.database) return;
@@ -129,14 +252,50 @@ function deleteOrder(id) {
         const data = snapshot.val();
         if (data) {
             const key = Object.keys(data)[0];
-            ref.child(key).remove();
+            ref.child(key).remove()
+                .then(() => {
+                    window.showToast?.('🗑️ Заказ удалён', 'info');
+                    updateOrderCounter(); // 👈 добавляем
+                })
+                .catch(() => {
+                    window.showToast?.('Ошибка удаления', 'error');
+                });
         }
     });
 }
+// ===== ОБНОВЛЕНИЕ СЧЁТЧИКА ЗАКАЗОВ =====
+function updateOrderCounter() {
+    if (!window.database) {
+        console.warn('Firebase не инициализирована');
+        return;
+    }
+    window.database.ref('orders').once('value', snapshot => {
+        const data = snapshot.val() || {};
+        const orders = Object.values(data);
+        let maxId = 0;
+        orders.forEach(o => {
+            if (o.id && o.id > maxId) maxId = o.id;
+        });
+        const newCounter = maxId + 1;
+        window.database.ref('meta/orderCounter').set(newCounter)
+            .then(() => {
+                console.log(`✅ Счётчик обновлён: ${newCounter}`);
+            })
+            .catch(err => {
+                console.warn('Ошибка обновления счётчика:', err);
+            });
+    }).catch(err => {
+        console.warn('Ошибка загрузки заказов для обновления счётчика:', err);
+    });
+}
 
+// ===== ПРОСМОТР ЗАКАЗА =====
 function viewOrder(id) {
-    const order = ordersData.find(o => o.id === id);
-    if (!order) return;
+    const order = orders.find(o => o.id === id);
+    if (!order) {
+        window.showToast?.('Заказ не найден', 'error');
+        return;
+    }
     const modal = document.getElementById('orderModal');
     const content = document.getElementById('orderModalContent');
 
@@ -183,15 +342,5 @@ function logout() {
     sessionStorage.removeItem('adminAuth');
     window.location.href = 'login.html';
 }
-
-// События для фильтров
-document.getElementById('statusFilter')?.addEventListener('change', applyOrdersFilters);
-document.getElementById('searchOrders')?.addEventListener('input', applyOrdersFilters);
-
-document.addEventListener('visibilitychange', function() {
-    if (!document.hidden) {
-        applyOrdersFilters();
-    }
-});
 
 document.addEventListener('DOMContentLoaded', loadOrders);

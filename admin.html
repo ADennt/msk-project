@@ -7,18 +7,31 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="admin.css" />
-    <!-- Firebase -->
+    
+    <!-- Firebase (compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="cart.js"></script>
+    <script src="script.js"></script>
+    <script src="admin.js"></script>
+    <script src="admin-notifications.js"></script>
 </head>
 <body>
-    <script>
-        if (sessionStorage.getItem('adminAuth') !== 'true') {
-            window.location.href = 'login.html';
-        }
-    </script>
+
+    <!-- ✅ Верхняя планка (topbar) добавлена -->
+    <div class="topbar">
+        <div class="container">
+            <span><i class="fas fa-truck"></i> Доставка по всей России</span>
+            <span>
+                <i class="fas fa-phone-alt"></i> 8 (800) 555-22-33
+                <span id="topbarAuth"></span>
+            </span>
+        </div>
+    </div>
 
     <header class="header" style="position: relative;">
         <div class="container">
@@ -26,13 +39,25 @@
                 <i class="fas fa-triangle-exclamation"></i> МСК<span>Знак</span>
             </div>
             <h2 style="color:#f7c948;"><i class="fas fa-user-shield"></i> Админ-панель</h2>
-            <div style="display:flex;gap:15px;">
+            <div style="display:flex;gap:15px;align-items:center;">
+                <a href="dashboard.html" class="header-btn"><i class="fas fa-chart-pie"></i> Дашборд</a>
                 <a href="orders.html" class="header-btn">Заказы</a>
                 <a href="index.html" class="header-btn">На сайт</a>
-                <button onclick="logout()" class="header-btn-logout">Выйти</button>
+                <button onclick="logoutUser().then(() => location.href='index.html')" class="header-btn-logout">Выйти</button>
             </div>
         </div>
     </header>
+
+    <script>
+        // Проверка прав администратора
+        document.addEventListener('DOMContentLoaded', function() {
+            window.onAuthStateChanged((user) => {
+                if (!user || !window.isAdmin || !window.isAdmin(user)) {
+                    window.location.href = 'login.html';
+                }
+            });
+        });
+    </script>
 
     <div class="admin-wrapper">
         <div class="admin-content">
@@ -42,6 +67,7 @@
                 <button class="btn-admin-import" onclick="importData()"><i class="fas fa-file-import"></i> Импорт</button>
                 <button class="btn-admin-export" onclick="exportData()"><i class="fas fa-file-export"></i> Экспорт</button>
             </div>
+
             <div class="admin-form" id="adminForm" style="display:none;">
                 <h3 id="formTitle">➕ Добавить товар</h3>
                 <input type="hidden" id="editId" />
@@ -71,11 +97,13 @@
                         <label>В наличии (шт.)</label>
                         <input type="number" id="fStock" value="0" />
                     </div>
+
                     <div class="form-group full-width variants-group">
                         <label>Варианты (размер, плёнка, цена) <span style="color:red;">*</span></label>
                         <div id="variantsContainer"></div>
                         <button type="button" class="btn-add-variant" onclick="addVariantRow()"><i class="fas fa-plus"></i> Добавить вариант</button>
                     </div>
+
                     <div class="form-group full-width image-upload-group">
                         <label>Изображение</label>
                         <div class="image-upload-wrapper">
@@ -88,6 +116,7 @@
                             <button type="button" class="btn-remove-image" id="removeImageBtn" style="display:none;" onclick="removeImage()">Удалить</button>
                         </div>
                     </div>
+
                     <div class="form-group full-width">
                         <label>Описание</label>
                         <textarea id="fDescription" rows="3"></textarea>
@@ -102,13 +131,22 @@
                     <button class="btn-cancel" onclick="hideForm()"><i class="fas fa-times"></i> Отмена</button>
                 </div>
             </div>
+
             <div class="admin-table-wrap">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:10px;">
+                    <span id="tableInfo" style="font-weight:600;color:#888;">Всего: 0 товаров</span>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn-view-order" onclick="sortTable('id')" style="background:#f7c948;border:none;padding:4px 12px;border-radius:20px;font-weight:600;cursor:pointer;">Сортировать по ID</button>
+                        <button class="btn-view-order" onclick="sortTable('name')" style="background:#f7c948;border:none;padding:4px 12px;border-radius:20px;font-weight:600;cursor:pointer;">Сортировать по имени</button>
+                    </div>
+                </div>
                 <table class="admin-table" id="adminTable">
                     <thead>
                         <tr><th>ID</th><th>Изображение</th><th>Название</th><th>Тип</th><th>Цена</th><th>В наличии</th><th>Действия</th></tr>
                     </thead>
                     <tbody id="adminTableBody"></tbody>
                 </table>
+                <div class="pagination-container" id="adminPagination"></div>
             </div>
         </div>
     </div>
@@ -127,6 +165,9 @@
         </div>
     </footer>
 
-    <script src="admin.js"></script>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Скрипты уже подключены в <head>, но дублируем для уверенности (не обязательно) -->
+    <!-- Аутентификация работает через auth.js -->
 </body>
 </html>

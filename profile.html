@@ -3,97 +3,31 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Личный кабинет — МСК</title>
+    <title>МСК — Личный кабинет</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="style.css" />
-    <style>
-        .profile-page {
-            padding: 40px 0;
-        }
-        .profile-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-        .profile-header h1 {
-            font-size: 32px;
-            font-weight: 800;
-        }
-        .profile-header h1 span { color: #f7c948; }
-        .btn-logout {
-            background: #d32f2f;
-            color: #fff;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 40px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .btn-logout:hover { background: #b71c1c; }
-        .orders-history {
-            background: #fff;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-        }
-        .orders-history h2 {
-            font-size: 22px;
-            margin-bottom: 20px;
-            color: #1e1e1e;
-        }
-        .order-card {
-            border-bottom: 1px solid #eee;
-            padding: 15px 0;
-        }
-        .order-card:last-child { border-bottom: none; }
-        .order-card .order-header {
-            display: flex;
-            justify-content: space-between;
-            font-weight: 700;
-        }
-        .order-card .order-details {
-            margin-top: 8px;
-            font-size: 14px;
-            color: #555;
-        }
-        .order-status-badge {
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: 700;
-            text-transform: capitalize;
-        }
-        .order-status-badge.new { background: #e3f2fd; color: #0d47a1; }
-        .order-status-badge.processing { background: #fff3e0; color: #e65100; }
-        .order-status-badge.shipped { background: #e8f5e9; color: #1b5e20; }
-        .order-status-badge.delivered { background: #e0f7fa; color: #006064; }
-        .order-status-badge.cancelled { background: #ffebee; color: #b71c1c; }
-        .no-orders {
-            text-align: center;
-            padding: 40px 0;
-            color: #999;
-        }
-    </style>
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script> 
     <script src="firebase-config.js"></script>
     <script src="auth.js"></script>
 </head>
 <body>
 
+    <!-- Верхняя планка -->
     <div class="topbar">
         <div class="container">
             <span><i class="fas fa-truck"></i> Доставка по всей России</span>
             <span>
                 <i class="fas fa-phone-alt"></i> 8 (800) 555-22-33
-                <a href="#" id="chatToggle"><i class="fab fa-whatsapp"></i> Написать</a>
-                <a href="login.html" style="margin-left:10px;"><i class="fas fa-cog"></i> Админ</a>
+                <span id="topbarAuth"></span>
             </span>
         </div>
     </div>
 
+    <!-- Шапка -->
     <header class="header">
         <div class="container">
             <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
@@ -104,20 +38,96 @@
                 <a href="catalog.html">Каталог</a>
                 <a href="about.html">О нас</a>
             </nav>
-            <div>
-                <span id="userEmailDisplay" style="font-weight:600;color:#555;margin-right:15px;"></span>
+            <div class="search-form search-hidden">
+                <input type="text" placeholder="Поиск..." disabled />
+                <button disabled><i class="fas fa-search"></i></button>
             </div>
+            <button class="cart-icon" onclick="toggleCart()">
+                <i class="fas fa-shopping-cart"></i> Корзина
+                <span class="badge" id="cartCount">0</span>
+            </button>
         </div>
     </header>
 
-    <div class="container profile-page">
-        <div class="profile-header">
-            <h1>Личный кабинет</h1>
-            <button class="btn-logout" onclick="logoutUser()">Выйти</button>
+    <!-- Личный кабинет (Вариант 3 – улучшенный UX) -->
+    <div class="profile-page profile-v3-ux">
+        <!-- Карточка профиля -->
+        <div class="profile-card-v3-ux">
+            <div class="profile-avatar-v3-ux">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-info-v3-ux">
+                <h2 id="profileName">Пользователь</h2>
+                <p class="profile-email-v3-ux" id="profileEmail"></p>
+                <div class="profile-stats-v3-ux">
+                    <div class="stat-item-ux">
+                        <span class="stat-number" id="ordersCount">0</span>
+                        <span class="stat-label">заказов</span>
+                    </div>
+                    <div class="stat-item-ux">
+                        <span class="stat-number" id="totalSpent">0 ₽</span>
+                        <span class="stat-label">потрачено</span>
+                    </div>
+                    <div class="stat-item-ux loyalty">
+                        <span class="stat-number">⭐</span>
+                        <span class="stat-label">Новичок</span>
+                    </div>
+                </div>
+                <div class="profile-actions-v3-ux">
+                    <button class="btn-refresh-ux" onclick="refreshOrders()">
+                        <i class="fas fa-sync-alt"></i> Обновить
+                    </button>
+                    <button class="btn-logout-v3-ux" onclick="logoutUser().then(() => location.href='index.html')">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </button>
+                    <div id="adminPanelLinkV3Ux" style="display:none;" class="admin-link-v3-ux">
+                        <a href="admin.html"><i class="fas fa-cog"></i> Админ</a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="orders-history" id="ordersHistory">
-            <h2>Мои заказы</h2>
-            <div id="ordersList"></div>
+
+        <!-- История заказов -->
+        <div class="orders-history-v3-ux">
+            <div class="orders-header-v3-ux">
+                <h2>История заказов</h2>
+                <span id="ordersCountLabelV3Ux">0 заказов</span>
+            </div>
+            <div id="myOrdersListV3Ux">
+                <!-- Скелетоны будут показаны здесь -->
+                <div class="skeleton-wrapper" id="skeletonWrapper">
+                    <div class="skeleton-order"></div>
+                    <div class="skeleton-order"></div>
+                    <div class="skeleton-order"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Система тост-уведомлений -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Модальное окно просмотра заказа -->
+    <div class="order-modal" id="orderModalProfile">
+        <div class="order-modal-content">
+            <button class="order-modal-close" onclick="closeOrderModalProfile()">&times;</button>
+            <div id="orderModalContentProfile"></div>
+        </div>
+    </div>
+
+    <!-- Корзина -->
+    <div class="cart-overlay" id="cartOverlay">
+        <div class="cart-panel">
+            <h2>
+                🛒 Корзина
+                <button onclick="toggleCart()">&times;</button>
+            </h2>
+            <div id="cartItems"></div>
+            <div class="cart-total" id="cartTotal">Итого: 0 ₽</div>
+            <div class="cart-actions">
+                <button class="btn-checkout" onclick="showCheckoutForm()">Оформить заказ</button>
+                <button class="btn-clear" onclick="clearCart()" id="clearCartBtn">Очистить</button>
+            </div>
         </div>
     </div>
 
@@ -135,68 +145,214 @@
         </div>
     </footer>
 
+    <script src="auth.js"></script>
+    <script src="cart.js"></script>
+    <script src="script.js"></script>
+
     <script>
-        function logoutUser() {
-            window.signOut().then(() => {
-                window.location.href = 'index.html';
-            });
-        }
-
-        function renderOrders(orders) {
-            const container = document.getElementById('ordersList');
-            if (!orders || orders.length === 0) {
-                container.innerHTML = '<div class="no-orders">У вас пока нет заказов</div>';
-                return;
-            }
-            container.innerHTML = orders.map(o => `
-                <div class="order-card">
-                    <div class="order-header">
-                        <span>Заказ #${o.id}</span>
-                        <span class="order-status-badge ${o.status}">${o.status}</span>
-                    </div>
-                    <div class="order-details">
-                        <div>Дата: ${new Date(o.createdAt).toLocaleString('ru-RU')}</div>
-                        <div>Сумма: ${o.total.toLocaleString()} ₽</div>
-                        <div>Товаров: ${o.items.length}</div>
-                    </div>
+        // ===== СИСТЕМА ТОСТ-УВЕДОМЛЕНИЙ =====
+        function showToast(message, type = 'success', duration = 3000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
                 </div>
-            `).join('');
-        }
-
-        function loadUserOrders(userId) {
-            if (!window.database) return;
-            window.database.ref('orders').orderByChild('userId').equalTo(userId).on('value', snapshot => {
-                const data = snapshot.val() || {};
-                const orders = Object.values(data);
-                renderOrders(orders);
+                <div class="toast-message">${message}</div>
+                <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+            `;
+            container.appendChild(toast);
+            // Автоудаление через duration
+            setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+            }, duration);
+            // Закрытие по клику на фон
+            toast.addEventListener('click', function(e) {
+                if (e.target === this) this.remove();
             });
         }
 
-        function initProfile() {
-            const user = window.getCurrentUser();
-            if (!user) {
-                // Если не авторизован – перенаправляем на вход
-                window.location.href = 'login.html';
+        // ===== ФУНКЦИИ ДЛЯ МОДАЛЬНОГО ОКНА =====
+        function viewOrderProfile(id) {
+            const allOrders = window._allMyOrders || [];
+            const order = allOrders.find(o => o.id === id);
+            if (!order) {
+                showToast('Заказ не найден', 'error');
                 return;
             }
-            document.getElementById('userEmailDisplay').textContent = user.email;
-            loadUserOrders(user.uid);
+
+            const modal = document.getElementById('orderModalProfile');
+            const content = document.getElementById('orderModalContentProfile');
+
+            let itemsHtml = '';
+            if (order.items && order.items.length) {
+                itemsHtml = order.items.map(i => `
+                    <div class="item-row">
+                        <span>${i.name} (${i.size || '—'}, плёнка ${i.film || '—'}) × ${i.quantity}</span>
+                        <span>${(i.price * i.quantity).toLocaleString()} ₽</span>
+                    </div>
+                `).join('');
+            } else {
+                itemsHtml = '<p style="color:#888;">Нет товаров</p>';
+            }
+
+            content.innerHTML = `
+                <h2>Заказ #${order.id}</h2>
+                <div class="info-block">
+                    <p><strong>Имя:</strong> ${order.name || 'Не указано'}</p>
+                    <p><strong>Телефон:</strong> ${order.phone || 'Не указан'}</p>
+                    <p><strong>Email:</strong> ${order.email || 'Не указан'}</p>
+                    <p><strong>Адрес:</strong> ${order.address || 'Не указан'}</p>
+                    ${order.comment ? `<p><strong>Комментарий:</strong> ${order.comment}</p>` : ''}
+                </div>
+                <div class="items-list">
+                    <strong>Состав заказа:</strong>
+                    ${itemsHtml}
+                    <div class="total">Итого: ${(order.total || 0).toLocaleString()} ₽</div>
+                </div>
+                <div style="margin:15px 0;">
+                    <strong>Статус:</strong> ${order.status}
+                    &nbsp;|&nbsp; <strong>Дата:</strong> ${new Date(order.createdAt).toLocaleString('ru-RU')}
+                </div>
+                <button class="close-btn" onclick="closeOrderModalProfile()">Закрыть</button>
+            `;
+
+            modal.style.display = 'flex';
+            showToast(`Заказ #${order.id} загружен`, 'info', 1500);
         }
 
-        window.onAuthStateChanged(user => {
-            if (user) {
-                initProfile();
-            } else {
-                window.location.href = 'login.html';
+        function closeOrderModalProfile() {
+            document.getElementById('orderModalProfile').style.display = 'none';
+        }
+
+        document.getElementById('orderModalProfile')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeOrderModalProfile();
             }
         });
 
-        // Если пользователь уже авторизован, но событие не сработало (страница загружена)
-        setTimeout(() => {
-            if (!window.getCurrentUser()) {
-                window.location.href = 'login.html';
+        // ===== ОБНОВЛЕНИЕ ЗАКАЗОВ =====
+        window.refreshOrders = function() {
+            showToast('Обновление заказов...', 'info', 1500);
+            if (window.database) {
+                window.database.ref('orders').once('value', snapshot => {
+                    const data = snapshot.val() || {};
+                    const allOrders = Object.values(data);
+                    const user = window.auth?.currentUser;
+                    if (user) {
+                        const myOrders = allOrders.filter(order => order.userId === user.uid);
+                        window._allMyOrders = myOrders;
+                        renderOrders(myOrders);
+                        showToast(`Заказы обновлены (${myOrders.length})`, 'success');
+                    }
+                }).catch(() => {
+                    showToast('Ошибка обновления', 'error');
+                });
             }
-        }, 1000);
+        };
+
+        // ===== ОСНОВНАЯ ЛОГИКА ПРОФИЛЯ =====
+        document.addEventListener('DOMContentLoaded', function() {
+            window.onAuthStateChanged(async (user) => {
+                const nameEl = document.getElementById('profileName');
+                const emailEl = document.getElementById('profileEmail');
+                const adminLink = document.getElementById('adminPanelLinkV3Ux');
+                const ordersList = document.getElementById('myOrdersListV3Ux');
+                const ordersCountEl = document.getElementById('ordersCount');
+                const totalSpentEl = document.getElementById('totalSpent');
+                const ordersCountLabel = document.getElementById('ordersCountLabelV3Ux');
+
+                if (!user) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                nameEl.textContent = user.displayName || 'Пользователь';
+                emailEl.textContent = user.email;
+                if (window.isAdmin && window.isAdmin(user)) {
+                    adminLink.style.display = 'block';
+                }
+
+                // Функция рендеринга с анимацией
+                function renderOrders(orders) {
+                    ordersCountEl.textContent = orders.length;
+                    const total = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+                    totalSpentEl.textContent = total.toLocaleString() + ' ₽';
+                    ordersCountLabel.textContent = `${orders.length} заказов`;
+
+                    // Уровень лояльности
+                    const loyaltyEl = document.querySelector('.loyalty .stat-label');
+                    if (orders.length === 0) loyaltyEl.textContent = 'Новичок';
+                    else if (orders.length < 3) loyaltyEl.textContent = 'Постоянный';
+                    else if (orders.length < 10) loyaltyEl.textContent = 'Золотой';
+                    else loyaltyEl.textContent = 'Платиновый';
+
+                    if (orders.length === 0) {
+                        ordersList.innerHTML = `
+                            <div class="empty-orders-v3-ux">
+                                <i class="fas fa-box-open"></i>
+                                <p>У вас пока нет заказов.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // Рендерим с анимацией
+                    let html = '';
+                    orders.forEach((order, index) => {
+                        const statusClass = order.status || 'новый';
+                        const statusIcon = {
+                            'новый': 'fa-clock',
+                            'в обработке': 'fa-cogs',
+                            'отправлен': 'fa-truck',
+                            'доставлен': 'fa-check-circle',
+                            'отменён': 'fa-times-circle'
+                        }[order.status] || 'fa-circle';
+                        html += `
+                            <div class="order-item-v3-ux" style="animation-delay: ${index * 0.1}s">
+                                <div class="order-header-v3-ux">
+                                    <span class="order-id-v3-ux">#${order.id}</span>
+                                    <span class="order-date-v3-ux">${new Date(order.createdAt).toLocaleDateString('ru-RU')}</span>
+                                    <span class="order-total-v3-ux">${(order.total || 0).toLocaleString()} ₽</span>
+                                    <span class="order-status-v3-ux ${statusClass}">
+                                        <i class="fas ${statusIcon}"></i> ${order.status}
+                                    </span>
+                                    <button class="btn-view-order-v3-ux" onclick="viewOrderProfile(${order.id})">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    ordersList.innerHTML = html;
+                }
+
+                // Показываем скелетоны до загрузки
+                const skeletonWrapper = document.getElementById('skeletonWrapper');
+                if (skeletonWrapper) {
+                    skeletonWrapper.style.display = 'block';
+                }
+
+                if (window.database) {
+                    window.database.ref('orders').on('value', snapshot => {
+                        const data = snapshot.val() || {};
+                        const allOrders = Object.values(data);
+                        const myOrders = allOrders.filter(order => order.userId === user.uid);
+                        window._allMyOrders = myOrders;
+                        // Скрываем скелетоны
+                        if (skeletonWrapper) skeletonWrapper.style.display = 'none';
+                        renderOrders(myOrders);
+                    });
+                } else {
+                    if (skeletonWrapper) skeletonWrapper.style.display = 'none';
+                    ordersList.innerHTML = '<div class="empty-orders-v3-ux"><i class="fas fa-exclamation-triangle"></i><p>Ошибка подключения к базе данных.</p></div>';
+                }
+
+                // Приветственное уведомление
+                showToast(`Добро пожаловать, ${user.displayName || user.email}!`, 'success', 2500);
+            });
+        });
     </script>
 </body>
 </html>

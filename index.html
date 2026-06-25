@@ -3,30 +3,33 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>МСК — Дорожные знаки</title>
+    <title>МСК — Дорожные знаки по ГОСТ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="style.css" />
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="firebase-config.js"></script>
-    <script src="cart.js"></script>
     <script src="auth.js"></script>
+    <script src="cart.js"></script>
+    <script src="script.js"></script>
 </head>
 <body>
 
+    <!-- Topbar -->
     <div class="topbar">
         <div class="container">
             <span><i class="fas fa-truck"></i> Доставка по всей России</span>
             <span>
                 <i class="fas fa-phone-alt"></i> 8 (800) 555-22-33
-                <a href="#" id="chatToggle"><i class="fab fa-whatsapp"></i> Написать</a>
-                <a href="login.html" style="margin-left:10px;"><i class="fas fa-cog"></i> Админ</a>
+                <span id="topbarAuth"></span>
             </span>
         </div>
     </div>
 
+    <!-- Header -->
     <header class="header">
         <div class="container">
             <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
@@ -48,72 +51,184 @@
         </div>
     </header>
 
-    <!-- HERO-БЛОК -->
-    <section class="hero-new">
-        <div class="container hero-new-container">
-            <div class="hero-new-content">
-                <span class="hero-new-tag">Производство в России</span>
+    <!-- Hero-блок "Стекло и геометрия" -->
+    <section class="hero-new hero-glass">
+        <div class="hero-glass-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+        </div>
+
+        <div class="container hero-glass-container">
+            <div class="hero-glass-content">
+                <span class="hero-glass-tag">⚡ Производство в России</span>
                 <h1>Дорожные знаки <span>по ГОСТ</span></h1>
-                <p class="hero-new-subtitle">
-                    <i class="fas fa-check-circle"></i> Сертифицированная продукция
-                    <i class="fas fa-check-circle"></i> Доставка по всей стране
-                    <i class="fas fa-check-circle"></i> Цены от производителя
-                </p>
-                <p class="hero-new-desc">Качественные знаки для дорог, парковок и частных территорий. Собственное производство, быстрая доставка.</p>
-                <div class="hero-new-buttons">
-                    <a href="catalog.html" class="btn-hero-new">Перейти в каталог</a>
-                    <a href="about.html" class="btn-hero-new-outline">О компании</a>
+                <p class="hero-glass-desc">Собственное производство, сертифицированная продукция, доставка по всей России. Цены от производителя.</p>
+                <div class="hero-glass-buttons">
+                    <a href="catalog.html" class="btn-glass-primary">Перейти в каталог</a>
+                    <a href="about.html" class="btn-glass-outline">О компании</a>
                 </div>
             </div>
-        </div>
-        <div class="hero-new-wave">
-            <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
-                <path d="M0,0 C300,100 700,0 1200,60 L1200,120 L0,120 Z" fill="#ffffff" />
-            </svg>
-        </div>
-    </section>
 
-    <!-- Секция преимуществ (с исправленной иконкой) -->
-    <section class="advantages">
-        <div class="container">
-            <h2>Почему выбирают нас</h2>
-            <div class="advantages-grid">
-                <div class="advantage-item">
-                    <i class="fas fa-certificate"></i>
-                    <h3>ГОСТ 52290-2023</h3>
-                    <p>Все знаки соответствуют актуальным требованиям ГОСТ.</p>
-                </div>
-                <div class="advantage-item">
-                    <i class="fas fa-truck-fast"></i>
-                    <h3>Доставка по России</h3>
-                    <p>Отправляем в любой регион, быстро и надёжно.</p>
-                </div>
-                <div class="advantage-item">
-                    <i class="fas fa-shield-alt"></i>   <!-- ИСПРАВЛЕНО -->
-                    <h3>Гарантия качества</h3>
-                    <p>Используем оцинкованную сталь и плёнку высшего качества.</p>
-                </div>
-                <div class="advantage-item">
-                    <i class="fas fa-hand-holding-dollar"></i>
-                    <h3>Цены от производителя</h3>
-                    <p>Собственное производство – выгодные цены без посредников.</p>
-                </div>
+            <!-- Карточка быстрого заказа -->
+            <div class="hero-glass-card">
+                <h3>📞 Получите консультацию</h3>
+                <p>Оставьте номер, и мы перезвоним через 15 минут</p>
+                <form id="heroQuickForm" class="hero-glass-form">
+                    <input type="tel" placeholder="+7 (999) 123-45-67" required />
+                    <button type="submit">Перезвоните мне</button>
+                </form>
+                <small>Никакого спама, только по делу</small>
             </div>
         </div>
     </section>
 
-    <!-- Популярные товары -->
-    <section class="popular-products">
-        <div class="container">
-            <h2>Популярные знаки</h2>
-            <div class="catalog-grid" id="popularGrid">
-                <!-- Рендерится через JS -->
+    <!-- Статистика -->
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">2015</div>
+                <div class="stat-label">Год основания</div>
             </div>
-            <div style="text-align:center;margin-top:20px;">
-                <a href="catalog.html" class="btn-hero-new" style="display:inline-block;">Смотреть все знаки</a>
+            <div class="stat-item">
+                <div class="stat-number">5000+</div>
+                <div class="stat-label">Установленных знаков</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Соответствие ГОСТ</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Поддержка</div>
             </div>
         </div>
-    </section>
+    </div>
+
+    <!-- Почему мы? -->
+    <div class="container">
+        <h2 style="text-align:center; margin:40px 0 20px;">Почему выбирают нас</h2>
+        <div class="advantages-icons">
+            <div class="advantage-icon-item">
+                <i class="fas fa-certificate"></i>
+                <h3>ГОСТ 52290-2023</h3>
+                <p>Все знаки соответствуют актуальным требованиям ГОСТ.</p>
+            </div>
+            <div class="advantage-icon-item">
+                <i class="fas fa-truck-fast"></i>
+                <h3>Быстрая доставка</h3>
+                <p>Отправляем в любой регион России, сроки от 2 дней.</p>
+            </div>
+            <div class="advantage-icon-item">
+                <i class="fas fa-hand-holding-dollar"></i>
+                <h3>Цены от производителя</h3>
+                <p>Собственное производство – выгодные цены без посредников.</p>
+            </div>
+            <div class="advantage-icon-item">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Гарантия качества</h3>
+                <p>Оцинкованная сталь и плёнка высшего класса.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Как мы работаем -->
+    <div class="container">
+        <h2 style="text-align:center; margin:40px 0 20px;">Как мы работаем</h2>
+        <div class="steps-grid">
+            <div class="step-item">
+                <div class="step-number">1</div>
+                <h4>Выбор</h4>
+                <p>Выберите нужный знак в каталоге, укажите размер и плёнку.</p>
+            </div>
+            <div class="step-item">
+                <div class="step-number">2</div>
+                <h4>Заказ</h4>
+                <p>Оформите заказ через корзину или по телефону.</p>
+            </div>
+            <div class="step-item">
+                <div class="step-number">3</div>
+                <h4>Производство</h4>
+                <p>Изготавливаем знак в течение 1–3 рабочих дней.</p>
+            </div>
+            <div class="step-item">
+                <div class="step-number">4</div>
+                <h4>Доставка</h4>
+                <p>Отправляем по всей России – быстро и надёжно.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Нам доверяют -->
+    <div class="container">
+        <h2 style="text-align:center; margin:40px 0 20px;">Нам доверяют</h2>
+        <div class="partners-grid">
+            <div class="partner-logo">ГК «Автодор»</div>
+            <div class="partner-logo">Росавтодор</div>
+            <div class="partner-logo">Мосгортранс</div>
+            <div class="partner-logo">СтройИндустрия</div>
+            <div class="partner-logo">ДорСтрой</div>
+        </div>
+    </div>
+
+    <!-- Отзывы -->
+    <div class="container">
+        <h2 style="text-align:center; margin:40px 0 20px;">Что говорят клиенты</h2>
+        <div class="reviews-slider">
+            <div class="review-card">
+                <div class="avatar"><i class="fas fa-user"></i></div>
+                <div class="name">Иван Петров</div>
+                <div class="text">Отличные знаки, быстрая доставка. Всё соответствует ГОСТ. Рекомендую!</div>
+            </div>
+            <div class="review-card">
+                <div class="avatar"><i class="fas fa-user"></i></div>
+                <div class="name">Анна Смирнова</div>
+                <div class="text">Заказывали знаки для парковки. Качество отличное, цена приятная. Спасибо!</div>
+            </div>
+            <div class="review-card">
+                <div class="avatar"><i class="fas fa-user"></i></div>
+                <div class="name">Олег Иванов</div>
+                <div class="text">Большой выбор, удобный сайт. Оформили заказ за 5 минут. Доставили вовремя.</div>
+            </div>
+            <div class="review-card">
+                <div class="avatar"><i class="fas fa-user"></i></div>
+                <div class="name">Мария Козлова</div>
+                <div class="text">Работаем с МСК уже 3 года. Всегда качественные знаки и отличная поддержка.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Блог -->
+    <div class="container">
+        <h2 style="text-align:center; margin:40px 0 20px;">Полезные статьи</h2>
+        <div class="blog-grid">
+            <div class="blog-card">
+                <img src="https://placehold.co/600x400/eee/aaa?text=Новости+ГОСТ" alt="Новости ГОСТ" />
+                <div class="content">
+                    <h4>Новые требования ГОСТ 2025</h4>
+                    <p>Что изменилось в стандартах на дорожные знаки и как это влияет на ваш бизнес.</p>
+                    <a href="#">Читать →</a>
+                </div>
+            </div>
+            <div class="blog-card">
+                <img src="https://placehold.co/600x400/eee/aaa?text=Монтаж+знаков" alt="Монтаж знаков" />
+                <div class="content">
+                    <h4>Как правильно установить знак</h4>
+                    <p>Пошаговое руководство по монтажу дорожных знаков на любых поверхностях.</p>
+                    <a href="#">Читать →</a>
+                </div>
+            </div>
+            <div class="blog-card">
+                <img src="https://placehold.co/600x400/eee/aaa?text=Выбор+плёнки" alt="Выбор плёнки" />
+                <div class="content">
+                    <h4>Как выбрать плёнку для знака</h4>
+                    <p>Разбираемся в типах плёнок: А, Б, В – какая подойдёт для ваших задач.</p>
+                    <a href="#">Читать →</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Корзина -->
     <div class="cart-overlay" id="cartOverlay">
@@ -131,46 +246,13 @@
         </div>
     </div>
 
-    <!-- Чат -->
-    <div class="chat-widget" id="chatWidget">
-        <button class="chat-toggle" id="chatToggleBtn" onclick="toggleChat()">
-            <i class="fas fa-comment-dots"></i>
-            <span class="chat-badge">1</span>
-        </button>
-        <div class="chat-window" id="chatWindow">
-            <div class="chat-header">
-                <div class="chat-header-info">
-                    <i class="fas fa-headset"></i>
-                    <div>
-                        <span class="chat-header-name">Поддержка МСК</span>
-                        <span class="chat-header-status">🟢 Онлайн</span>
-                    </div>
-                </div>
-                <button class="chat-close" onclick="closeChat()">&times;</button>
-            </div>
-            <div class="chat-messages" id="chatMessages">
-                <div class="chat-message received old">
-                    <div class="chat-message-content">
-                        <p>👋 Здравствуйте! Чем можем помочь?</p>
-                        <span class="chat-message-time" id="greetingTime">10:00</span>
-                    </div>
-                </div>
-            </div>
-            <div class="chat-input">
-                <input type="text" id="chatInput" placeholder="Введите сообщение..." onkeypress="handleChatKeyPress(event)" />
-                <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
-            </div>
-        </div>
-        <div class="chat-overlay" id="chatOverlay"></div>
-    </div>
-
+    <!-- Футер -->
     <footer class="footer">
         <div class="container">
             <div>© 2026 МСК. Все права защищены.</div>
             <div>
                 <i class="fas fa-map-pin"></i>
-                <a href="https://www.google.com/maps/place/%D0%9B%D0%B8%D1%85%D0%B0%D1%87%D0%B5%D0%B2%D1%81%D0%BA%D0%B8%D0%B9+%D0%BF%D1%80-%D0%B4,+31,+%D0%94%D0%BE%D0%BB%D0%B3%D0%BE%D0%BF%D1%80%D1%83%D0%B4%D0%BD%D1%8B%D0%B9,+%D0%9C%D0%BE%D1%81%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%B0%D1%8F+%D0%BE%D0%B1%D0%BB.,+141701/@55.9182665,37.499657,17z/data=!3m1!4b1!4m6!3m5!1s0x46b5399ee67aeacd:0x290b6d9cde281a1e!8m2!3d55.9183677!4d37.4995338!16s%2Fg%2F11h7dycp_p?entry=ttu&g_ep=EgoyMDI2MDYxNi4wIKXMDSoASAFQAw%3D%3D"
-                   target="_blank" rel="noopener noreferrer" style="color:#f7c948;text-decoration:none;">
+                <a href="https://www.google.com/maps/place/%D0%9B%D0%B8%D1%85%D0%B0%D1%87%D0%B5%D0%B2%D1%81%D0%BA%D0%B8%D0%B9+%D0%BF%D1%80-%D0%B4,+31,+%D0%94%D0%BE%D0%BB%D0%B3%D0%BE%D0%BF%D1%80%D1%83%D0%B4%D0%BD%D1%8B%D0%B9,+%D0%9C%D0%BE%D1%81%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%B0%D1%8F+%D0%BE%D0%B1%D0%BB.,+141701/@55.9182665,37.499657,17z" target="_blank" rel="noopener noreferrer" style="color:#f7c948;text-decoration:none;">
                     Лихачевский пр-д, 31, Долгопрудный, Московская обл., 141701
                 </a>
             </div>
@@ -178,6 +260,29 @@
         </div>
     </footer>
 
-    <script src="script.js"></script>
+    <!-- Тосты -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Скрипт для формы быстрого заказа в hero -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('heroQuickForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const input = this.querySelector('input[type="tel"]');
+                    const phone = input.value.trim();
+                    if (!phone || phone.length < 5) {
+                        window.showToast?.('❌ Введите корректный номер телефона', 'error');
+                        input.style.border = '1px solid #ff6b6b';
+                        setTimeout(() => input.style.border = 'none', 1500);
+                        return;
+                    }
+                    window.showToast?.('✅ Спасибо! Мы перезвоним в ближайшее время.', 'success');
+                    this.reset();
+                });
+            }
+        });
+    </script>
 </body>
 </html>

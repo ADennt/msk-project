@@ -1,5 +1,5 @@
 // ========================================
-// МСК — ОСНОВНАЯ ЛОГИКА (с cart.js и Firebase)
+// МСК — ОСНОВНАЯ ЛОГИКА (script.js)
 // ========================================
 
 let products = [];
@@ -8,11 +8,63 @@ let currentPage = 1;
 const itemsPerPage = 20;
 let filteredProducts = [];
 
-function initData() {
+// ========================================
+// 1. СИСТЕМА ТОСТ-УВЕДОМЛЕНИЙ
+// ========================================
+
+window.showToast = function(message, type = 'success', duration = 3000) {
+    const container = document.getElementById('toastContainer');
+    if (!container) {
+        // Создаём контейнер, если его нет
+        const newContainer = document.createElement('div');
+        newContainer.className = 'toast-container';
+        newContainer.id = 'toastContainer';
+        document.body.appendChild(newContainer);
+    }
+    const toastContainer = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `
+        <div class="toast-icon">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+        </div>
+        <div class="toast-message">${message}</div>
+        <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+    `;
+    toastContainer.appendChild(toast);
+    // Автоматическое закрытие
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(120%)';
+            setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+            }, 300);
+        }
+    }, duration);
+    // Закрытие по клику
+    toast.addEventListener('click', function(e) {
+        if (e.target === this) this.remove();
+    });
+};
+
+// ========================================
+// 2. ЗАГРУЗКА ТОВАРОВ
+// ========================================
+
+function initCatalog() {
     if (!window.database) {
         console.error('Firebase не инициализирована');
-        alert('Ошибка подключения к Firebase. Проверьте интернет.');
+        window.showToast('Ошибка подключения к базе данных', 'error', 5000);
+        loadFromDataJson();
         return;
+    }
+    // Показываем кэш из localStorage, если есть
+    const cached = localStorage.getItem('msk_products');
+    if (cached) {
+        products = JSON.parse(cached);
+        // Если на главной — ничего не делаем, т.к. popularGrid удалён
+        // Но для каталога — позже вызовется applyFiltersAndPagination
     }
 
     window.database.ref('products').on('value', snapshot => {
@@ -21,16 +73,13 @@ function initData() {
         if (products.length === 0) {
             loadFromDataJson();
         } else {
+            localStorage.setItem('msk_products', JSON.stringify(products));
             afterProductsLoaded();
         }
     }, error => {
-        console.error('Ошибка загрузки товаров:', error);
-    });
-
-    // Загружаем корзину через cart.js
-    window.loadCartFromFirebase();
-    window.onCartUpdate(() => {
-        updateCartUI();
+        console.error('Ошибка загрузки товаров из Firebase:', error);
+        window.showToast('Ошибка загрузки товаров', 'error', 5000);
+        loadFromDataJson();
     });
 }
 
@@ -42,16 +91,20 @@ function loadFromDataJson() {
         })
         .then(data => {
             products = data.products || [];
-            const ref = window.database.ref('products');
-            ref.once('value', snapshot => {
-                if (!snapshot.exists()) {
-                    products.forEach(p => ref.push(p));
-                }
-            });
+            if (window.database) {
+                const ref = window.database.ref('products');
+                ref.once('value', snapshot => {
+                    if (!snapshot.exists()) {
+                        products.forEach(p => ref.push(p));
+                    }
+                });
+            }
+            localStorage.setItem('msk_products', JSON.stringify(products));
             afterProductsLoaded();
         })
         .catch(e => {
             console.error('Ошибка загрузки data.json:', e);
+            window.showToast('Ошибка загрузки данных', 'error', 5000);
             products = getFallbackProducts();
             afterProductsLoaded();
         });
@@ -66,241 +119,18 @@ function getFallbackProducts() {
 }
 
 function afterProductsLoaded() {
+    window.products = products;
     const grid = document.getElementById('catalogGrid');
-    const popularGrid = document.getElementById('popularGrid');
     if (grid) {
         applyFiltersAndPagination();
-    } else if (popularGrid) {
-        renderPopularProducts();
     }
-    updateCartUI();
+    renderPopularProducts(); // если есть на главной
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    initData();
-    updateGreetingTime();
-});
+// ========================================
+// 3. КАТАЛОГ – ФИЛЬТРАЦИЯ И ПАГИНАЦИЯ
+// ========================================
 
-function updateGreetingTime() {
-    const timeSpan = document.getElementById('greetingTime');
-    if (timeSpan) {
-        const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        timeSpan.textContent = hours + ':' + minutes;
-    }
-}
-
-// ===== ФУНКЦИЯ ЭКРАНИРОВАНИЯ =====
-function escapeHtml(text) {
-    if (!text) return '';
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-}
-
-// ===== КОРЗИНА (используем cart.js) =====
-function updateCartUI() {
-    const count = document.getElementById('cartCount');
-    const items = document.getElementById('cartItems');
-    const total = document.getElementById('cartTotal');
-    const clearBtn = document.getElementById('clearCartBtn');
-
-    const cart = window.getCart();
-    const totalItems = window.getTotalItems();
-    if (count) count.textContent = totalItems;
-    if (clearBtn) clearBtn.disabled = cart.length === 0;
-
-    if (!items) return;
-    if (cart.length === 0) {
-        items.innerHTML = '<div class="empty-cart">Корзина пуста</div>';
-        if (total) total.textContent = 'Итого: 0 ₽';
-        return;
-    }
-
-    items.innerHTML = cart.map(item => `
-        <div class="cart-item">
-            <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" />
-            <div class="item-details">
-                <div class="name">${escapeHtml(item.name)}</div>
-                <div class="options">${escapeHtml(item.size)} | ${escapeHtml(item.film)}</div>
-            </div>
-            <div class="qty">
-                <button onclick="window.changeQuantity(${item.id}, -1)">−</button>
-                <span>${item.quantity}</span>
-                <button onclick="window.changeQuantity(${item.id}, 1)">+</button>
-            </div>
-            <span class="item-price">${(item.price * item.quantity).toLocaleString()} ₽</span>
-            <button class="remove-btn" onclick="window.removeFromCart(${item.id})"><i class="fas fa-times"></i></button>
-        </div>
-    `).join('');
-
-    const totalPrice = window.getTotalPrice();
-    if (total) total.textContent = `Итого: ${totalPrice.toLocaleString()} ₽`;
-}
-
-function toggleCart() {
-    const overlay = document.getElementById('cartOverlay');
-    if (overlay) overlay.classList.toggle('open');
-    if (overlay.classList.contains('open')) updateCartUI();
-}
-
-function addToCartFromCard(id, btn) {
-    const product = products.find(p => p.id === id);
-    if (!product) return;
-    const card = btn.closest('.product-card');
-    const size = card.querySelector('.size-select')?.value || product.variants[0].size;
-    const film = card.querySelector('.film-select')?.value || product.variants[0].film;
-    const success = window.addToCart(product, size, film);
-    if (success && btn) {
-        btn.innerHTML = '✅ Добавлено';
-        btn.style.background = '#2e7d32';
-        setTimeout(() => {
-            btn.innerHTML = 'В корзину';
-            btn.style.background = '';
-        }, 1200);
-    }
-}
-
-// Функции для страницы товара (будут переопределены в product.js)
-window.addToCartFromDetail = function() {};
-
-// ===== ОФОРМЛЕНИЕ ЗАКАЗА =====
-function showCheckoutForm() {
-    const cart = window.getCart();
-    if (!cart.length) { alert('Корзина пуста'); return; }
-    const overlay = document.getElementById('cartOverlay');
-    const panel = overlay.querySelector('.cart-panel');
-    panel.innerHTML = `
-        <h2>📝 Оформление заказа <button onclick="closeCheckoutForm()">&times;</button></h2>
-        <div class="checkout-form" style="margin-top:20px;">
-            <div><label>Имя *</label><input type="text" id="orderName" placeholder="Иван Петров" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;"></div>
-            <div><label>Телефон *</label><input type="tel" id="orderPhone" placeholder="+7 (999) 123-45-67" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;"></div>
-            <div><label>Email</label><input type="email" id="orderEmail" placeholder="example@mail.ru" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;"></div>
-            <div><label>Адрес *</label><input type="text" id="orderAddress" placeholder="Москва, ул. Дорожная, д. 15" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;"></div>
-            <div><label>Комментарий</label><textarea id="orderComment" rows="3" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;"></textarea></div>
-            <div style="background:#f8f9fb;padding:15px;border-radius:10px;margin:15px 0;">
-                <strong>Состав:</strong>
-                ${cart.map(item => `<div>${escapeHtml(item.name)} (${escapeHtml(item.size)}, ${escapeHtml(item.film)}) × ${item.quantity} — ${(item.price*item.quantity).toLocaleString()} ₽</div>`).join('')}
-                <div style="font-size:20px;font-weight:900;margin-top:10px;">Итого: ${window.getTotalPrice().toLocaleString()} ₽</div>
-            </div>
-            <button onclick="submitOrder()" style="width:100%;padding:16px;background:#f7c948;border:none;border-radius:40px;font-weight:900;font-size:18px;cursor:pointer;">Оформить заказ</button>
-            <button onclick="closeCheckoutForm()" style="width:100%;padding:12px;margin-top:10px;background:#0b0b0b;color:#fff;border:none;border-radius:40px;font-weight:700;font-size:16px;cursor:pointer;">Назад</button>
-        </div>
-    `;
-    overlay.classList.add('open');
-}
-
-function closeCheckoutForm() {
-    const overlay = document.getElementById('cartOverlay');
-    const panel = overlay.querySelector('.cart-panel');
-    panel.innerHTML = `
-        <h2>🛒 Корзина <button onclick="toggleCart()">&times;</button></h2>
-        <div id="cartItems"></div>
-        <div class="cart-total" id="cartTotal">Итого: 0 ₽</div>
-        <div class="cart-actions">
-            <button class="btn-checkout" onclick="showCheckoutForm()">Оформить заказ</button>
-            <button class="btn-clear" onclick="window.clearCart(); updateCartUI();" id="clearCartBtn">Очистить</button>
-        </div>
-    `;
-    overlay.classList.remove('open');
-    overlay.classList.add('open');
-    updateCartUI();
-}
-
-function submitOrder() {
-    const name = document.getElementById('orderName').value.trim();
-    const phone = document.getElementById('orderPhone').value.trim();
-    const email = document.getElementById('orderEmail').value.trim();
-    const address = document.getElementById('orderAddress').value.trim();
-    const comment = document.getElementById('orderComment').value.trim();
-
-    if (!name || !phone || !address) {
-        alert('Заполните обязательные поля (имя, телефон, адрес)');
-        return;
-    }
-
-    const userId = window.getUserId();
-    if (!userId) {
-        alert('Вы не авторизованы. Пожалуйста, войдите в аккаунт.');
-        return;
-    }
-
-    if (window.getNextOrderId) {
-        window.getNextOrderId().then(id => {
-            createOrder(id, userId);
-        }).catch(err => {
-            console.error('Ошибка генерации ID:', err);
-            createOrder(Date.now(), userId);
-        });
-    } else {
-        createOrder(Date.now(), userId);
-    }
-}
-
-function createOrder(id, userId) {
-    const name = document.getElementById('orderName').value.trim();
-    const phone = document.getElementById('orderPhone').value.trim();
-    const email = document.getElementById('orderEmail').value.trim();
-    const address = document.getElementById('orderAddress').value.trim();
-    const comment = document.getElementById('orderComment').value.trim();
-    const cart = window.getCart();
-
-    const order = {
-        id: id,
-        name, phone, email: email || 'Не указан', address, comment: comment || 'Нет',
-        items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, size: i.size, film: i.film, image: i.image })),
-        total: window.getTotalPrice(),
-        status: 'новый',
-        createdAt: new Date().toISOString(),
-        userId: userId
-    };
-
-    if (window.database) {
-        window.database.ref('orders').push(order);
-    } else {
-        alert('Ошибка: нет подключения к Firebase');
-        return;
-    }
-
-    window.clearCart();
-    updateCartUI();
-    alert(`✅ Заказ #${order.id} оформлен!`);
-    toggleCart();
-}
-
-// ===== ПОПУЛЯРНЫЕ ТОВАРЫ =====
-function renderPopularProducts() {
-    const grid = document.getElementById('popularGrid');
-    if (!grid) return;
-    const popular = products.slice(0, 8);
-    if (!popular.length) {
-        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">Товары загружаются...</div>';
-        return;
-    }
-    grid.innerHTML = popular.map(p => {
-        const defaultVariant = p.variants[0];
-        return `
-        <div class="product-card" onclick="location.href='product.html?id=${p.id}'">
-            ${p.tag ? `<div class="tag">${escapeHtml(p.tag)}</div>` : ''}
-            <div class="image-wrapper">
-                <img src="${escapeHtml(p.image || 'images/placeholder.png')}" alt="${escapeHtml(p.name)}" loading="lazy" />
-            </div>
-            <h3>${escapeHtml(p.name)}</h3>
-            <div class="price-row">
-                <span class="price">${defaultVariant.price.toLocaleString()} ₽</span>
-                <button class="btn-add" onclick="event.stopPropagation(); addToCartFromCard(${p.id}, this)">В корзину</button>
-            </div>
-        </div>
-    `}).join('');
-}
-
-// ===== КАТАЛОГ =====
 function applyFiltersAndPagination() {
     filteredProducts = (currentFilter === 'all') ? [...products] : products.filter(p => p.type === currentFilter);
     currentPage = 1;
@@ -323,18 +153,18 @@ function renderCatalog() {
         return;
     }
 
-    grid.innerHTML = pageItems.map(p => {
+    grid.innerHTML = pageItems.map((p, idx) => {
         const sizes = [...new Set(p.variants.map(v => v.size))];
         const films = [...new Set(p.variants.map(v => v.film))];
         const defaultVariant = p.variants[0];
-        const sizeOptions = sizes.map(s => `<option value="${escapeHtml(s)}" ${s === defaultVariant.size ? 'selected':''}>${escapeHtml(s)}</option>`).join('');
-        const filmOptions = films.map(f => `<option value="${escapeHtml(f)}" ${f === defaultVariant.film ? 'selected':''}>${escapeHtml(f)}</option>`).join('');
+        const sizeOptions = sizes.map(s => `<option value="${s}" ${s === defaultVariant.size ? 'selected':''}>${s}</option>`).join('');
+        const filmOptions = films.map(f => `<option value="${f}" ${f === defaultVariant.film ? 'selected':''}>${f}</option>`).join('');
 
         return `
         <div class="product-card" data-id="${p.id}" onclick="goToProduct(${p.id})">
-            ${p.tag ? `<div class="tag">${escapeHtml(p.tag)}</div>` : ''}
+            ${p.tag ? `<div class="tag">${p.tag}</div>` : ''}
             <div class="image-wrapper">
-                <img src="${escapeHtml(p.image || 'images/placeholder.png')}" alt="${escapeHtml(p.name)}" loading="lazy" />
+                <img src="${p.image || 'images/placeholder.png'}" alt="${p.name}" loading="lazy" />
             </div>
             <h3>${escapeHtml(p.name)}</h3>
             <div class="variant-selectors" onclick="event.stopPropagation();">
@@ -353,7 +183,7 @@ function renderCatalog() {
             </div>
             <div class="price-row">
                 <span class="price" id="price-${p.id}">${defaultVariant.price.toLocaleString()} ₽</span>
-                <button class="btn-add" onclick="event.stopPropagation(); addToCartFromCard(${p.id}, this)">В корзину</button>
+                <button class="btn-add" onclick="event.stopPropagation(); addToCart(${p.id}, this)">В корзину</button>
             </div>
         </div>
     `}).join('');
@@ -405,7 +235,10 @@ function goToProduct(id) {
     window.location.href = `product.html?id=${id}`;
 }
 
-// ===== ФИЛЬТРЫ =====
+// ========================================
+// 4. ФИЛЬТРЫ КАТЕГОРИЙ
+// ========================================
+
 document.querySelectorAll('.nav-categories button').forEach(btn => {
     btn.addEventListener('click', function() {
         document.querySelectorAll('.nav-categories button').forEach(b => b.classList.remove('active'));
@@ -415,7 +248,10 @@ document.querySelectorAll('.nav-categories button').forEach(btn => {
     });
 });
 
-// ===== ПОИСК =====
+// ========================================
+// 5. ПОИСК
+// ========================================
+
 function searchProducts() {
     const input = document.getElementById('searchInput');
     if (!input) return;
@@ -447,69 +283,173 @@ function searchProducts() {
     if (info) info.textContent = `Найдено: ${filteredProducts.length} товаров`;
 }
 
-// ===== ЧАТ (без изменений) =====
-function toggleChat() {
-    const win = document.getElementById('chatWindow');
-    const btn = document.getElementById('chatToggleBtn');
-    const overlay = document.getElementById('chatOverlay');
-    if (!win) return;
-    const isOpen = win.classList.contains('open');
-    if (isOpen) {
-        closeChat();
-    } else {
-        win.classList.add('open');
-        btn.style.display = 'none';
-        overlay.classList.add('active');
-        document.getElementById('chatInput').focus();
+// Поиск из hero-блока (если есть)
+function performHeroSearch() {
+    const input = document.getElementById('heroSearchInput');
+    if (!input) return;
+    const query = input.value.trim();
+    if (!query) {
+        window.location.href = 'catalog.html';
+        return;
     }
+    window.location.href = `catalog.html?search=${encodeURIComponent(query)}`;
 }
-function closeChat() {
-    const win = document.getElementById('chatWindow');
-    const btn = document.getElementById('chatToggleBtn');
-    const overlay = document.getElementById('chatOverlay');
-    if (win) win.classList.remove('open');
-    if (btn) btn.style.display = 'flex';
-    if (overlay) overlay.classList.remove('active');
-}
-document.getElementById('chatOverlay')?.addEventListener('click', closeChat);
 
-function sendMessage() {
-    const input = document.getElementById('chatInput');
-    const messages = document.getElementById('chatMessages');
-    if (!input || !messages) return;
-    const text = input.value.trim();
-    if (!text) return;
-    const msg = document.createElement('div');
-    msg.className = 'chat-message sent';
-    msg.innerHTML = `<div class="chat-message-content"><p>${escapeHtml(text)}</p><span class="chat-message-time">${new Date().toLocaleTimeString()}</span></div>`;
-    messages.appendChild(msg);
-    input.value = '';
-    messages.scrollTop = messages.scrollHeight;
-
-    setTimeout(() => {
-        const reply = document.createElement('div');
-        reply.className = 'chat-message received';
-        reply.innerHTML = `<div class="chat-message-content"><p>${escapeHtml(getAutoReply(text))}</p><span class="chat-message-time">${new Date().toLocaleTimeString()}</span></div>`;
-        messages.appendChild(reply);
-        messages.scrollTop = messages.scrollHeight;
-    }, 1000 + Math.random()*1500);
-}
-function handleChatKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
-
-function getAutoReply(text) {
-    const lower = text.toLowerCase();
-    if (lower.includes('адрес') || lower.includes('где') || lower.includes('находитесь') ||
-        lower.includes('карта') || lower.includes('навигатор') || lower.includes('проехать')) {
-        return '📍 Наш адрес: <a href="https://www.google.com/maps/place/%D0%9B%D0%B8%D1%85%D0%B0%D1%87%D0%B5%D0%B2%D1%81%D0%BA%D0%B8%D0%B9+%D0%BF%D1%80-%D0%B4,+31,+%D0%94%D0%BE%D0%BB%D0%B3%D0%BE%D0%BF%D1%80%D1%83%D0%B4%D0%BD%D1%8B%D0%B9,+%D0%9C%D0%BE%D1%81%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%B0%D1%8F+%D0%BE%D0%B1%D0%BB.,+141701/@55.9182665,37.499657,17z" target="_blank" style="color:#f7c948; text-decoration:underline;">Лихачевский пр-д, 31, Долгопрудный, Московская обл., 141701</a>';
+// Обработка Enter в поле поиска hero
+document.addEventListener('DOMContentLoaded', function() {
+    const heroInput = document.getElementById('heroSearchInput');
+    if (heroInput) {
+        heroInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performHeroSearch();
+            }
+        });
     }
-    if (lower.includes('привет')) return '👋 Здравствуйте! Чем помочь?';
-    if (lower.includes('что ты можешь') || lower.includes('что умеешь') || lower.includes('какие функции') || lower.includes('помощь') || lower.includes('справка')) {
-        return '🤖 Я — виртуальный помощник магазина МСК. Я могу:\n• Рассказать о товарах и ценах\n• Подсказать адрес и контакты\n• Ответить на вопросы о доставке\n• Помочь с заказами (оформление, статус)\n• Просто поболтать 😊\nЗадавайте любой вопрос, и я постараюсь помочь!';
+});
+
+// Автозаполнение поиска из URL (для страницы каталога)
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get('search');
+    if (searchQuery) {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.value = searchQuery;
+            searchProducts();
+        }
     }
-    if (lower.includes('цена') || lower.includes('стоимость')) return '💰 Цены указаны в каталоге. Есть скидки для оптовых заказов!';
-    if (lower.includes('доставка')) return '🚚 Доставка по всей России. Сроки зависят от региона.';
-    if (lower.includes('телефон') || lower.includes('номер')) return '📞 8 (800) 555-22-33';
-    if (lower.includes('гост')) return '📄 Все знаки соответствуют ГОСТ 52290-2023';
-    if (lower.includes('спасибо')) return '🙏 Спасибо за обращение!';
-    return '📌 Спасибо за вопрос! Наши менеджеры скоро ответят.';
+});
+
+// ========================================
+// 6. ПОПУЛЯРНЫЕ ТОВАРЫ (для главной)
+// ========================================
+
+function renderPopularProducts() {
+    const grid = document.getElementById('popularGrid');
+    if (!grid) return;
+    const popular = products.slice(0, 8);
+    if (!popular.length) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">Товары загружаются...</div>';
+        return;
+    }
+    grid.innerHTML = popular.map(p => {
+        const defaultVariant = p.variants[0];
+        return `
+        <div class="product-card" onclick="location.href='product.html?id=${p.id}'">
+            ${p.tag ? `<div class="tag">${p.tag}</div>` : ''}
+            <div class="image-wrapper">
+                <img src="${p.image || 'images/placeholder.png'}" alt="${p.name}" loading="lazy" />
+            </div>
+            <h3>${escapeHtml(p.name)}</h3>
+            <div class="price-row">
+                <span class="price">${defaultVariant.price.toLocaleString()} ₽</span>
+                <button class="btn-add" onclick="event.stopPropagation(); addToCart(${p.id}, this)">В корзину</button>
+            </div>
+        </div>
+    `}).join('');
 }
+
+// ========================================
+// 7. АНИМАЦИИ
+// ========================================
+
+// Анимация при скролле (Intersection Observer)
+document.addEventListener('DOMContentLoaded', function() {
+    const animatedElements = document.querySelectorAll('.animate-on-scroll, .advantage-item, .popular-products .product-card');
+    if (animatedElements.length) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.15,
+            rootMargin: '0px 0px -20px 0px'
+        });
+        animatedElements.forEach(el => observer.observe(el));
+    }
+});
+
+// Хедер при скролле
+window.addEventListener('scroll', function() {
+    const header = document.querySelector('.header');
+    if (header) {
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    }
+});
+
+// Вращающийся текст в hero (если используется)
+document.addEventListener('DOMContentLoaded', function() {
+    const rotatingElement = document.getElementById('rotatingWord');
+    if (!rotatingElement) return;
+    
+    const phrases = [
+        'Качество по ГОСТ',
+        'Доставка по России',
+        'Цены от производителя',
+        'Собственное производство',
+        'Сертифицированная продукция'
+    ];
+    
+    let index = 0;
+    setInterval(() => {
+        index = (index + 1) % phrases.length;
+        rotatingElement.style.animation = 'none';
+        setTimeout(() => {
+            rotatingElement.textContent = phrases[index];
+            rotatingElement.style.animation = 'fadeInOut 1.5s ease';
+        }, 50);
+    }, 3000);
+});
+
+// ========================================
+// 8. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// ========================================
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const d = document.createElement('div');
+    d.textContent = text;
+    return d.innerHTML;
+}
+
+// ========================================
+// 9. ИНИЦИАЛИЗАЦИЯ
+// ========================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    initCatalog();
+    // Корзина инициализируется в cart.js
+});
+
+// ===== БЫСТРЫЙ ЗАКАЗ В HERO =====
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('heroQuickForm');
+    if (!form) return;
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const input = this.querySelector('input[type="tel"]');
+        const phone = input.value.trim();
+
+        if (!phone || phone.length < 5) {
+            window.showToast?.('❌ Введите корректный номер телефона', 'error');
+            input.style.border = '1px solid #ff6b6b';
+            setTimeout(() => input.style.border = 'none', 1500);
+            return;
+        }
+
+        // Здесь можно отправить данные на сервер или в Firebase
+        console.log('📞 Заявка на звонок:', phone);
+
+        // Показываем успешное уведомление
+        window.showToast?.('✅ Спасибо! Мы перезвоним в ближайшее время.', 'success');
+        this.reset();
+    });
+});
