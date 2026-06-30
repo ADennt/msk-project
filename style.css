@@ -1999,7 +1999,7 @@ body {
 
 .hero-glass {
     position: relative;
-    min-height: 100vh;
+    min-height: 1200px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2299,7 +2299,6 @@ body {
 }
 .btn-admin-add:hover {
     background: #e0b03a;
-    transform: scale(1.02);
 }
 
 .btn-admin-delete {
@@ -2318,5 +2317,4 @@ body {
 }
 .btn-admin-delete:hover {
     background: #b71c1c;
-    transform: scale(1.02);
 }
