@@ -7,6 +7,50 @@ let filteredOrders = [];
 let selectedOrders = new Set();
 let previousOrdersCount = 0;
 
+// ===== ОБНОВЛЕНИЕ СЧЁТЧИКА ЗАКАЗОВ (с транзакцией) =====
+function updateOrderCounter() {
+    if (!window.database) {
+        console.warn('⚠️ Firebase не инициализирована');
+        return;
+    }
+
+    // Сначала получаем все заказы и находим максимальный ID
+    window.database.ref('orders').once('value')
+        .then(snapshot => {
+            const data = snapshot.val() || {};
+            const orders = Object.values(data);
+            let maxId = 0;
+            orders.forEach(o => {
+                if (o.id && typeof o.id === 'number' && o.id > maxId) {
+                    maxId = o.id;
+                }
+            });
+            const newCounter = maxId + 1;
+            console.log(`📊 Максимальный ID: ${maxId}, новый счётчик: ${newCounter}`);
+
+            // Обновляем счётчик через транзакцию
+            const counterRef = window.database.ref('meta/orderCounter');
+            counterRef.transaction(current => {
+                // Если текущее значение меньше нового – устанавливаем новое
+                if (current === null || current === undefined || current < newCounter) {
+                    return newCounter;
+                }
+                return current; // оставляем как есть, если уже больше
+            }, (error, committed, snapshot) => {
+                if (error) {
+                    console.error('❌ Ошибка транзакции счётчика:', error);
+                } else if (committed) {
+                    console.log('✅ Счётчик обновлён до:', snapshot.val());
+                } else {
+                    console.log('ℹ️ Счётчик не требует обновления');
+                }
+            }, false);
+        })
+        .catch(err => {
+            console.error('❌ Ошибка загрузки заказов:', err);
+        });
+}
+
 // ===== ЗАГРУЗКА =====
 function loadOrders() {
     if (!window.database) {
@@ -82,7 +126,6 @@ function renderOrders(ordersToRender) {
     ordersToRender.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
     tbody.innerHTML = ordersToRender.map(o => {
         const checked = selectedOrders.has(o.id) ? 'checked' : '';
-        const statusClass = o.status || 'новый';
         return `
         <tr>
             <td><input type="checkbox" class="order-checkbox" data-id="${o.id}" ${checked} onchange="toggleOrder(${o.id})" /></td>
@@ -92,13 +135,13 @@ function renderOrders(ordersToRender) {
             <td>${o.items?.length || 0}</td>
             <td><strong>${(o.total || 0).toLocaleString()} ₽</strong></td>
             <td>
-                <span class="order-status ${statusClass}">${o.status}</span>
+                <!-- Только выпадающий список, как в технике -->
                 <select class="status-select" onchange="updateStatus(${o.id}, this.value)">
-                    <option value="новый" ${o.status === 'новый' ? 'selected':''}>Новый</option>
-                    <option value="в обработке" ${o.status === 'в обработке' ? 'selected':''}>В обработке</option>
-                    <option value="отправлен" ${o.status === 'отправлен' ? 'selected':''}>Отправлен</option>
-                    <option value="доставлен" ${o.status === 'доставлен' ? 'selected':''}>Доставлен</option>
-                    <option value="отменён" ${o.status === 'отменён' ? 'selected':''}>Отменён</option>
+                    <option value="новый" ${o.status === 'новый' ? 'selected' : ''}>Новый</option>
+                    <option value="в обработке" ${o.status === 'в обработке' ? 'selected' : ''}>В обработке</option>
+                    <option value="отправлен" ${o.status === 'отправлен' ? 'selected' : ''}>Отправлен</option>
+                    <option value="доставлен" ${o.status === 'доставлен' ? 'selected' : ''}>Доставлен</option>
+                    <option value="отменён" ${o.status === 'отменён' ? 'selected' : ''}>Отменён</option>
                 </select>
             </td>
             <td style="font-size:13px;color:#888;">${new Date(o.createdAt).toLocaleString('ru-RU')}</td>
@@ -107,7 +150,8 @@ function renderOrders(ordersToRender) {
                 <button class="btn-delete" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button>
             </td>
         </tr>
-    `}).join('');
+        `;
+    }).join('');
 }
 
 // ===== МАССОВЫЕ ОПЕРАЦИИ =====
@@ -180,7 +224,7 @@ function massDeleteOrders() {
                         .then(() => resolve())
                         .catch(err => reject(err));
                 } else {
-                    resolve(); // если не найден – просто идём дальше
+                    resolve();
                 }
             });
         });
@@ -191,7 +235,7 @@ function massDeleteOrders() {
         .then(() => {
             selectedOrders.clear();
             window.showToast?.('🗑️ Заказы удалены', 'info');
-            updateOrderCounter(); // 👈 обновляем счётчик после всех удалений
+            updateOrderCounter(); // ← ВЫЗОВ
             updateSelectedCount();
         })
         .catch(err => {
@@ -255,7 +299,7 @@ function deleteOrder(id) {
             ref.child(key).remove()
                 .then(() => {
                     window.showToast?.('🗑️ Заказ удалён', 'info');
-                    updateOrderCounter(); // 👈 добавляем
+                    updateOrderCounter(); // ← ВЫЗОВ
                 })
                 .catch(() => {
                     window.showToast?.('Ошибка удаления', 'error');

@@ -1,41 +1,60 @@
 // ========================================
-// МСК — КОРЗИНА (с привязкой к пользователю)
+// МСК — КОРЗИНЫ (покупки + аренда, раздельно)
 // ========================================
 
-window.cart = window.cart || [];
+window.purchaseCart = window.purchaseCart || [];
+window.rentalCart = window.rentalCart || [];
+
+// Для обратной совместимости
+Object.defineProperty(window, 'cart', {
+    get: function() {
+        return [...window.purchaseCart, ...window.rentalCart];
+    },
+    set: function(value) {
+        window.purchaseCart = value.filter(i => i.type !== 'rental');
+        window.rentalCart = value.filter(i => i.type === 'rental');
+    }
+});
 
 // ===== ПОЛУЧИТЬ ТЕКУЩЕГО ПОЛЬЗОВАТЕЛЯ =====
 function getCurrentUid() {
-    return window.auth?.currentUser?.uid || null;
+    return window.auth?.currentUser?.uid || '';
 }
 
-// ===== ЗАГРУЗКА КОРЗИНЫ =====
-function loadCart() {
+// ===== ЗАГРУЗКА КОРЗИН =====
+function loadCarts() {
     const uid = getCurrentUid();
     if (uid && window.database) {
-        // Авторизован – грузим из Firebase
-        window.database.ref(`users/${uid}/cart`).on('value', snapshot => {
-            const data = snapshot.val() || [];
-            window.cart = data;
-            localStorage.setItem('msk_cart', JSON.stringify(data));
+        window.database.ref(`users/${uid}/purchaseCart`).on('value', snapshot => {
+            window.purchaseCart = snapshot.val() || [];
+            localStorage.setItem('msk_purchase_cart', JSON.stringify(window.purchaseCart));
+            updateCartUI();
+        });
+        window.database.ref(`users/${uid}/rentalCart`).on('value', snapshot => {
+            window.rentalCart = snapshot.val() || [];
+            localStorage.setItem('msk_rental_cart', JSON.stringify(window.rentalCart));
             updateCartUI();
         });
     } else {
-        // Не авторизован – грузим из localStorage
-        const saved = localStorage.getItem('msk_cart');
-        window.cart = saved ? JSON.parse(saved) : [];
+        const savedPurchase = localStorage.getItem('msk_purchase_cart');
+        window.purchaseCart = savedPurchase ? JSON.parse(savedPurchase) : [];
+        const savedRental = localStorage.getItem('msk_rental_cart');
+        window.rentalCart = savedRental ? JSON.parse(savedRental) : [];
         updateCartUI();
     }
 }
 
-// ===== СОХРАНЕНИЕ КОРЗИНЫ =====
-function saveCart() {
+// ===== СОХРАНЕНИЕ КОРЗИН =====
+function saveCarts() {
     const uid = getCurrentUid();
     if (uid && window.database) {
-        window.database.ref(`users/${uid}/cart`).set(window.cart)
-            .catch(err => console.warn('Ошибка сохранения корзины в Firebase:', err));
+        window.database.ref(`users/${uid}/purchaseCart`).set(window.purchaseCart)
+            .catch(err => console.warn('Ошибка сохранения корзины покупок:', err));
+        window.database.ref(`users/${uid}/rentalCart`).set(window.rentalCart)
+            .catch(err => console.warn('Ошибка сохранения корзины аренды:', err));
     }
-    localStorage.setItem('msk_cart', JSON.stringify(window.cart));
+    localStorage.setItem('msk_purchase_cart', JSON.stringify(window.purchaseCart));
+    localStorage.setItem('msk_rental_cart', JSON.stringify(window.rentalCart));
 }
 
 // ===== ОБНОВЛЕНИЕ UI =====
@@ -45,49 +64,64 @@ function updateCartUI() {
     const total = document.getElementById('cartTotal');
     const clearBtn = document.getElementById('clearCartBtn');
 
-    const totalItems = window.cart.reduce((s, i) => s + i.quantity, 0);
+    const totalItems = window.purchaseCart.reduce((s, i) => s + i.quantity, 0) +
+                       window.rentalCart.reduce((s, i) => s + i.days, 0);
     if (count) count.textContent = totalItems;
-    if (clearBtn) clearBtn.disabled = window.cart.length === 0;
+    if (clearBtn) clearBtn.disabled = (window.purchaseCart.length + window.rentalCart.length) === 0;
 
     if (!items) return;
-    if (!window.cart.length) {
+    if (!window.purchaseCart.length && !window.rentalCart.length) {
         items.innerHTML = '<div class="empty-cart">Корзина пуста</div>';
         if (total) total.textContent = 'Итого: 0 ₽';
         return;
     }
 
-    items.innerHTML = window.cart.map(item => `
-        <div class="cart-item">
-            <img src="${item.image}" alt="${item.name}" />
-            <div class="item-details">
-                <div class="name">${escapeHtml(item.name)}</div>
-                <div class="options">${escapeHtml(item.size)} | ${escapeHtml(item.film)}</div>
+    let html = '';
+    if (window.purchaseCart.length) {
+        html += `<h4 style="margin:10px 0 5px;">🛍️ Товары</h4>`;
+        html += window.purchaseCart.map(item => `
+            <div class="cart-item">
+                <img src="${item.image}" alt="${item.name}" />
+                <div class="item-details">
+                    <div class="name">${escapeHtml(item.name)}</div>
+                    <div class="options">${escapeHtml(item.size)} | ${escapeHtml(item.film)}</div>
+                </div>
+                <div class="qty">
+                    <button onclick="changePurchaseQty(${item.id}, -1)">−</button>
+                    <span>${item.quantity}</span>
+                    <button onclick="changePurchaseQty(${item.id}, 1)">+</button>
+                </div>
+                <span class="item-price">${(item.price * item.quantity).toLocaleString()} ₽</span>
+                <button class="remove-btn" onclick="removeFromPurchaseCart(${item.id})"><i class="fas fa-times"></i></button>
             </div>
-            <div class="qty">
-                <button onclick="changeQty(${item.id}, -1)">−</button>
-                <span>${item.quantity}</span>
-                <button onclick="changeQty(${item.id}, 1)">+</button>
+        `).join('');
+    }
+    if (window.rentalCart.length) {
+        html += `<h4 style="margin:10px 0 5px;">🚜 Аренда</h4>`;
+        html += window.rentalCart.map(item => `
+            <div class="cart-item">
+                <img src="${item.image}" alt="${item.name}" />
+                <div class="item-details">
+                    <div class="name">${escapeHtml(item.name)}</div>
+                    <div class="options">${item.days} суток (${item.start} – ${item.end})</div>
+                </div>
+                <span class="item-price">${item.total.toLocaleString()} ₽</span>
+                <button class="remove-btn" onclick="removeFromRentalCart('${item.id}')"><i class="fas fa-times"></i></button>
             </div>
-            <span class="item-price">${(item.price * item.quantity).toLocaleString()} ₽</span>
-            <button class="remove-btn" onclick="removeFromCart(${item.id})"><i class="fas fa-times"></i></button>
-        </div>
-    `).join('');
+        `).join('');
+    }
 
-    const totalSum = window.cart.reduce((s, i) => s + i.price * i.quantity, 0);
+    items.innerHTML = html;
+
+    const totalSum = window.purchaseCart.reduce((sum, i) => sum + i.price * i.quantity, 0) +
+                     window.rentalCart.reduce((sum, i) => sum + i.total, 0);
     if (total) total.textContent = `Итого: ${totalSum.toLocaleString()} ₽`;
 }
 
-// ===== УПРАВЛЕНИЕ КОРЗИНОЙ =====
+// ===== УПРАВЛЕНИЕ КОРЗИНОЙ ПОКУПОК =====
 window.addToCart = function(id, btn) {
     const product = window.products?.find(p => p.id === id);
-    if (!product) {
-        window.showToast?.('Товар не найден', 'error');
-        return;
-    }
-    addProductToCart(product, btn);
-};
-
-function addProductToCart(product, btn) {
+    if (!product) { window.showToast?.('Товар не найден', 'error'); return; }
     let size, film;
     const card = btn?.closest('.product-card');
     if (card) {
@@ -98,78 +132,108 @@ function addProductToCart(product, btn) {
         film = product.variants[0].film;
     }
     const variant = product.variants.find(v => v.size === size && v.film === film);
-    if (!variant) {
-        window.showToast?.('Комбинация недоступна', 'error');
-        return;
-    }
+    if (!variant) { window.showToast?.('Комбинация недоступна', 'error'); return; }
 
-    const existing = window.cart.find(i => i.id === product.id && i.size === size && i.film === film);
+    const existing = window.purchaseCart.find(i => i.id === product.id && i.size === size && i.film === film);
     if (existing) {
         existing.quantity += 1;
     } else {
-        window.cart.push({ ...product, quantity: 1, size, film, price: variant.price, image: product.image || 'images/placeholder.png' });
+        window.purchaseCart.push({ ...product, quantity: 1, size, film, price: variant.price, image: product.image || 'images/placeholder.png', type: 'purchase' });
     }
-
     updateCartUI();
-    saveCart();
+    saveCarts();
     window.showToast?.(`${product.name} добавлен в корзину`, 'success');
-
     if (btn) {
         btn.innerHTML = '✅ Добавлено';
         btn.style.background = '#2e7d32';
-        setTimeout(() => {
-            btn.innerHTML = 'В корзину';
-            btn.style.background = '';
-        }, 1200);
+        setTimeout(() => { btn.innerHTML = 'В корзину'; btn.style.background = ''; }, 1200);
     }
-}
+};
 
-window.removeFromCart = function(id) {
-    window.cart = window.cart.filter(item => item.id !== id);
+window.removeFromPurchaseCart = function(id) {
+    window.purchaseCart = window.purchaseCart.filter(item => item.id !== id);
     updateCartUI();
-    saveCart();
+    saveCarts();
     window.showToast?.('Товар удалён из корзины', 'info');
 };
 
-window.clearCart = function() {
-    if (!window.cart.length) return;
-    if (!confirm('Очистить корзину?')) return;
-    window.cart = [];
-    updateCartUI();
-    saveCart();
-    window.showToast?.('Корзина очищена', 'info');
-};
-
-window.changeQty = function(id, delta) {
-    const item = window.cart.find(i => i.id === id);
+window.changePurchaseQty = function(id, delta) {
+    const item = window.purchaseCart.find(i => i.id === id);
     if (!item) return;
     item.quantity += delta;
-    if (item.quantity <= 0) {
-        removeFromCart(id);
-        return;
-    }
+    if (item.quantity <= 0) { removeFromPurchaseCart(id); return; }
     updateCartUI();
-    saveCart();
+    saveCarts();
 };
 
-window.toggleCart = function() {
-    const overlay = document.getElementById('cartOverlay');
-    if (overlay) {
-        overlay.classList.toggle('open');
-        if (overlay.classList.contains('open')) updateCartUI();
-    }
+// ===== УПРАВЛЕНИЕ КОРЗИНОЙ АРЕНДЫ =====
+window.addRentalToCart = function(item, start, end) {
+    const days = Math.ceil((new Date(end) - new Date(start)) / (1000*60*60*24));
+    if (days <= 0) { window.showToast?.('Даты некорректны', 'error'); return; }
+    const rentalItem = {
+        id: item.id,
+        name: item.name,
+        dailyPrice: item.dailyPrice,
+        start: start,
+        end: end,
+        days: days,
+        total: item.dailyPrice * days,
+        image: item.image || 'images/placeholder.png',
+        type: 'rental'
+    };
+    const existing = window.rentalCart.find(i => i.id === rentalItem.id);
+    if (existing) { window.showToast?.('Эта техника уже в корзине', 'warning'); return; }
+    window.rentalCart.push(rentalItem);
+    updateCartUI();
+    saveCarts();
+    window.showToast?.('Техника добавлена в корзину аренды', 'success');
+};
+
+window.removeFromRentalCart = function(id) {
+    window.rentalCart = window.rentalCart.filter(item => item.id !== id);
+    updateCartUI();
+    saveCarts();
+    window.showToast?.('Техника удалена из корзины аренды', 'info');
+};
+
+// ===== ОЧИСТКА КОРЗИН =====
+window.clearCart = function() {
+    if (!window.purchaseCart.length && !window.rentalCart.length) return;
+    if (!confirm('Очистить корзину?')) return;
+    window.purchaseCart = [];
+    window.rentalCart = [];
+    updateCartUI();
+    saveCarts();
+    window.showToast?.('Корзина очищена', 'info');
 };
 
 // ===== ОФОРМЛЕНИЕ ЗАКАЗА =====
 window.showCheckoutForm = function() {
-    if (!window.cart.length) {
+    const totalItems = window.purchaseCart.length + window.rentalCart.length;
+    if (!totalItems) {
         window.showToast?.('Корзина пуста', 'error');
         return;
     }
+
+    // Проверяем, есть ли аренда
+    const hasRental = window.rentalCart.length > 0;
+
+    // Формируем баннер предупреждения, если есть аренда
+    const warningBanner = hasRental ? `
+        <div style="background:#fff3cd; border-left: 4px solid #ffc107; padding: 12px 16px; border-radius: 8px; margin: 10px 0 20px; display: flex; align-items: center; gap: 12px;">
+            <i class="fas fa-exclamation-triangle" style="color:#856404; font-size: 24px;"></i>
+            <div style="color:#856404; font-size: 15px; font-weight: 500;">
+                <strong>Внимание!</strong> При аренде техники требуется <strong>100% предоплата</strong>.
+                Оплата производится после оформления заказа.
+            </div>
+        </div>
+    ` : '';
+
     const overlay = document.getElementById('cartOverlay');
     const panel = overlay.querySelector('.cart-panel');
     panel.innerHTML = `
         <h2>📝 Оформление заказа <button onclick="closeCheckoutForm()">&times;</button></h2>
+        ${warningBanner}
         <div class="checkout-form" style="margin-top:20px;">
             <div><label>Имя *</label><input type="text" id="orderName" placeholder="Иван Петров" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;"></div>
             <div><label>Телефон *</label><input type="tel" id="orderPhone" placeholder="+7 (999) 123-45-67" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;"></div>
@@ -178,8 +242,9 @@ window.showCheckoutForm = function() {
             <div><label>Комментарий</label><textarea id="orderComment" rows="3" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;"></textarea></div>
             <div style="background:#f8f9fb;padding:15px;border-radius:10px;margin:15px 0;">
                 <strong>Состав:</strong>
-                ${window.cart.map(item => `<div>${escapeHtml(item.name)} (${escapeHtml(item.size)}, ${escapeHtml(item.film)}) × ${item.quantity} — ${(item.price*item.quantity).toLocaleString()} ₽</div>`).join('')}
-                <div style="font-size:20px;font-weight:900;margin-top:10px;">Итого: ${window.cart.reduce((s,i) => s + i.price*i.quantity, 0).toLocaleString()} ₽</div>
+                ${window.purchaseCart.map(item => `<div>${escapeHtml(item.name)} (${escapeHtml(item.size)}, ${escapeHtml(item.film)}) × ${item.quantity} — ${(item.price*item.quantity).toLocaleString()} ₽</div>`).join('')}
+                ${window.rentalCart.map(item => `<div>${escapeHtml(item.name)} (аренда, ${item.days} суток, ${item.start} – ${item.end}) — ${item.total.toLocaleString()} ₽</div>`).join('')}
+                <div style="font-size:20px;font-weight:900;margin-top:10px;">Итого: ${(window.purchaseCart.reduce((s,i) => s + i.price*i.quantity, 0) + window.rentalCart.reduce((s,i) => s + i.total, 0)).toLocaleString()} ₽</div>
             </div>
             <button onclick="submitOrder()" style="width:100%;padding:16px;background:#f7c948;border:none;border-radius:40px;font-weight:900;font-size:18px;cursor:pointer;">Оформить заказ</button>
             <button onclick="closeCheckoutForm()" style="width:100%;padding:12px;margin-top:10px;background:#0b0b0b;color:#fff;border:none;border-radius:40px;font-weight:700;font-size:16px;cursor:pointer;">Назад</button>
@@ -205,7 +270,10 @@ window.closeCheckoutForm = function() {
     updateCartUI();
 };
 
+// ===== ОФОРМЛЕНИЕ ЗАКАЗА (с инкрементальным ID) =====
 window.submitOrder = function() {
+    console.log('🔄 Начинаем оформление заказа...');
+
     const name = document.getElementById('orderName').value.trim();
     const phone = document.getElementById('orderPhone').value.trim();
     const email = document.getElementById('orderEmail').value.trim();
@@ -218,48 +286,113 @@ window.submitOrder = function() {
     }
 
     const uid = getCurrentUid();
+    const purchaseItems = [...window.purchaseCart];
+    const rentalItems = [...window.rentalCart];
 
+    if (!purchaseItems.length && !rentalItems.length) {
+        window.showToast?.('Корзина пуста', 'error');
+        return;
+    }
+
+    const hasRental = rentalItems.length > 0;
+    const type = hasRental ? 'rental' : 'purchase';
+
+    const items = [
+        ...purchaseItems.map(i => ({
+            id: i.id,
+            name: i.name,
+            price: i.price,
+            quantity: i.quantity,
+            size: i.size || null,
+            film: i.film || null,
+            image: i.image || 'images/placeholder.png',
+            type: 'purchase'
+        })),
+        ...rentalItems.map(i => ({
+            id: i.id,
+            name: i.name,
+            price: i.dailyPrice,
+            quantity: i.days,
+            size: null,
+            film: null,
+            image: i.image || 'images/placeholder.png',
+            type: 'rental'
+        }))
+    ];
+
+    const total = purchaseItems.reduce((s, i) => s + i.price * i.quantity, 0) +
+                  rentalItems.reduce((s, i) => s + i.total, 0);
+
+    // Функция создания заказа с ID
+    function createOrderWithId(orderId) {
+        const order = {
+            id: orderId,
+            name,
+            phone,
+            email: email || 'Не указан',
+            address,
+            comment: comment || 'Нет',
+            items: items,
+            total: total,
+            status: 'новый',
+            createdAt: new Date().toISOString(),
+            userId: uid,
+            type: type
+        };
+
+        if (hasRental) {
+            const firstRental = rentalItems[0];
+            order.equipmentId = firstRental.id;
+            order.rentalStart = firstRental.start;
+            order.rentalEnd = firstRental.end;
+        }
+
+        console.log('📦 Отправляемый заказ:', JSON.stringify(order, null, 2));
+
+        if (!window.database) {
+            window.showToast?.('Ошибка: Firebase не инициализирована', 'error');
+            return;
+        }
+
+        window.database.ref('orders').push(order)
+            .then(() => {
+                console.log('✅ Заказ успешно сохранён!');
+                window.showToast?.(`✅ Заказ #${order.id} оформлен!`, 'success');
+                window.purchaseCart = [];
+                window.rentalCart = [];
+                updateCartUI();
+                saveCarts();
+                toggleCart();
+            })
+            .catch(err => {
+                console.error('❌ Ошибка оформления заказа:', err);
+                window.showToast?.('Ошибка оформления заказа: ' + err.message, 'error');
+            });
+    }
+
+    // Получаем следующий ID через счётчик
     if (typeof window.getNextOrderId === 'function') {
-        window.getNextOrderId().then(id => {
-            createOrder(id, name, phone, email, address, comment, uid);
-        }).catch(() => {
-            createOrder(Date.now(), name, phone, email, address, comment, uid);
-        });
+        window.getNextOrderId()
+            .then(id => {
+                if (id !== null && id !== undefined && typeof id === 'number') {
+                    createOrderWithId(id);
+                } else {
+                    const fallback = Date.now() + Math.floor(Math.random() * 10000);
+                    createOrderWithId(fallback);
+                }
+            })
+            .catch(err => {
+                console.warn('Ошибка получения ID, fallback:', err);
+                const fallback = Date.now() + Math.floor(Math.random() * 10000);
+                createOrderWithId(fallback);
+            });
     } else {
-        createOrder(Date.now(), name, phone, email, address, comment, uid);
+        const fallback = Date.now() + Math.floor(Math.random() * 10000);
+        createOrderWithId(fallback);
     }
 };
 
-function createOrder(id, name, phone, email, address, comment, uid) {
-    const order = {
-        id,
-        name,
-        phone,
-        email: email || 'Не указан',
-        address,
-        comment: comment || 'Нет',
-        items: window.cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, size: i.size, film: i.film, image: i.image })),
-        total: window.cart.reduce((s, i) => s + i.price * i.quantity, 0),
-        status: 'новый',
-        createdAt: new Date().toISOString(),
-        userId: uid || null
-    };
-
-    if (window.database) {
-        window.database.ref('orders').push(order)
-            .then(() => {
-                window.showToast?.(`✅ Заказ #${order.id} оформлен!`, 'success');
-                window.cart = [];
-                updateCartUI();
-                saveCart();
-                toggleCart();
-            })
-            .catch(() => window.showToast?.('Ошибка оформления заказа', 'error'));
-    } else {
-        window.showToast?.('Ошибка: нет подключения к Firebase', 'error');
-    }
-}
-
+// ===== ВСПОМОГАТЕЛЬНЫЕ =====
 function escapeHtml(text) {
     if (!text) return '';
     const d = document.createElement('div');
@@ -267,10 +400,20 @@ function escapeHtml(text) {
     return d.innerHTML;
 }
 
+// ===== ТОГГЛ КОРЗИНЫ =====
+window.toggleCart = function() {
+    const overlay = document.getElementById('cartOverlay');
+    if (overlay) {
+        overlay.classList.toggle('open');
+        if (overlay.classList.contains('open')) updateCartUI();
+    }
+};
+
+// ===== ИНИЦИАЛИЗАЦИЯ =====
 document.addEventListener('DOMContentLoaded', function() {
-    loadCart();
+    loadCarts();
 });
 
-window.loadCart = loadCart;
-window.saveCart = saveCart;
+window.loadCarts = loadCarts;
+window.saveCarts = saveCarts;
 window.updateCartUI = updateCartUI;

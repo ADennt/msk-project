@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>МСК — Управление техникой</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="admin.css" />
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="rental-admin.js"></script>
+</head>
+<body>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ===== TOPBAR ===== -->
+    <div class="topbar">
+        <div class="container">
+            <span><i class="fas fa-truck"></i> Доставка по всей России</span>
+            <span>
+                <i class="fas fa-phone-alt"></i> 8 (800) 555-22-33
+                <span id="topbarAuth"></span>
+            </span>
+        </div>
+    </div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header" style="position: relative;">
+        <div class="container">
+            <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
+                <i class="fas fa-triangle-exclamation"></i> МСК<span>Знак</span>
+            </div>
+            <h2 style="color:#f7c948; font-size:20px; margin:0;">
+                <i class="fas fa-tractor"></i> Управление техникой
+            </h2>
+            <div style="display:flex;gap:15px;align-items:center; flex-wrap:wrap;">
+                <a href="admin.html" class="header-btn"><i class="fas fa-box"></i> Товары</a>
+                <a href="orders.html" class="header-btn">Заказы</a>
+                <a href="dashboard.html" class="header-btn"><i class="fas fa-chart-pie"></i> Дашборд</a>
+                <a href="index.html" class="header-btn">На сайт</a>
+                <button onclick="logoutUser().then(() => location.href='index.html')" class="header-btn-logout">Выйти</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== ОСНОВНОЙ КОНТЕНТ ===== -->
+    <div class="admin-wrapper">
+        <div class="admin-content">
+            <div class="admin-actions">
+                <button class="btn-admin-add" onclick="showAddEquipmentForm()"><i class="fas fa-plus"></i> Добавить технику</button>
+                <button class="btn-admin-refresh" onclick="loadEquipment()"><i class="fas fa-sync"></i> Обновить</button>
+            </div>
+
+            <!-- Форма добавления/редактирования -->
+            <div class="admin-form" id="equipmentForm" style="display:none;">
+                <h3 id="formTitle">➕ Добавить технику</h3>
+                <input type="hidden" id="editEquipmentId" />
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label>Название *</label>
+                        <input type="text" id="fEqName" placeholder="Экскаватор-погрузчик JCB" />
+                    </div>
+                    <div class="form-group">
+                        <label>Категория *</label>
+                        <input type="text" id="fEqCategory" placeholder="Экскаваторы" />
+                    </div>
+                    <div class="form-group">
+                        <label>Цена за сутки (₽) *</label>
+                        <input type="number" id="fEqDailyPrice" value="0" />
+                    </div>
+                    <div class="form-group">
+                        <label>Залог (₽)</label>
+                        <input type="number" id="fEqDeposit" value="0" />
+                    </div>
+                    <div class="form-group">
+                        <label>Статус</label>
+                        <select id="fEqStatus">
+                            <option value="available">Доступна</option>
+                            <option value="rented">В аренде</option>
+                            <option value="maintenance">На ремонте</option>
+                        </select>
+                    </div>
+
+                    <!-- Блок загрузки основного изображения -->
+                    <div class="form-group full-width image-upload-group">
+                        <label>Изображение</label>
+                        <div class="image-upload-wrapper">
+                            <div class="image-preview" id="equipmentImagePreview">
+                                <i class="fas fa-image"></i>
+                                <span>Выберите изображение</span>
+                            </div>
+                            <input type="file" id="fEqImageFile" accept="image/*" />
+                            <button type="button" class="btn-upload-image" onclick="document.getElementById('fEqImageFile').click()">Выбрать</button>
+                            <button type="button" class="btn-remove-image" id="removeEqImageBtn" style="display:none;" onclick="removeEquipmentImage()">Удалить</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Описание</label>
+                        <textarea id="fEqDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Характеристики (JSON, например {"power":"95 л.с."})</label>
+                        <input type="text" id="fEqSpecs" placeholder='{"power":"95 л.с."}' />
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-save" onclick="saveEquipment()"><i class="fas fa-save"></i> Сохранить</button>
+                    <button class="btn-cancel" onclick="hideEquipmentForm()"><i class="fas fa-times"></i> Отмена</button>
+                </div>
+            </div>
+
+            <!-- Таблица с техникой -->
+            <div class="admin-table-wrap">
+                <table class="admin-table" id="equipmentAdminTable">
+                    <thead>
+                        <tr><th>Название</th><th>Категория</th><th>Цена</th><th>Статус</th><th>Действия</th></tr>
+                    </thead>
+                    <tbody id="equipmentAdminBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ФУТЕР ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div>© 2026 МСК. Все права защищены.</div>
+            <div>
+                <i class="fas fa-map-pin"></i>
+                <a href="https://www.google.com/maps/place/..." target="_blank">Лихачевский пр-д, 31, Долгопрудный</a>
+            </div>
+            <div><a href="#"><i class="fas fa-envelope"></i> info@msk.ru</a></div>
+        </div>
+    </footer>
+
+    <!-- Проверка прав администратора -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            window.onAuthStateChanged((user) => {
+                if (!user || !window.isAdmin || !window.isAdmin(user)) {
+                    window.location.href = 'login.html';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

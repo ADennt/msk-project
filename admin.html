@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="admin.css" />
     
-    <!-- Firebase (compat) -->
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -22,31 +22,35 @@
 </head>
 <body>
 
-    <!-- ✅ Верхняя планка (topbar) добавлена -->
-    <div class="topbar">
-        <div class="container">
-            <span><i class="fas fa-truck"></i> Доставка по всей России</span>
-            <span>
-                <i class="fas fa-phone-alt"></i> 8 (800) 555-22-33
-                <span id="topbarAuth"></span>
-            </span>
+    <!-- Шапка (фиксированная) -->
+    <div class="header-wrapper" id="headerWrapper">
+        <div class="topbar">
+            <div class="container">
+                <span><i class="fas fa-truck"></i> Доставка по всей России</span>
+                <span>
+                    <i class="fas fa-phone-alt"></i> 8 (800) 555-22-33
+                    <span id="topbarAuth"></span>
+                </span>
+            </div>
         </div>
+        <header class="header" style="position: relative;">
+            <div class="container">
+                <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
+                    <i class="fas fa-triangle-exclamation"></i> МСК<span>Знак</span>
+                </div>
+                <h2 style="color:#f7c948; font-size:20px; margin:0;">
+                    <i class="fas fa-user-shield"></i> Админ-панель
+                </h2>
+                <div style="display:flex;gap:15px;align-items:center; flex-wrap:wrap;">
+                    <a href="dashboard.html" class="header-btn"><i class="fas fa-chart-pie"></i> Дашборд</a>
+                    <a href="orders.html" class="header-btn">Заказы</a>
+                    <a href="admin-equipment.html" class="header-btn"><i class="fas fa-tractor"></i> Техника</a>   <!-- ✅ добавлено -->
+                    <a href="index.html" class="header-btn">На сайт</a>
+                    <button onclick="logoutUser().then(() => location.href='index.html')" class="header-btn-logout">Выйти</button>
+                </div>
+            </div>
+        </header>
     </div>
-
-    <header class="header" style="position: relative;">
-        <div class="container">
-            <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
-                <i class="fas fa-triangle-exclamation"></i> МСК<span>Знак</span>
-            </div>
-            <h2 style="color:#f7c948;"><i class="fas fa-user-shield"></i> Админ-панель</h2>
-            <div style="display:flex;gap:15px;align-items:center;">
-                <a href="dashboard.html" class="header-btn"><i class="fas fa-chart-pie"></i> Дашборд</a>
-                <a href="orders.html" class="header-btn">Заказы</a>
-                <a href="index.html" class="header-btn">На сайт</a>
-                <button onclick="logoutUser().then(() => location.href='index.html')" class="header-btn-logout">Выйти</button>
-            </div>
-        </div>
-    </header>
 
     <script>
         // Проверка прав администратора
@@ -167,7 +171,5 @@
 
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- Скрипты уже подключены в <head>, но дублируем для уверенности (не обязательно) -->
-    <!-- Аутентификация работает через auth.js -->
 </body>
 </html>

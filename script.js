@@ -15,7 +15,6 @@ let filteredProducts = [];
 window.showToast = function(message, type = 'success', duration = 3000) {
     const container = document.getElementById('toastContainer');
     if (!container) {
-        // Создаём контейнер, если его нет
         const newContainer = document.createElement('div');
         newContainer.className = 'toast-container';
         newContainer.id = 'toastContainer';
@@ -32,7 +31,6 @@ window.showToast = function(message, type = 'success', duration = 3000) {
         <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
     `;
     toastContainer.appendChild(toast);
-    // Автоматическое закрытие
     setTimeout(() => {
         if (toast.parentElement) {
             toast.style.opacity = '0';
@@ -42,7 +40,6 @@ window.showToast = function(message, type = 'success', duration = 3000) {
             }, 300);
         }
     }, duration);
-    // Закрытие по клику
     toast.addEventListener('click', function(e) {
         if (e.target === this) this.remove();
     });
@@ -59,12 +56,9 @@ function initCatalog() {
         loadFromDataJson();
         return;
     }
-    // Показываем кэш из localStorage, если есть
     const cached = localStorage.getItem('msk_products');
     if (cached) {
         products = JSON.parse(cached);
-        // Если на главной — ничего не делаем, т.к. popularGrid удалён
-        // Но для каталога — позже вызовется applyFiltersAndPagination
     }
 
     window.database.ref('products').on('value', snapshot => {
@@ -124,7 +118,7 @@ function afterProductsLoaded() {
     if (grid) {
         applyFiltersAndPagination();
     }
-    renderPopularProducts(); // если есть на главной
+    renderPopularProducts();
 }
 
 // ========================================
@@ -236,20 +230,7 @@ function goToProduct(id) {
 }
 
 // ========================================
-// 4. ФИЛЬТРЫ КАТЕГОРИЙ
-// ========================================
-
-document.querySelectorAll('.nav-categories button').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.nav-categories button').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        currentFilter = this.dataset.filter;
-        applyFiltersAndPagination();
-    });
-});
-
-// ========================================
-// 5. ПОИСК
+// 4. ПОИСК
 // ========================================
 
 function searchProducts() {
@@ -283,7 +264,6 @@ function searchProducts() {
     if (info) info.textContent = `Найдено: ${filteredProducts.length} товаров`;
 }
 
-// Поиск из hero-блока (если есть)
 function performHeroSearch() {
     const input = document.getElementById('heroSearchInput');
     if (!input) return;
@@ -295,33 +275,8 @@ function performHeroSearch() {
     window.location.href = `catalog.html?search=${encodeURIComponent(query)}`;
 }
 
-// Обработка Enter в поле поиска hero
-document.addEventListener('DOMContentLoaded', function() {
-    const heroInput = document.getElementById('heroSearchInput');
-    if (heroInput) {
-        heroInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performHeroSearch();
-            }
-        });
-    }
-});
-
-// Автозаполнение поиска из URL (для страницы каталога)
-document.addEventListener('DOMContentLoaded', function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const searchQuery = urlParams.get('search');
-    if (searchQuery) {
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            searchInput.value = searchQuery;
-            searchProducts();
-        }
-    }
-});
-
 // ========================================
-// 6. ПОПУЛЯРНЫЕ ТОВАРЫ (для главной)
+// 5. ПОПУЛЯРНЫЕ ТОВАРЫ (для главной)
 // ========================================
 
 function renderPopularProducts() {
@@ -350,10 +305,9 @@ function renderPopularProducts() {
 }
 
 // ========================================
-// 7. АНИМАЦИИ
+// 6. АНИМАЦИИ
 // ========================================
 
-// Анимация при скролле (Intersection Observer)
 document.addEventListener('DOMContentLoaded', function() {
     const animatedElements = document.querySelectorAll('.animate-on-scroll, .advantage-item, .popular-products .product-card');
     if (animatedElements.length) {
@@ -372,7 +326,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Хедер при скролле
 window.addEventListener('scroll', function() {
     const header = document.querySelector('.header');
     if (header) {
@@ -384,11 +337,9 @@ window.addEventListener('scroll', function() {
     }
 });
 
-// Вращающийся текст в hero (если используется)
 document.addEventListener('DOMContentLoaded', function() {
     const rotatingElement = document.getElementById('rotatingWord');
     if (!rotatingElement) return;
-    
     const phrases = [
         'Качество по ГОСТ',
         'Доставка по России',
@@ -396,7 +347,6 @@ document.addEventListener('DOMContentLoaded', function() {
         'Собственное производство',
         'Сертифицированная продукция'
     ];
-    
     let index = 0;
     setInterval(() => {
         index = (index + 1) % phrases.length;
@@ -406,6 +356,68 @@ document.addEventListener('DOMContentLoaded', function() {
             rotatingElement.style.animation = 'fadeInOut 1.5s ease';
         }, 50);
     }, 3000);
+});
+
+// ========================================
+// 7. ИНИЦИАЛИЗАЦИЯ И ОБРАБОТЧИКИ
+// ========================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Загрузка каталога
+    initCatalog();
+
+    // Обработка поиска из URL (если есть параметр search)
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get('search');
+    if (searchQuery) {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.value = searchQuery;
+            searchProducts();
+        }
+    }
+
+    // Обработка Enter в поле поиска hero
+    const heroInput = document.getElementById('heroSearchInput');
+    if (heroInput) {
+        heroInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performHeroSearch();
+            }
+        });
+    }
+
+    // Форма быстрого заказа в hero
+    const form = document.getElementById('heroQuickForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = this.querySelector('input[type="tel"]');
+            const phone = input.value.trim();
+            if (!phone || phone.length < 5) {
+                window.showToast?.('❌ Введите корректный номер телефона', 'error');
+                input.style.border = '1px solid #ff6b6b';
+                setTimeout(() => input.style.border = 'none', 1500);
+                return;
+            }
+            console.log('📞 Заявка на звонок:', phone);
+            window.showToast?.('✅ Спасибо! Мы перезвоним в ближайшее время.', 'success');
+            this.reset();
+        });
+    }
+
+    // Привязка фильтров категорий (гарантированно после загрузки DOM)
+    const categoryButtons = document.querySelectorAll('.nav-categories button');
+    if (categoryButtons.length) {
+        categoryButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.nav-categories button').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+                applyFiltersAndPagination();
+            });
+        });
+    }
 });
 
 // ========================================
@@ -420,36 +432,8 @@ function escapeHtml(text) {
 }
 
 // ========================================
-// 9. ИНИЦИАЛИЗАЦИЯ
+// (УСТАРЕЛО) Функция для фиксированной шапки – удалена после отката
 // ========================================
 
-document.addEventListener('DOMContentLoaded', function() {
-    initCatalog();
-    // Корзина инициализируется в cart.js
-});
-
-// ===== БЫСТРЫЙ ЗАКАЗ В HERO =====
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('heroQuickForm');
-    if (!form) return;
-
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const input = this.querySelector('input[type="tel"]');
-        const phone = input.value.trim();
-
-        if (!phone || phone.length < 5) {
-            window.showToast?.('❌ Введите корректный номер телефона', 'error');
-            input.style.border = '1px solid #ff6b6b';
-            setTimeout(() => input.style.border = 'none', 1500);
-            return;
-        }
-
-        // Здесь можно отправить данные на сервер или в Firebase
-        console.log('📞 Заявка на звонок:', phone);
-
-        // Показываем успешное уведомление
-        window.showToast?.('✅ Спасибо! Мы перезвоним в ближайшее время.', 'success');
-        this.reset();
-    });
-});
+// Функция setHeaderHeight удалена, так как headerWrapper больше не используется.
+// Все ссылки на неё удалены.

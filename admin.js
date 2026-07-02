@@ -4,10 +4,10 @@
 
 let adminProducts = [];
 let editingId = null;
-let selectedImageFile = null; // храним файл для загрузки в Storage
+let selectedImageFile = null; // файл для загрузки в Storage
 const FILM_TYPES = ['Тип А', 'Тип Б', 'Тип В'];
 
-// Пагинация
+// Пагинация и сортировка
 let adminCurrentPage = 1;
 const adminItemsPerPage = 10;
 let adminSortedProducts = [];
@@ -191,6 +191,10 @@ function editProduct(id) {
     document.getElementById('formTitle').textContent = '✏️ Редактировать товар';
     document.getElementById('editId').value = id;
 
+    // Сброс выбранного файла (чтобы не мешал предыдущий)
+    selectedImageFile = null;
+    document.getElementById('fImage').value = '';
+
     document.getElementById('fName').value = product.name;
     document.getElementById('fType').value = product.type;
     document.getElementById('fTag').value = product.tag || '';
@@ -198,11 +202,9 @@ function editProduct(id) {
     document.getElementById('fDescription').value = product.description || '';
     document.getElementById('fMaterial').value = product.characteristics?.material || 'Оцинкованная сталь';
 
-    // Если есть изображение – показываем превью, но не файл
     if (product.image && product.image !== 'images/placeholder.png') {
         updateImagePreview(product.image);
         document.getElementById('removeImageBtn').style.display = 'inline-flex';
-        selectedImageFile = null; // не перезаписываем существующий файл
     } else {
         removeImage();
     }
@@ -323,8 +325,9 @@ function removeImage() {
     document.getElementById('removeImageBtn').style.display = 'none';
 }
 
-// ===== СОХРАНЕНИЕ (с загрузкой в Storage) =====
+// ===== СОХРАНЕНИЕ (с отладкой) =====
 function saveProduct() {
+    console.log('🔧 saveProduct вызвана');
     const editId = document.getElementById('editId').value;
     const name = document.getElementById('fName').value.trim();
     const type = document.getElementById('fType').value;
@@ -356,7 +359,7 @@ function saveProduct() {
         additional: 'Дополнительной информации'
     };
 
-    // Функция сохранения с готовым URL изображения
+    // Функция сохранения с готовым URL
     function saveProductWithImage(imageUrl) {
         const productData = {
             id,
@@ -370,6 +373,8 @@ function saveProduct() {
             characteristics: { material },
             variants
         };
+
+        console.log('📦 Сохраняем товар:', productData);
 
         if (!window.database) {
             window.showToast?.('Ошибка подключения к Firebase', 'error');
@@ -387,14 +392,20 @@ function saveProduct() {
                             window.showToast?.('✅ Товар обновлён', 'success');
                             hideForm();
                         })
-                        .catch(() => window.showToast?.('Ошибка обновления', 'error'));
+                        .catch(err => {
+                            console.error('Ошибка обновления:', err);
+                            window.showToast?.('Ошибка обновления', 'error');
+                        });
                 } else {
                     ref.push(productData)
                         .then(() => {
                             window.showToast?.('✅ Товар добавлен', 'success');
                             hideForm();
                         })
-                        .catch(() => window.showToast?.('Ошибка добавления', 'error'));
+                        .catch(err => {
+                            console.error('Ошибка добавления:', err);
+                            window.showToast?.('Ошибка добавления', 'error');
+                        });
                 }
             });
         } else {
@@ -403,14 +414,24 @@ function saveProduct() {
                     window.showToast?.('✅ Товар добавлен', 'success');
                     hideForm();
                 })
-                .catch(() => window.showToast?.('Ошибка добавления', 'error'));
+                .catch(err => {
+                    console.error('Ошибка добавления:', err);
+                    window.showToast?.('Ошибка добавления', 'error');
+                });
         }
     }
 
-    // Если есть новый файл – загружаем в Storage
+    // Если выбран новый файл – загружаем в Storage
     if (selectedImageFile) {
+        console.log('📤 Загружаем изображение в Storage...');
+        if (typeof window.uploadProductImage !== 'function') {
+            console.error('❌ uploadProductImage не определена!');
+            window.showToast?.('Ошибка: функция загрузки изображения не найдена', 'error');
+            return;
+        }
         window.uploadProductImage(selectedImageFile, id)
             .then(url => {
+                console.log('✅ Изображение загружено:', url);
                 saveProductWithImage(url);
             })
             .catch(err => {
@@ -425,6 +446,7 @@ function saveProduct() {
             const existing = adminProducts.find(p => p.id === parseInt(editId));
             if (existing && existing.image) existingImage = existing.image;
         }
+        console.log('🖼️ Без нового изображения, используем:', existingImage);
         saveProductWithImage(existingImage);
     }
 }
@@ -517,7 +539,7 @@ function logout() {
 // ===== ИНИЦИАЛИЗАЦИЯ =====
 document.addEventListener('DOMContentLoaded', loadProducts);
 
-// Экспортируем функции глобально для onclick
+// Экспортируем функции глобально
 window.showAddForm = showAddForm;
 window.editProduct = editProduct;
 window.hideForm = hideForm;

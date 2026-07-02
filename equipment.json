@@ -1,0 +1,133 @@
+{
+  "equipment": {
+    "asphalt-paver-001": {
+      "name": "Асфальтоукладчик Vogele SUPER 1600",
+      "category": "Асфальтоукладчики",
+      "description": "Колёсный асфальтоукладчик для укладки асфальтобетонных смесей при строительстве дорог, площадей и тротуаров. Ширина укладки до 6 м.",
+      "image": "D:/msk-project/msk-project/images/technique/VogeleSUPER1600.jpg",
+      "dailyPrice": 28000,
+      "deposit": 40000,
+      "status": "available",
+      "createdAt": "2026-07-01T10:00:00Z",
+      "specs": {
+        "power": "120 кВт",
+        "paving_width": "до 6 м",
+        "layer_thickness": "до 300 мм",
+        "weight": "18 т"
+      }
+    },
+    "paver-caterpillar-002": {
+      "name": "Асфальтоукладчик Caterpillar AP655F",
+      "category": "Асфальтоукладчики",
+      "description": "Гусеничный асфальтоукладчик для высокопроизводительной укладки на крупных объектах. Ширина укладки до 7,5 м.",
+      "image": "https://placehold.co/600x400/eee/aaa?text=CAT+AP655F",
+      "dailyPrice": 32000,
+      "deposit": 45000,
+      "status": "available",
+      "createdAt": "2026-07-01T10:00:00Z",
+      "specs": {
+        "power": "160 кВт",
+        "paving_width": "до 7,5 м",
+        "layer_thickness": "до 350 мм",
+        "weight": "22 т"
+      }
+    },
+    "roller-dynapac-003": {
+      "name": "Дорожный каток Dynapac CC2200",
+      "category": "Катки",
+      "description": "Двухвальцовый вибрационный каток для уплотнения асфальтобетонных смесей и грунтов. Идеален для финишного уплотнения.",
+      "image": "https://placehold.co/600x400/eee/aaa?text=Dynapac+CC2200",
+      "dailyPrice": 15000,
+      "deposit": 20000,
+      "status": "available",
+      "createdAt": "2026-07-01T10:00:00Z",
+      "specs": {
+        "power": "85 кВт",
+        "working_width": "2,1 м",
+        "vibration_frequency": "48 Гц",
+        "weight": "11 т"
+      }
+    },
+    "roller-hamm-004": {
+      "name": "Каток Hamm HD+ 90",
+      "category": "Катки",
+      "description": "Тандемный вибрационный каток для уплотнения асфальта и основания дорог. Обеспечивает высокую плотность покрытия.",
+      "image": "https://placehold.co/600x400/eee/aaa?text=Hamm+HD+90",
+      "dailyPrice": 17000,
+      "deposit": 22000,
+      "status": "available",
+      "createdAt": "2026-07-01T10:00:00Z",
+      "specs": {
+        "power": "95 кВт",
+        "working_width": "2,2 м",
+        "vibration_frequency": "50 Гц",
+        "weight": "12 т"
+      }
+    },
+    "grader-cat-005": {
+      "name": "Автогрейдер Caterpillar 140M",
+      "category": "Грейдеры",
+      "description": "Высокопроизводительный автогрейдер для планировки и профилирования дорожного полотна, откосов и обочин.",
+      "image": "https://placehold.co/600x400/eee/aaa?text=CAT+140M",
+      "dailyPrice": 22000,
+      "deposit": 30000,
+      "status": "available",
+      "createdAt": "2026-07-01T10:00:00Z",
+      "specs": {
+        "power": "180 кВт",
+        "blade_length": "4,2 м",
+        "cutting_depth": "до 500 мм",
+        "weight": "18 т"
+      }
+    },
+    "milling-machine-006": {
+      "name": "Дорожная фреза Wirtgen W 200",
+      "category": "Фрезы",
+      "description": "Холодная фреза для снятия асфальтового покрытия при ремонте дорог. Ширина фрезерования до 2 м.",
+      "image": "https://placehold.co/600x400/eee/aaa?text=Wirtgen+W+200",
+      "dailyPrice": 35000,
+      "deposit": 50000,
+      "status": "available",
+      "createdAt": "2026-07-01T10:00:00Z",
+      "specs": {
+        "power": "300 кВт",
+        "milling_width": "2 м",
+        "milling_depth": "до 300 мм",
+        "weight": "30 т"
+      }
+    },
+    "dump-truck-007": {
+      "name": "Самосвал Volvo FMX 8x4",
+      "category": "Самосвалы",
+      "description": "Трёхосный самосвал для перевозки сыпучих материалов (щебень, песок, асфальтовая крошка) на дорожных объектах.",
+      "image": "https://placehold.co/600x400/eee/aaa?text=Volvo+FMX",
+      "dailyPrice": 12000,
+      "deposit": 15000,
+      "status": "available",
+      "createdAt": "2026-07-01T10:00:00Z",
+      "specs": {
+        "load_capacity": "25 т",
+        "engine_power": "350 кВт",
+        "fuel_tank": "400 л",
+        "body_volume": "16 м³"
+      }
+    },
+    "excavator-008": {
+      "name": "Гусеничный экскаватор Komatsu PC300",
+      "category": "Экскаваторы",
+      "description": "Универсальный гусеничный экскаватор для земляных работ, разработки грунта и погрузки материалов на дорожных объектах.",
+      "image": "https://placehold.co/600x400/eee/aaa?text=Komatsu+PC300",
+      "dailyPrice": 20000,
+      "deposit": 28000,
+      "status": "available",
+      "createdAt": "2026-07-01T10:00:00Z",
+      "specs": {
+        "power": "180 кВт",
+        "bucket_capacity": "1,6 м³",
+        "digging_depth": "7,5 м",
+        "weight": "30 т"
+      }
+    }
+  },
+  "equipment_bookings": {}
+}

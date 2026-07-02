@@ -1,6 +1,6 @@
 /* ========================================
    МСК — ОСНОВНЫЕ СТИЛИ (style.css)
-   Версия: финальная, с новыми блоками главной
+   Версия: до изменений 01.07.2026
    ======================================== */
 
 :root {
@@ -84,7 +84,7 @@ body {
     color: #fff;
 }
 
-/* ===== ШАПКА ===== */
+/* ===== ШАПКА (обычная, не фиксированная) ===== */
 .header {
     background: var(--card-bg);
     padding: 12px 0;
@@ -241,7 +241,7 @@ body {
     text-align: center;
 }
 
-/* ===== КАТЕГОРИИ (навигационные) ===== */
+/* ===== КАТЕГОРИИ (панель фильтрации) ===== */
 .nav-categories {
     background: var(--card-bg);
     padding: 10px 0;
@@ -327,7 +327,10 @@ body {
     .catalog-grid { grid-template-columns: 1fr; gap: 15px; }
 }
 
-/* ===== КАРТОЧКА ТОВАРА ===== */
+/* ========================================
+   КАРТОЧКА ТОВАРА
+   ======================================== */
+
 .product-card {
     background: var(--card-bg);
     border-radius: var(--radius);
@@ -338,33 +341,23 @@ body {
     flex-direction: column;
     position: relative;
     cursor: pointer;
-    height: 420px;
-    max-height: 420px;
-    overflow: hidden;
+    min-height: 380px;
+    height: auto;
+    overflow: visible;
     opacity: 0;
     animation: fadeInUp 0.5s ease forwards;
 }
-.product-card:nth-child(1) { animation-delay: 0.05s; }
-.product-card:nth-child(2) { animation-delay: 0.10s; }
-.product-card:nth-child(3) { animation-delay: 0.15s; }
-.product-card:nth-child(4) { animation-delay: 0.20s; }
-.product-card:nth-child(5) { animation-delay: 0.25s; }
-.product-card:nth-child(6) { animation-delay: 0.30s; }
-.product-card:nth-child(7) { animation-delay: 0.35s; }
-.product-card:nth-child(8) { animation-delay: 0.40s; }
-.product-card:nth-child(9) { animation-delay: 0.45s; }
-.product-card:nth-child(10) { animation-delay: 0.50s; }
 .product-card:hover {
-    transform: translateY(-8px) scale(1.01);
+    transform: translateY(-6px);
     box-shadow: 0 12px 28px rgba(247, 201, 72, 0.2);
 }
 .product-card .image-wrapper {
     width: 100%;
-    height: 150px;
+    height: 160px;
     background: var(--bg);
     border-radius: 12px;
     padding: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -378,40 +371,24 @@ body {
     transition: transform 0.4s ease;
 }
 .product-card:hover .image-wrapper img {
-    transform: scale(1.08);
-}
-.product-card .tag {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: var(--secondary);
-    color: var(--primary);
-    font-size: 10px;
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 30px;
-    text-transform: uppercase;
-    z-index: 2;
+    transform: scale(1.05);
 }
 .product-card h3 {
     font-size: 15px;
     font-weight: 800;
     line-height: 1.3;
     color: var(--text);
-    margin-bottom: 6px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-height: 40px;
+    margin-bottom: 8px;
+    overflow: visible;
+    text-overflow: unset;
+    min-height: auto;
     flex-shrink: 0;
 }
 .product-card .variant-selectors {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    margin: 8px 0 10px;
+    margin: 8px 0 12px;
     flex-shrink: 0;
 }
 .selector-group {
@@ -436,18 +413,13 @@ body {
     cursor: pointer;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
-.selector-group select:focus {
-    border-color: var(--primary);
-    outline: none;
-    box-shadow: 0 0 0 4px rgba(247, 201, 72, 0.15);
-}
 .product-card .price-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: auto;
     border-top: 1px solid var(--border);
-    padding-top: 10px;
+    padding-top: 12px;
     flex-shrink: 0;
 }
 .product-card .price {
@@ -476,6 +448,42 @@ body {
     color: #000;
     transform: scale(1.04);
     box-shadow: 0 4px 12px rgba(247, 201, 72, 0.3);
+}
+
+/* --- Адаптив карточек --- */
+@media (max-width: 600px) {
+    .product-card {
+        min-height: 340px;
+        padding: 12px 10px;
+    }
+    .product-card .image-wrapper {
+        height: 130px;
+    }
+    .product-card h3 {
+        font-size: 14px;
+    }
+    .selector-group select {
+        font-size: 12px;
+        padding: 3px 6px;
+        min-width: 80px;
+    }
+    .product-card .price {
+        font-size: 17px;
+    }
+    .btn-add {
+        font-size: 11px;
+        padding: 6px 12px;
+        min-height: 30px;
+    }
+}
+@media (max-width: 400px) {
+    .product-card {
+        min-height: 300px;
+        padding: 10px 8px;
+    }
+    .product-card .image-wrapper {
+        height: 110px;
+    }
 }
 
 /* ===== ПАГИНАЦИЯ ===== */
@@ -538,7 +546,7 @@ body {
 }
 .cart-panel {
     background: var(--card-bg);
-    width: 500px; /* увеличено */
+    width: 500px;
     max-width: 95%;
     height: 100%;
     padding: 30px 30px;
@@ -856,20 +864,25 @@ body {
     margin: 0;
 }
 
-/* ===== ФУТЕР ===== */
+/* ========================================
+   ФУТЕР
+   ======================================== */
+
 .footer {
     flex-shrink: 0;
     background: var(--secondary);
     color: #aaa;
-    padding: 30px 0 20px;
+    padding: 40px 0 40px !important;
     border-top: 6px solid var(--primary);
     margin-top: auto;
+    font-size: 15px;
 }
 .footer .container {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 12px;
+    align-items: center;
 }
 .footer a {
     color: var(--primary);
@@ -881,8 +894,19 @@ body {
     color: #fff;
     transform: translateX(4px);
 }
+@media (max-width: 768px) {
+    .footer {
+        padding: 30px 0 30px;
+        font-size: 14px;
+    }
+    .footer .container {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
+}
 
-/* ===== ГЛАВНАЯ СТРАНИЦА (старые блоки) ===== */
+/* ===== ГЛАВНАЯ СТРАНИЦА (HERO) ===== */
 .hero-new {
     position: relative;
     overflow: hidden;
@@ -1923,83 +1947,13 @@ body {
     100% { opacity: 0; transform: translateY(10px); }
 }
 
-/* ===== Адаптив ===== */
-@media (max-width: 992px) {
-    .header .container { gap: 10px; }
-    .logo { font-size: 20px; }
-    .nav-links { gap: 12px; }
-    .nav-links a { font-size: 14px; padding: 4px 8px; }
-    .search-form { flex: 0 1 180px; min-width: 100px; }
-    .search-form input { padding: 4px 10px; font-size: 13px; min-height: 30px; }
-    .search-form button { padding: 0 10px; font-size: 13px; min-height: 30px; }
-    .search-hidden { flex: 0 1 180px !important; min-width: 100px !important; }
-    .cart-icon { font-size: 16px; padding: 4px 10px; min-height: 30px; }
-    .cart-panel { width: 420px; }
-    .about-content { flex-direction: column; }
-    .about-text, .about-image { flex: 1 1 auto; width: 100%; }
-    .about-image iframe { min-height: 300px; }
-    .advantages-icons, .steps-grid, .stats-grid { grid-template-columns: 1fr 1fr; }
-    .blog-grid { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 768px) {
-    .header .container { gap: 8px; flex-wrap: wrap; }
-    .logo { font-size: 18px; }
-    .logo span { padding: 0 4px; }
-    .nav-links { gap: 8px; }
-    .nav-links a { font-size: 13px; padding: 4px 6px; }
-    .search-form { flex: 1 1 100%; min-width: auto; order: 10; margin-top: 8px; }
-    .search-hidden { flex: 1 1 100% !important; min-width: auto !important; order: 10; margin-top: 8px; }
-    .cart-icon { font-size: 14px; padding: 4px 10px; min-height: 30px; }
-    .cart-icon .badge { font-size: 10px; padding: 0 6px; }
-    .toast-container { bottom: 100px; right: 10px; left: 10px; max-width: 100%; }
-    .hero-new { padding: 60px 0 40px; min-height: auto; }
-    .hero-new-content h1 { font-size: 32px; }
-    .hero-rotating-text { font-size: 20px; padding: 6px 20px; min-height: 40px; }
-    .hero-new-subtitle { font-size: 15px; gap: 10px; flex-direction: column; align-items: center; }
-    .hero-new-desc { font-size: 15px; padding: 10px 16px; }
-    .btn-hero-new, .btn-hero-new-outline { padding: 12px 30px; font-size: 16px; width: 100%; text-align: center; }
-    .hero-new-buttons { flex-direction: column; align-items: stretch; }
-    .floating-icons i { display: none; }
-    .hero-new-wave { height: 40px; }
-    .stats-grid { grid-template-columns: 1fr 1fr; }
-    .advantages-icons { grid-template-columns: 1fr 1fr; }
-    .steps-grid { grid-template-columns: 1fr 1fr; }
-    .blog-grid { grid-template-columns: 1fr; }
-    .cta-form { flex-direction: column; }
-    .profile-page.profile-v3-ux { flex-direction: column; gap: 20px; }
-    .profile-card-v3-ux { flex: 1 1 auto; width: 100%; padding: 24px; }
-    .orders-history-v3-ux { padding: 20px; }
-    .profile-stats-v3-ux { gap: 20px; }
-    .order-total-v3-ux { margin-left: 0; width: 100%; text-align: left; }
-    .cart-panel { width: 95%; }
-    .product-detail .detail-header { flex-direction: column; align-items: center; }
-    .product-detail .detail-image { flex: 0 0 auto; width: 100%; max-width: 400px; }
-}
-@media (max-width: 480px) {
-    .header .container { gap: 5px; }
-    .logo { font-size: 16px; }
-    .cart-icon { font-size: 12px; padding: 3px 6px; min-height: 22px; }
-    .cart-icon .badge { font-size: 8px; padding: 0 4px; }
-    .search-form input { font-size: 12px; padding: 3px 8px; min-height: 26px; }
-    .search-form button { font-size: 12px; padding: 0 8px; min-height: 26px; }
-    .profile-card-v3-ux { padding: 16px; }
-    .profile-avatar-v3-ux { width: 70px; height: 70px; font-size: 30px; }
-    .profile-stats-v3-ux { gap: 12px; flex-wrap: wrap; }
-    .orders-history-v3-ux { padding: 16px; }
-    .advantages-icons { grid-template-columns: 1fr; }
-    .steps-grid { grid-template-columns: 1fr; }
-    .stats-grid { grid-template-columns: 1fr 1fr; }
-    .cta-section { padding: 30px 20px; }
-    .cta-section h2 { font-size: 24px; }
-}
-
 /* ========================================
    HERO-БЛОК – «СТЕКЛО И ГЕОМЕТРИЯ»
    ======================================== */
 
 .hero-glass {
     position: relative;
-    min-height: 1200px;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2007,8 +1961,6 @@ body {
     padding: 60px 0;
     background: linear-gradient(135deg, #0b0b0b 0%, #1a1a2e 100%);
 }
-
-/* --- Анимированные фигуры --- */
 .hero-glass-shapes {
     position: absolute;
     inset: 0;
@@ -2059,8 +2011,6 @@ body {
     66% { transform: translate(-20px, 40px) scale(0.9) rotate(240deg); }
     100% { transform: translate(0, 0) scale(1) rotate(360deg); }
 }
-
-/* --- Контейнер --- */
 .hero-glass-container {
     position: relative;
     z-index: 1;
@@ -2073,8 +2023,6 @@ body {
     padding: 0 20px;
     flex-wrap: wrap;
 }
-
-/* --- Текстовая часть --- */
 .hero-glass-content {
     flex: 1 1 500px;
     color: #fff;
@@ -2112,8 +2060,6 @@ body {
     max-width: 500px;
     margin-bottom: 30px;
 }
-
-/* --- Кнопки --- */
 .hero-glass-buttons {
     display: flex;
     gap: 20px;
@@ -2155,8 +2101,6 @@ body {
     transform: translateY(-3px);
     box-shadow: 0 8px 30px rgba(255,255,255,0.1);
 }
-
-/* --- Карточка быстрого заказа (эффект стекла) --- */
 .hero-glass-card {
     flex: 0 0 360px;
     background: rgba(255,255,255,0.06);
@@ -2225,8 +2169,6 @@ body {
     color: rgba(255,255,255,0.4);
     text-align: center;
 }
-
-/* --- Адаптив --- */
 @media (max-width: 992px) {
     .hero-glass-container {
         flex-direction: column;
@@ -2300,7 +2242,6 @@ body {
 .btn-admin-add:hover {
     background: #e0b03a;
 }
-
 .btn-admin-delete {
     background: #d32f2f;
     color: #fff;
@@ -2317,4 +2258,310 @@ body {
 }
 .btn-admin-delete:hover {
     background: #b71c1c;
+}
+
+/* ===== АДАПТИВ ===== */
+@media (max-width: 992px) {
+    .header .container { gap: 10px; }
+    .logo { font-size: 20px; }
+    .nav-links { gap: 12px; }
+    .nav-links a { font-size: 14px; padding: 4px 8px; }
+    .search-form { flex: 0 1 180px; min-width: 100px; }
+    .search-form input { padding: 4px 10px; font-size: 13px; min-height: 30px; }
+    .search-form button { padding: 0 10px; font-size: 13px; min-height: 30px; }
+    .search-hidden { flex: 0 1 180px !important; min-width: 100px !important; }
+    .cart-icon { font-size: 16px; padding: 4px 10px; min-height: 30px; }
+    .cart-panel { width: 420px; }
+    .about-content { flex-direction: column; }
+    .about-text, .about-image { flex: 1 1 auto; width: 100%; }
+    .about-image iframe { min-height: 300px; }
+    .advantages-icons, .steps-grid, .stats-grid { grid-template-columns: 1fr 1fr; }
+    .blog-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+    .header .container { gap: 8px; flex-wrap: wrap; }
+    .logo { font-size: 18px; }
+    .logo span { padding: 0 4px; }
+    .nav-links { gap: 8px; }
+    .nav-links a { font-size: 13px; padding: 4px 6px; }
+    .search-form { flex: 1 1 100%; min-width: auto; order: 10; margin-top: 8px; }
+    .search-hidden { flex: 1 1 100% !important; min-width: auto !important; order: 10; margin-top: 8px; }
+    .cart-icon { font-size: 14px; padding: 4px 10px; min-height: 30px; }
+    .cart-icon .badge { font-size: 10px; padding: 0 6px; }
+    .toast-container { bottom: 100px; right: 10px; left: 10px; max-width: 100%; }
+    .hero-new { padding: 60px 0 40px; min-height: auto; }
+    .hero-new-content h1 { font-size: 32px; }
+    .hero-rotating-text { font-size: 20px; padding: 6px 20px; min-height: 40px; }
+    .hero-new-subtitle { font-size: 15px; gap: 10px; flex-direction: column; align-items: center; }
+    .hero-new-desc { font-size: 15px; padding: 10px 16px; }
+    .btn-hero-new, .btn-hero-new-outline { padding: 12px 30px; font-size: 16px; width: 100%; text-align: center; }
+    .hero-new-buttons { flex-direction: column; align-items: stretch; }
+    .floating-icons i { display: none; }
+    .hero-new-wave { height: 40px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .advantages-icons { grid-template-columns: 1fr 1fr; }
+    .steps-grid { grid-template-columns: 1fr 1fr; }
+    .blog-grid { grid-template-columns: 1fr; }
+    .cta-form { flex-direction: column; }
+    .profile-page.profile-v3-ux { flex-direction: column; gap: 20px; }
+    .profile-card-v3-ux { flex: 1 1 auto; width: 100%; padding: 24px; }
+    .orders-history-v3-ux { padding: 20px; }
+    .profile-stats-v3-ux { gap: 20px; }
+    .order-total-v3-ux { margin-left: 0; width: 100%; text-align: left; }
+    .cart-panel { width: 95%; }
+    .product-detail .detail-header { flex-direction: column; align-items: center; }
+    .product-detail .detail-image { flex: 0 0 auto; width: 100%; max-width: 400px; }
+}
+@media (max-width: 480px) {
+    .header .container { gap: 5px; }
+    .logo { font-size: 16px; }
+    .cart-icon { font-size: 12px; padding: 3px 6px; min-height: 22px; }
+    .cart-icon .badge { font-size: 8px; padding: 0 4px; }
+    .search-form input { font-size: 12px; padding: 3px 8px; min-height: 26px; }
+    .search-form button { font-size: 12px; padding: 0 8px; min-height: 26px; }
+    .profile-card-v3-ux { padding: 16px; }
+    .profile-avatar-v3-ux { width: 70px; height: 70px; font-size: 30px; }
+    .profile-stats-v3-ux { gap: 12px; flex-wrap: wrap; }
+    .orders-history-v3-ux { padding: 16px; }
+    .advantages-icons { grid-template-columns: 1fr; }
+    .steps-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .cta-section { padding: 30px 20px; }
+    .cta-section h2 { font-size: 24px; }
+}
+
+/* ========================================
+   КАРТОЧКИ АРЕНДЫ (как в каталоге знаков)
+   ======================================== */
+
+/* --- Статус техники (вписан в общий стиль) --- */
+.rental-status {
+    display: inline-block;
+    padding: 2px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 4px 0 8px;
+}
+.rental-status.available {
+    background: #e8f5e9;
+    color: #1b5e20;
+}
+.rental-status.rented {
+    background: #fff3e0;
+    color: #e65100;
+}
+.rental-status.maintenance {
+    background: #ffebee;
+    color: #b71c1c;
+}
+
+/* --- Цена за сутки (такой же размер, как у товаров) --- */
+.rental-price {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--text);
+}
+.rental-price small {
+    font-weight: 400;
+    font-size: 13px;
+    color: #888;
+}
+
+/* --- Кнопка "Забронировать" – как "В корзину" --- */
+.btn-rent {
+    background: var(--secondary);
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    min-height: 36px;
+}
+.btn-rent:hover {
+    background: var(--primary);
+    color: #000;
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(247, 201, 72, 0.3);
+}
+
+/* --- Категория техники (как typeLabel у товаров) --- */
+.rental-category {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 2px;
+}
+
+/* ===== Стиль для select статуса техники ===== */
+.status-select {
+    padding: 6px 12px;
+    border: 2px solid #d0d0d0;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    background: #fff;
+    cursor: pointer;
+    transition: border 0.2s, box-shadow 0.2s;
+    outline: none;
+    min-width: 130px;
+}
+.status-select:hover {
+    border-color: #aaa;
+}
+.status-select:focus {
+    border-color: #f7c948;
+    box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.3);
+}
+
+/* ========================================
+   МОДАЛЬНОЕ ОКНО ДЛЯ ВЫБОРА ДАТ АРЕНДЫ
+   ======================================== */
+.rental-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1001;
+    justify-content: center;
+    align-items: center;
+}
+
+.rental-modal-content {
+    background: #fff;
+    padding: 30px 35px;
+    border-radius: 20px;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    position: relative;
+    animation: scaleIn 0.3s ease forwards;
+}
+
+.rental-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 18px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #888;
+    transition: 0.2s;
+}
+.rental-modal-close:hover {
+    color: #000;
+    transform: rotate(90deg);
+}
+
+.rental-modal-content h3 {
+    margin-top: 0;
+    font-size: 24px;
+    color: var(--text);
+}
+
+.rental-modal-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+}
+.rental-modal-fields label {
+    font-weight: 600;
+    color: #555;
+}
+.rental-modal-fields input {
+    padding: 10px 14px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.rental-modal-fields input:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.2);
+}
+
+.rental-modal-content .btn-add {
+    width: 100%;
+    padding: 14px;
+    font-size: 18px;
+    border-radius: 40px;
+    background: var(--primary);
+    color: #000;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.rental-modal-content .btn-add:hover {
+    background: var(--primary-dark);
+    transform: scale(1.02);
+}
+
+@media (max-width: 480px) {
+    .rental-modal-content {
+        padding: 20px;
+    }
+}
+
+/* Для единообразия с товарами */
+.product-card .variant-selectors .selector-group span {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+}
+
+/* ========================================
+   СТИЛЬ variant-selectors ДЛЯ АРЕНДЫ
+   ======================================== */
+
+.rental-variant-selectors {
+    background: #f8f9fb;
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin: 6px 0 12px;
+    border: 1px solid #eee;
+    transition: 0.2s;
+}
+
+.rental-variant-selectors .selector-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    padding: 2px 0;
+}
+
+.rental-variant-selectors .selector-group label {
+    font-weight: 600;
+    color: #888;
+    min-width: 85px;
+}
+
+.rental-variant-selectors .selector-group label i {
+    color: var(--primary);
+    margin-right: 4px;
+    width: 16px;
+}
+
+.rental-variant-selectors .rental-status {
+    margin: 0;
+    padding: 2px 12px;
+    font-size: 12px;
+}
+
+/* При наведении на карточку – лёгкое изменение */
+.product-card:hover .rental-variant-selectors {
+    border-color: var(--primary);
+    background: #fffcf0;
 }

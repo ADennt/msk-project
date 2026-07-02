@@ -18,7 +18,7 @@
 </head>
 <body>
 
-    <!-- Topbar -->
+<div class="header-wrapper" id="headerWrapper">
     <div class="topbar">
         <div class="container">
             <span><i class="fas fa-truck"></i> Доставка по всей России</span>
@@ -28,18 +28,17 @@
             </span>
         </div>
     </div>
-
-    <!-- Header -->
     <header class="header">
         <div class="container">
             <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
                 <i class="fas fa-triangle-exclamation"></i> МСК<span>Знак</span>
             </div>
             <nav class="nav-links">
-                <a href="index.html" class="active">Главная</a>
-                <a href="catalog.html">Каталог</a>
-                <a href="about.html">О нас</a>
-            </nav>
+    <a href="index.html">Главная</a>
+    <a href="catalog.html">Каталог Знаков</a>
+    <a href="catalog-rental.html">Аренда Техники</a>   <!-- ← добавить -->
+    <a href="about.html">О нас</a>
+</nav>
             <div class="search-form search-hidden">
                 <input type="text" placeholder="Поиск..." disabled />
                 <button disabled><i class="fas fa-search"></i></button>
@@ -50,6 +49,7 @@
             </button>
         </div>
     </header>
+</div>
 
     <!-- Hero-блок "Стекло и геометрия" -->
     <section class="hero-new hero-glass">

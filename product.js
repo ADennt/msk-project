@@ -67,7 +67,6 @@ function renderProduct(product) {
 
                 <div class="btn-group">
                     <button class="btn-add" onclick="addToCartFromDetail()">В корзину</button>
-                    <button class="btn-buy" onclick="buyNow()">Купить сейчас</button>
                 </div>
             </div>
         </div>

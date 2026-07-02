@@ -8,14 +8,47 @@
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="admin.css" />
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script> 
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script src="auth.js"></script>
+    <script src="orders.js"></script>
+    <script src="admin-notifications.js"></script>
 </head>
 <body>
+    <!-- ===== TOPBAR ===== -->
+    <div class="topbar">
+        <div class="container">
+            <span><i class="fas fa-truck"></i> Доставка по всей России</span>
+            <span>
+                <i class="fas fa-phone-alt"></i> 8 (800) 555-22-33
+                <span id="topbarAuth"></span>
+            </span>
+        </div>
+    </div>
+
+    <!-- ===== HEADER (шапка) ===== -->
+    <header class="header" style="position: relative;">
+        <div class="container">
+            <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
+                <i class="fas fa-triangle-exclamation"></i> МСК<span>Знак</span>
+            </div>
+            <h2 style="color:#f7c948; font-size:20px; margin:0;">
+                <i class="fas fa-list"></i> Заказы
+            </h2>
+            <div style="display:flex;gap:15px;align-items:center; flex-wrap:wrap;">
+                <a href="dashboard.html" class="header-btn"><i class="fas fa-chart-pie"></i> Дашборд</a>
+                <a href="admin.html" class="header-btn"><i class="fas fa-box"></i> Товары</a>
+                <a href="admin-equipment.html" class="header-btn"><i class="fas fa-tractor"></i> Техника</a>   <!-- ✅ добавлено -->
+                <a href="index.html" class="header-btn">На сайт</a>
+                <button onclick="logoutUser().then(() => location.href='index.html')" class="header-btn-logout">Выйти</button>
+            </div>
+        </div>
+    </header>
+
     <script>
+        // Проверка прав администратора
         document.addEventListener('DOMContentLoaded', function() {
             window.onAuthStateChanged((user) => {
                 if (!user || !window.isAdmin || !window.isAdmin(user)) {
@@ -25,22 +58,9 @@
         });
     </script>
 
-    <header class="header" style="position: relative;">
-        <div class="container">
-            <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
-                <i class="fas fa-triangle-exclamation"></i> МСК<span>Знак</span>
-            </div>
-            <h2 style="color:#f7c948;"><i class="fas fa-list"></i> Заказы</h2>
-            <div style="display:flex;gap:15px;align-items:center;">
-                <a href="dashboard.html" class="header-btn"><i class="fas fa-chart-pie"></i> Дашборд</a>
-                <a href="admin.html" class="header-btn">Админ</a>
-                <button onclick="logoutUser().then(() => location.href='index.html')" class="header-btn-logout">Выйти</button>
-            </div>
-        </div>
-    </header>
-
     <div class="admin-wrapper">
         <div class="admin-content">
+            <!-- Фильтры и кнопки -->
             <div class="admin-actions">
                 <button class="btn-admin-refresh" onclick="loadOrders()"><i class="fas fa-sync"></i> Обновить</button>
                 <button class="btn-admin-export" onclick="exportOrdersCSV()" style="background:#2e7d32;color:#fff;"><i class="fas fa-file-csv"></i> Экспорт CSV</button>
@@ -55,18 +75,6 @@
                         <option value="отменён">Отменён</option>
                     </select>
                 </div>
-                <div style="display:flex;align-items:center;gap:10px;background:#fff;padding:6px 16px;border-radius:40px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-                    <label style="font-weight:700;color:#555;font-size:14px;">Дата с:</label>
-                    <input type="date" id="dateFrom" onchange="applyFilters()" style="border:1px solid #ddd;border-radius:6px;padding:4px;font-size:13px;" />
-                    <label style="font-weight:700;color:#555;font-size:14px;">по:</label>
-                    <input type="date" id="dateTo" onchange="applyFilters()" style="border:1px solid #ddd;border-radius:6px;padding:4px;font-size:13px;" />
-                </div>
-                <div style="display:flex;align-items:center;gap:10px;background:#fff;padding:6px 16px;border-radius:40px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-                    <label style="font-weight:700;color:#555;font-size:14px;">Сумма от:</label>
-                    <input type="number" id="minAmount" placeholder="0" oninput="applyFilters()" style="width:80px;border:1px solid #ddd;border-radius:6px;padding:4px;font-size:13px;" />
-                    <label style="font-weight:700;color:#555;font-size:14px;">до:</label>
-                    <input type="number" id="maxAmount" placeholder="∞" oninput="applyFilters()" style="width:80px;border:1px solid #ddd;border-radius:6px;padding:4px;font-size:13px;" />
-                </div>
                 <input type="text" id="searchOrders" placeholder="🔍 Поиск..." oninput="applyFilters()" style="padding:6px 14px;border:2px solid #ddd;border-radius:30px;font-size:14px;outline:none;" />
             </div>
 
@@ -77,6 +85,7 @@
                 <span id="selectedCount" style="font-weight:600;color:#888;">Выбрано: 0</span>
             </div>
 
+            <!-- Таблица заказов -->
             <div class="admin-table-wrap">
                 <table class="admin-table" id="ordersTable">
                     <thead>
@@ -92,22 +101,29 @@
         </div>
     </div>
 
-    <!-- Модалка просмотра заказа -->
-    <!-- Модальное окно просмотра заказа -->
-<div class="order-modal" id="orderModal">
-    <div class="order-modal-content" id="orderModalContent">
-        <!-- Содержимое будет вставлено через JS -->
+    <!-- Модальное окно -->
+    <div class="order-modal" id="orderModal">
+        <div class="order-modal-content" id="orderModalContent"></div>
     </div>
-</div>
 
-    <footer class="footer">...</footer>
+    <footer class="footer">
+        <div class="container">
+            <div>© 2026 МСК. Все права защищены.</div>
+            <div>
+                <i class="fas fa-map-pin"></i>
+                <a href="https://www.google.com/maps/place/..." target="_blank">Лихачевский пр-д, 31, Долгопрудный</a>
+            </div>
+            <div><a href="#"><i class="fas fa-envelope"></i> info@msk.ru</a></div>
+        </div>
+    </footer>
 
     <div class="toast-container" id="toastContainer"></div>
 
-    <script src="firebase-config.js"></script>
-<script src="auth.js"></script>
-<script src="script.js"></script>
-<script src="orders.js"></script>
-<script src="admin-notifications.js"></script>
+    <script>
+        // Дополнительная инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrders();
+        });
+    </script>
 </body>
 </html>

@@ -20,6 +20,7 @@
     <!-- Система тост-уведомлений -->
     <div class="toast-container" id="toastContainer"></div>
 
+<div class="header-wrapper" id="headerWrapper">
     <div class="topbar">
         <div class="container">
             <span><i class="fas fa-truck"></i> Доставка по всей России</span>
@@ -29,20 +30,21 @@
             </span>
         </div>
     </div>
-
     <header class="header">
         <div class="container">
             <div class="logo" onclick="location.href='index.html'" style="cursor:pointer;">
                 <i class="fas fa-triangle-exclamation"></i> МСК<span>Знак</span>
             </div>
             <nav class="nav-links">
-                <a href="index.html">Главная</a>
-                <a href="catalog.html">Каталог</a>
-                <a href="about.html">О нас</a>
-            </nav>
-            <div class="search-form search-hidden">
-                <input type="text" placeholder="Поиск..." disabled />
-                <button disabled><i class="fas fa-search"></i></button>
+    <a href="index.html">Главная</a>
+    <a href="catalog.html">Каталог Знаков</a>
+    <a href="catalog-rental.html">Аренда Техники</a>   <!-- ← добавить -->
+    <a href="about.html">О нас</a>
+</nav>
+            <!-- поиск и корзина такие же -->
+            <div class="search-form">
+                <input type="text" placeholder="Поиск..." id="searchInput" onkeypress="if(event.key==='Enter') searchProducts()" />
+                <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
             </div>
             <button class="cart-icon" onclick="toggleCart()">
                 <i class="fas fa-shopping-cart"></i> Корзина
@@ -50,6 +52,7 @@
             </button>
         </div>
     </header>
+</div>
 
     <div class="product-wrapper">
         <div class="product-detail" id="productDetail">
